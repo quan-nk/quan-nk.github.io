@@ -4,7 +4,7 @@
 - **Site**: Quarto website hosted on GitHub Pages
 - **Purpose**: Vietnamese-language data science learning platform for beginners ("learn by teaching")
 - **Author**: Quan K Nguyen, MD (nguyenkhoiquan@gmail.com)
-- **Repo**: Public `wp-qn47` on GitHub
+- **Repo**: Public [`wp-qn47`](https://github.com/quan-nk/wp-qn47) on GitHub
 - **Sole author**: Quan K Nguyen — do NOT add `Co-Authored-By` to commits
 - **Origin**: Migrated from qn47.wordpress.com (WordPress export archived in `wp-export/`)
 
