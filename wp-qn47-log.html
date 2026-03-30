@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>wp-qn47 Build Log</title>
+<style>
+  :root { --bg: #1b1b1f; --fg: #c9c5bd; --accent: #d4956b; --border: #2d2d35; --card: #222228; --heading: #e8e4dc; --code-bg: #141418; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.7; padding: 2rem; max-width: 900px; margin: 0 auto; }
+  h1 { color: var(--heading); font-size: 1.8rem; margin-bottom: 0.5rem; }
+  h2 { color: var(--accent); font-size: 1.3rem; margin: 2rem 0 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.4rem; }
+  h3 { color: var(--heading); font-size: 1.05rem; margin: 1.2rem 0 0.4rem; }
+  p, li { margin-bottom: 0.5rem; font-size: 0.92rem; }
+  ul, ol { padding-left: 1.5rem; }
+  code { background: var(--code-bg); color: var(--accent); padding: 0.1rem 0.35rem; border-radius: 4px; font-size: 0.85em; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 0.8rem 0; font-size: 0.85rem; color: var(--fg); }
+  a { color: var(--accent); }
+  .timestamp { color: #6b6b73; font-size: 0.8rem; font-style: italic; }
+  .entry { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 1.2rem 1.5rem; margin: 1rem 0; }
+  .concept { background: #1e2a1e; border-left: 3px solid #4ade80; padding: 0.8rem 1rem; border-radius: 0 6px 6px 0; margin: 0.8rem 0; }
+  .concept strong { color: #4ade80; }
+  .file-ref { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 0.6rem 1rem; margin: 0.5rem 0; font-family: monospace; font-size: 0.85rem; }
+  hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+  .toc { background: var(--card); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 2rem; }
+  .toc a { text-decoration: none; display: block; padding: 0.15rem 0; }
+  .toc a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<h1>wp-qn47 Build Log</h1>
+<p>Build log for <a href="https://quan-nk.github.io/wp-qn47/">quan-nk.github.io/wp-qn47</a> &mdash; a Quarto website for Vietnamese data science education.</p>
+
+<nav class="toc">
+<strong>Contents</strong>
+<a href="#s1">1. Architecture &amp; Core Concepts</a>
+<a href="#s2">2. How the Site Was Built (2026-03-30)</a>
+<a href="#s3">3. Dark Theme &amp; Layout Customization (2026-03-30)</a>
+<a href="#s4">4. How to Customize From Here</a>
+</nav>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s1">1. Architecture &amp; Core Concepts</h2>
+<p class="timestamp">2026-03-30</p>
+
+<div class="concept">
+<strong>What is Quarto?</strong> &mdash; Quarto is an open-source publishing system. You write <code>.qmd</code> files (Markdown + YAML header), and Quarto renders them into HTML, PDF, etc. It's the successor to R Markdown, built by Posit (formerly RStudio).
+</div>
+
+<h3>The Pipeline</h3>
+<pre>
+edit .qmd files
+    ↓
+quarto render          → builds HTML into docs/
+    ↓
+git add + commit + push  → pushes to GitHub
+    ↓
+GitHub Pages           → serves docs/ as a website
+</pre>
+
+<h3>Key Files</h3>
+<div class="entry">
+<p><strong><code>_quarto.yml</code></strong> &mdash; The brain of your site. Controls:</p>
+<ul>
+  <li><strong>project.type</strong>: <code>website</code> (vs <code>book</code>, <code>blog</code>)</li>
+  <li><strong>project.output-dir</strong>: <code>docs/</code> &mdash; where rendered HTML goes</li>
+  <li><strong>project.render</strong>: glob patterns for which files to render (excludes <code>wp-export/</code>)</li>
+  <li><strong>website.navbar</strong>: top navigation bar</li>
+  <li><strong>website.sidebar</strong>: left sidebar &mdash; your site-wide table of contents</li>
+  <li><strong>format.html.theme</strong>: visual theme (SCSS file or preset name)</li>
+  <li><strong>format.html.toc</strong>: right-side "On this page" table of contents</li>
+</ul>
+</div>
+
+<div class="entry">
+<p><strong><code>theme-dark.scss</code></strong> &mdash; Custom dark theme. Uses SCSS (CSS superset with variables). Two sections:</p>
+<ul>
+  <li><code>/*-- scss:defaults --*/</code> &mdash; Bootstrap variables ($body-bg, $link-color, etc.)</li>
+  <li><code>/*-- scss:rules --*/</code> &mdash; Custom CSS rules for specific elements</li>
+</ul>
+<p>Quarto uses <a href="https://getbootstrap.com/">Bootstrap 5</a> under the hood. Any Bootstrap variable can be overridden in the defaults section.</p>
+</div>
+
+<div class="entry">
+<p><strong><code>styles.css</code></strong> &mdash; Additional CSS overrides loaded AFTER the theme. Use this for fine-tuning (spacing, sizing) without touching the SCSS theme.</p>
+</div>
+
+<div class="entry">
+<p><strong>Each <code>.qmd</code> file</strong> has YAML frontmatter (between <code>---</code>) controlling per-page settings:</p>
+<pre>
+---
+title: "Post Title"
+date: 2024-03-31
+categories: ["Tag1", "Tag2"]
+code-fold: true
+---
+
+Your markdown content here...
+</pre>
+</div>
+
+<div class="concept">
+<strong>Three-layer layout</strong>: Your site uses the "documentation" pattern:
+<ul>
+  <li><strong>Top navbar</strong> &mdash; page-level navigation (Data Science, Mind Wandering, etc.)</li>
+  <li><strong>Left sidebar</strong> &mdash; site-wide table of contents (all sections + all posts)</li>
+  <li><strong>Right TOC</strong> &mdash; per-page headings ("On this page")</li>
+</ul>
+This is configured in <code>_quarto.yml</code> under <code>website.sidebar</code> (left) and <code>format.html.toc</code> (right).
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s2">2. How the Site Was Built (2026-03-30)</h2>
+<p class="timestamp">2026-03-30 08:00&ndash;10:00 ICT</p>
+
+<h3>Step 1: Scaffold</h3>
+<div class="entry">
+<p>A Python script (<code>~/.claude/skills/quarto-learning-site/scripts/scaffold.py</code>) created ALL site files in one shot from a JSON config:</p>
+<pre>
+python3 scaffold.py site-config.json .
+</pre>
+<p>Created: <code>_quarto.yml</code>, <code>index.qmd</code>, <code>about.qmd</code>, <code>resources.qmd</code>, all <code>data-science/</code> subsection directories, <code>mind-wandering/</code> blog directory, <code>.gitignore</code>, <code>styles.css</code>, <code>docs/.nojekyll</code>.</p>
+<p><strong>Why a script?</strong> Token efficiency. One Bash call instead of 15+ Write calls.</p>
+</div>
+
+<h3>Step 2: Git + GitHub</h3>
+<div class="entry">
+<pre>
+git init
+git add -A
+git commit -m "Initial Quarto site scaffold"
+gh repo create wp-qn47 --public --source=. --push
+gh api repos/quan-nk/wp-qn47/pages --method POST \
+  -f "build_type=legacy" -f "source[branch]=main" -f "source[path]=/docs"
+</pre>
+<p>GitHub Pages configured to serve from <code>docs/</code> on the <code>main</code> branch.</p>
+</div>
+
+<h3>Step 3: WordPress Migration</h3>
+<div class="entry">
+<p>Script: <code>wp-export/migrate.py</code></p>
+<ol>
+  <li>Reads <code>wp-export/posts/posts-index.json</code> for metadata (title, date, categories, status)</li>
+  <li>Fetches content from WP REST API (public posts) or local cache (private posts fetched via WordPress MCP)</li>
+  <li>Converts WordPress block HTML to Markdown (strips <code>&lt;!-- wp:* --&gt;</code> comments, converts HTML tags)</li>
+  <li>Writes <code>.qmd</code> files with YAML frontmatter to <code>mind-wandering/posts/</code> or <code>mind-wandering/book-reviews/</code></li>
+</ol>
+<p><strong>Gotcha</strong>: Quarto reserves <code>language:</code> in YAML frontmatter for localization files. Renamed to <code>lang-post:</code> to avoid build errors.</p>
+</div>
+
+<h3>Step 4: Render + Push Pattern</h3>
+<div class="entry">
+<p>Every time you change content:</p>
+<pre>
+quarto render
+touch docs/.nojekyll        # quarto render wipes docs/, restore this
+git add &lt;changed files&gt; docs/
+git commit -m "description"
+git push
+</pre>
+<p><strong>Why <code>.nojekyll</code>?</strong> GitHub Pages uses Jekyll by default, which ignores files starting with <code>_</code>. The empty <code>.nojekyll</code> file disables Jekyll processing.</p>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s3">3. Dark Theme &amp; Layout Customization (2026-03-30)</h2>
+<p class="timestamp">2026-03-30 11:00 ICT</p>
+
+<h3>The Theme System</h3>
+<div class="concept">
+<strong>How Quarto themes work:</strong> Quarto uses Bootstrap 5 + Bootswatch. You can either:
+<ul>
+  <li>Use a preset: <code>theme: cosmo</code>, <code>theme: flatly</code>, <code>theme: darkly</code>, etc.</li>
+  <li>Use a custom SCSS file: <code>theme: theme-dark.scss</code></li>
+  <li>Layer both: <code>theme: [darkly, custom.scss]</code> (preset + overrides)</li>
+</ul>
+</div>
+
+<h3>What was changed</h3>
+<div class="entry">
+<p><strong>Problem:</strong> "Posts &gt; Posts" and "Book Reviews &gt; Book Reviews" double nesting in sidebar.</p>
+<p><strong>Cause:</strong> Using <code>contents: mind-wandering/posts</code> (directory path) makes Quarto auto-create a section from the directory name. Wrapping it in <code>section: "Posts"</code> adds another layer.</p>
+<p><strong>Fix:</strong> Changed to glob pattern <code>mind-wandering/posts/*.qmd</code> which lists files directly without auto-creating a section header. Renamed outer section to "Essays" for clarity.</p>
+<pre>
+# BEFORE (double nesting)
+- section: "Posts"
+    contents: mind-wandering/posts
+
+# AFTER (flat listing under "Essays")
+- section: "Essays"
+    contents:
+      - mind-wandering/posts/*.qmd
+</pre>
+</div>
+
+<div class="entry">
+<p><strong>Problem:</strong> "On this page" labels too close to vertical line.</p>
+<p><strong>Fix in <code>styles.css</code>:</strong></p>
+<pre>
+nav#TOC .nav-link {
+  margin-left: 0.6rem;
+}
+</pre>
+</div>
+
+<div class="entry">
+<p><strong>Dark theme (<code>theme-dark.scss</code>):</strong> Claude Docs-inspired colors.</p>
+<pre>
+$body-bg:      #1b1b1f;   // dark charcoal background
+$body-color:   #c9c5bd;   // warm gray text
+$link-color:   #d4956b;   // warm amber links
+$headings-color: #e8e4dc; // cream headings
+$navbar-bg:    #131316;   // darker navbar
+$sidebar-bg:   #18181c;   // slightly lighter sidebar
+$code-bg:      #222228;   // code block background
+$border-color: #2d2d35;   // subtle borders
+</pre>
+<p>The <code>/*-- scss:defaults --*/</code> section overrides Bootstrap variables. The <code>/*-- scss:rules --*/</code> section adds custom CSS for specific elements (navbar border, sidebar hover color, TOC active state, etc.).</p>
+</div>
+
+<hr>
+
+<!-- ============================================================ -->
+<h2 id="s4">4. How to Customize From Here</h2>
+<p class="timestamp">Reference — updated 2026-03-30</p>
+
+<h3>Add a new tutorial page</h3>
+<div class="entry">
+<ol>
+  <li>Create a <code>.qmd</code> file, e.g. <code>data-science/statistics/descriptive.qmd</code></li>
+  <li>Add YAML frontmatter: <code>title</code>, <code>date</code>, <code>categories</code></li>
+  <li>Add the file path to <code>_quarto.yml</code> sidebar under the right section</li>
+  <li><code>quarto render && touch docs/.nojekyll && git add ... && git commit && git push</code></li>
+</ol>
+</div>
+
+<h3>Add a new blog post</h3>
+<div class="entry">
+<ol>
+  <li>Create <code>mind-wandering/posts/YYYY-MM-DD-slug.qmd</code></li>
+  <li>Add YAML frontmatter</li>
+  <li>No need to edit <code>_quarto.yml</code> &mdash; the glob <code>mind-wandering/posts/*.qmd</code> auto-discovers new files</li>
+  <li>Render + push</li>
+</ol>
+</div>
+
+<h3>Change colors/fonts</h3>
+<div class="entry">
+<p><strong>Colors:</strong> Edit <code>theme-dark.scss</code> variables in the <code>/*-- scss:defaults --*/</code> section.</p>
+<p><strong>Fonts:</strong> Add to <code>theme-dark.scss</code>:</p>
+<pre>
+$font-family-sans-serif: "Your Font", sans-serif;
+</pre>
+<p>To use Google Fonts, add to <code>_quarto.yml</code>:</p>
+<pre>
+format:
+  html:
+    mainfont: "Source Sans Pro"
+    include-in-header:
+      text: |
+        &lt;link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet"&gt;
+</pre>
+</div>
+
+<h3>Change the layout</h3>
+<div class="entry">
+<ul>
+  <li><strong>Sidebar contents:</strong> Edit <code>website.sidebar.contents</code> in <code>_quarto.yml</code></li>
+  <li><strong>Navbar links:</strong> Edit <code>website.navbar.left</code> in <code>_quarto.yml</code></li>
+  <li><strong>Right TOC depth:</strong> Change <code>toc-depth: 3</code> (shows h2+h3+h4 headings)</li>
+  <li><strong>Sidebar collapse:</strong> <code>collapse-level: 1</code> = all sections start collapsed. <code>2</code> = first level expanded.</li>
+</ul>
+</div>
+
+<h3>Fine-tune spacing &amp; sizing</h3>
+<div class="entry">
+<p>Edit <code>styles.css</code> for quick CSS overrides (loaded after the theme). Use browser DevTools (F12) to inspect elements and find the right CSS selectors.</p>
+</div>
+
+<h3>Key Quarto docs</h3>
+<div class="entry">
+<ul>
+  <li><a href="https://quarto.org/docs/websites/">Quarto Websites</a></li>
+  <li><a href="https://quarto.org/docs/output-formats/html-themes.html">HTML Themes</a></li>
+  <li><a href="https://quarto.org/docs/websites/website-navigation.html">Navigation (sidebar, navbar)</a></li>
+  <li><a href="https://quarto.org/docs/websites/website-listings.html">Listings (blog pages)</a></li>
+</ul>
+</div>
+
+<hr>
+<p class="timestamp">End of log &mdash; 2026-03-30</p>
+
+</body>
+</html>
