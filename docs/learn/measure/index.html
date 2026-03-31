@@ -185,27 +185,47 @@ ul.task-list li input[type="checkbox"] {
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
-<button id="lang-toggle-btn" aria-label="Toggle language"></button>
+<div id="lang-switcher" aria-label="Language switcher">
+  <span id="lang-label">Language options</span>
+  <button id="lang-btn-vi" data-lang="vi" aria-label="Tiếng Việt" title="Tiếng Việt">🇻🇳</button>
+  <button id="lang-btn-en" data-lang="en" aria-label="English" title="English">🇺🇸</button>
+</div>
 <script>
 (function(){
+  function setLang(lang) {
+    document.documentElement.setAttribute('data-lang', lang);
+    localStorage.setItem('site-lang', lang);
+    var vi = document.getElementById('lang-btn-vi');
+    var en = document.getElementById('lang-btn-en');
+    if (!vi || !en) return;
+    vi.classList.toggle('lang-active', lang === 'vi');
+    en.classList.toggle('lang-active', lang === 'en');
+  }
+
   function init() {
-    var btn = document.getElementById('lang-toggle-btn');
-    if (!btn) return;
     var lang = document.documentElement.getAttribute('data-lang') || 'vi';
-    btn.textContent = lang === 'vi' ? '\uD83C\uDDFA\uD83C\uDDF8' : '\uD83C\uDDFB\uD83C\uDDF3';
-    btn.title = lang === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt';
-    btn.addEventListener('click', function(){
-      var next = document.documentElement.getAttribute('data-lang') === 'vi' ? 'en' : 'vi';
-      document.documentElement.setAttribute('data-lang', next);
-      localStorage.setItem('site-lang', next);
-      btn.textContent = next === 'vi' ? '\uD83C\uDDFA\uD83C\uDDF8' : '\uD83C\uDDFB\uD83C\uDDF3';
-      btn.title = next === 'vi' ? 'Switch to English' : 'Chuyển sang Tiếng Việt';
+    setLang(lang);
+    var vi = document.getElementById('lang-btn-vi');
+    var en = document.getElementById('lang-btn-en');
+    if (vi) vi.addEventListener('click', function(){ setLang('vi'); });
+    if (en) en.addEventListener('click', function(){ setLang('en'); });
+  }
+
+  /* Fix: mailto: links must not have target="_blank" or the OS email
+     client won't open. This patches the footer share button without
+     touching the footer's own code. */
+  function fixMailto() {
+    document.querySelectorAll('a[href^="mailto:"]').forEach(function(a) {
+      a.removeAttribute('target');
+      a.removeAttribute('rel');
     });
   }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', function(){ init(); fixMailto(); });
   } else {
     init();
+    fixMailto();
   }
 })();
 </script>
