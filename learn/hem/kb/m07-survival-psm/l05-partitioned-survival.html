@@ -1,0 +1,1954 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="vi" xml:lang="vi"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bài 5: Mô hình sống còn phân vùng trong R – Mô hình Kinh tế Y tế với R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../kb/m08-calibration/index.html" rel="next">
+<link href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-9e7f0c659d5fa2cace8548cb57964278.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c18d72663580ed8ca19ce2a2f99af51b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<meta name="mermaid-theme" content="neutral">
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m07-survival-psm/index.html">M07 · Phân tích sống còn cho mô hình quyết định</a></li><li class="breadcrumb-item"><a href="../../kb/m07-survival-psm/l05-partitioned-survival.html"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Mô hình Kinh tế Y tế với R</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lời mở đầu</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m00-r-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M00 · R cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l01-reproducible-workflow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Quy trình làm việc tái lập với R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m01-ee-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M01 · Nền tảng đánh giá kinh tế và cây quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l01-evaluation-types.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại đánh giá kinh tế, quan điểm, khung thời gian và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l03-decision-rules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l05-decision-tree.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Xây cây quyết định từ đầu trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m02-cohort-markov/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M02 · Mô hình chuyển trạng thái đoàn hệ (Markov)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l01-state-transition.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao cần mô hình chuyển trạng thái</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l02-rates-probabilities.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tỷ suất, xác suất và độ dài chu kỳ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l03-cohort-trace.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vết đoàn hệ, giá trị gắn với trạng thái và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l04-time-dependence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Phụ thuộc thời gian: lão hóa, trạng thái đường hầm và mảng 3 chiều</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l05-results-verification.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị gắn với lần chuyển, đường biên hiệu quả và xác minh mô hình</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m03-uncertainty-voi/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M03 · Bất định, phân tích độ nhạy và giá trị thông tin</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l01-deterministic-sa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại bất định và phân tích độ nhạy tất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l02-distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Chọn phân phối cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l03-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích độ nhạy xác suất (PSA) trong R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l04-ceac-reporting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: CEAC, CEAF, tổn thất kỳ vọng và cách báo cáo bất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l05-voi.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị thông tin: EVPI, EVPPI và EVSI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m04-microsimulation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M04 · Mô phỏng vi mô (microsimulation)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l01-why-microsimulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Khi mô hình đoàn hệ không đủ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l02-microsim-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô phỏng vi mô bằng vòng lặp trong R cơ bản</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l03-vectorisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vectơ hóa theo cá thể và đo hiệu năng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l04-parallel-rcpp.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tính toán song song và Rcpp cho vòng lặp nóng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l05-mc-error-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bao nhiêu cá thể là đủ? Sai số Monte Carlo, PSA và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m05-dynamic-transmission/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M05 · Mô hình lây truyền động</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l01-static-vs-dynamic.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Mô hình tĩnh và mô hình lây truyền động</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l02-sir-seir-desolve.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình SIR và SEIR trong R với deSolve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m06-amr-economics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M06 · Kinh tế học kháng kháng sinh (AMR)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l01-amr-burden.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Kinh tế học kháng kháng sinh: ngoại ứng, gánh nặng và kịch bản phản thực</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l03-ward-transmission.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m07-survival-psm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M07 · Phân tích sống còn cho mô hình quyết định</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l03-extrapolation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l05-partitioned-survival.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m08-calibration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M08 · Hiệu chuẩn mô hình (calibration)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l01-why-calibrate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao phải hiệu chuẩn mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l02-search-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tìm kiếm tham số: ngẫu nhiên, siêu khối Latin và Nelder–Mead</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l03-bayes-sir.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hiệu chuẩn Bayes và thuật toán SIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l04-psa-validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đưa kết quả hiệu chuẩn vào PSA, thẩm định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m09-inputs-vietnam/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M09 · Dữ liệu đầu vào cho Việt Nam và LMIC</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l01-costing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ước tính chi phí cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l02-cost-adjustment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Điều chỉnh chi phí về một năm tham chiếu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l03-outcome-inputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Đầu vào về kết cục sức khỏe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l04-evidence-synthesis.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tổng hợp bằng chứng cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l05-decision-context.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bối cảnh ra quyết định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m10-policy-bia-equity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l04-communicating-hta.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Truyền đạt kết quả cho người ra quyết định và quy trình HTA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m11-software-engineering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l01-code-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Cấu trúc mã cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l02-testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Xác minh và kiểm thử mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l03-version-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l04-r-package.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/glossary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Trong bài</h2>
+   
+  <ul class="collapse">
+  <li><a href="#mục-tiêu-học-tập" id="toc-mục-tiêu-học-tập" class="nav-link active" data-scroll-target="#mục-tiêu-học-tập">Mục tiêu học tập</a></li>
+  <li><a href="#ý-chính" id="toc-ý-chính" class="nav-link" data-scroll-target="#ý-chính">Ý chính</a></li>
+  <li><a href="#nội-dung" id="toc-nội-dung" class="nav-link" data-scroll-target="#nội-dung">Nội dung</a></li>
+  <li><a href="#thực-hành" id="toc-thực-hành" class="nav-link" data-scroll-target="#thực-hành">Thực hành</a></li>
+  <li><a href="#bài-tập" id="toc-bài-tập" class="nav-link" data-scroll-target="#bài-tập">Bài tập</a></li>
+  <li><a href="#tài-liệu-tham-khảo" id="toc-tài-liệu-tham-khảo" class="nav-link" data-scroll-target="#tài-liệu-tham-khảo">Tài liệu tham khảo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m07-survival-psm/index.html">M07 · Phân tích sống còn cho mô hình quyết định</a></li><li class="breadcrumb-item"><a href="../../kb/m07-survival-psm/l05-partitioned-survival.html"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></h1>
+<p class="subtitle lead">Dựng PSM ba trạng thái từ hai đường cong, tính chi phí-hiệu quả, và so với mô hình chuyển trạng thái</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-important callout-titled" title="Vì sao bạn nên quan tâm?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Vì sao bạn nên quan tâm?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Chương trình Chống lao Quốc gia và cơ quan BHYT được đề nghị chi cho gói chăm sóc tăng cường: khám hằng tuần và thêm xét nghiệm CD4, tải lượng HIV trong 6 tháng đầu điều trị lao. Theo giá dịch vụ BHYT, gói tốn khoảng 2,300,000 VNĐ mỗi người, bằng 58 bát phở hay gần 10 ngày lương tối thiểu vùng I <span class="citation" data-cites="byt2024qd3220 nhadautu2025pho chinhphu2025nd293">(<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">Bộ Y tế 2024</a>; <a href="../m00-r-foundations/index.html#ref-nhadautu2025pho" role="doc-biblioref">Nhadautu.vn 2025</a>; <a href="../m00-r-foundations/index.html#ref-chinhphu2025nd293" role="doc-biblioref">Chính phủ 2025</a>)</span>. Nếu cả 5,200 người mắc lao có HIV ước tính mỗi năm <span class="citation" data-cites="who2026tbestimates">(<a href="../m00-r-foundations/index.html#ref-who2026tbestimates" role="doc-biblioref">World Health Organization 2026</a>)</span> đều nhận gói, ngân sách vào khoảng 12.0 tỷ đồng một năm, chưa kể tiền ARV và khám định kỳ cho những người được cứu sống. Bài này giúp bạn tính ICER và NMB của gói bằng mô hình sống còn phân vùng, và kiểm tra cấu trúc mô hình có làm đổi câu trả lời không.</p>
+</div>
+</div>
+<section id="mục-tiêu-học-tập" class="level2">
+<h2 class="anchored" data-anchor-id="mục-tiêu-học-tập">Mục tiêu học tập</h2>
+<p>Sau bài này, bạn có thể:</p>
+<ol type="1">
+<li>Dựng mô hình sống còn phân vùng (PSM) từ sống còn không biến cố (event-free survival, EFS) và sống còn toàn bộ (overall survival, OS), rồi tính năm sống, QALY và chi phí.</li>
+<li>Dựng mô hình chuyển trạng thái (STM) từ cùng dữ liệu và so với PSM, tách sai số mẫu khỏi sai số cấu trúc.</li>
+<li>Nêu các giới hạn cấu trúc của PSM.</li>
+</ol>
+</section>
+<section id="ý-chính" class="level2">
+<h2 class="anchored" data-anchor-id="ý-chính">Ý chính</h2>
+<ul>
+<li>PSM không có xác suất chuyển trạng thái: EF = S_EFS(t), PP = S_OS(t) − S_EFS(t), D = 1 − S_OS(t). Thời gian sau biến cố là diện tích <strong>giữa</strong> hai đường.</li>
+<li>PSM dựng được từ đường cong đã công bố, không cần IPD từng chuyển tiếp, nên phổ biến trong thẩm định thuốc ung thư <span class="citation" data-cites="woods2020partitioned">(<a href="../m00-r-foundations/index.html#ref-woods2020partitioned" role="doc-biblioref">Woods và c.s. 2020</a>)</span>.</li>
+<li>EFS và OS được ngoại suy độc lập: phải chặn EFS ≤ OS, và thời gian sau biến cố là hiệu của hai đại lượng bất định.</li>
+<li>PSM không có liên kết cấu trúc giữa biến cố và tử vong: đổi điều trị sau biến cố không làm OS đổi <span class="citation" data-cites="woods2020partitioned">(<a href="../m00-r-foundations/index.html#ref-woods2020partitioned" role="doc-biblioref">Woods và c.s. 2020</a>)</span>.</li>
+<li>Chênh lệch PSM, STM và đường cong thật gồm sai số mẫu; chỉ lặp lại nhiều thử nghiệm mới tách được.</li>
+</ul>
+</section>
+<section id="nội-dung" class="level2">
+<h2 class="anchored" data-anchor-id="nội-dung">Nội dung</h2>
+<section id="ý-tưởng-của-psm" class="level3">
+<h3 class="anchored" data-anchor-id="ý-tưởng-của-psm">Ý tưởng của PSM</h3>
+<p>Mô hình Markov ở M02 đẩy đoàn hệ qua ma trận chuyển. PSM không có mũi tên nào, chỉ “chia” đoàn hệ ở mỗi thời điểm theo các đường sống còn <span class="citation" data-cites="woods2017partitioned">(<a href="../m00-r-foundations/index.html#ref-woods2017partitioned" role="doc-biblioref">Woods và c.s. 2017</a>)</span>:</p>
+<p><span class="math display">\[
+\text{EF}(t) = S_{\text{EFS}}(t), \qquad \text{PP}(t) = S_{\text{OS}}(t) - S_{\text{EFS}}(t), \qquad \text{D}(t) = 1 - S_{\text{OS}}(t).
+\]</span></p>
+<p>“Biến cố” là thất bại hoặc tái phát lao, hay bệnh chỉ điểm AIDS mới. Mỗi đường cong được khớp, ngoại suy và thêm tử vong nền như Bài 2 và Bài 3.</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>flowchart TB</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  subgraph PSM["PSM: chia đoàn hệ theo hai đường cong"]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    direction LR</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    A["S_EFS(t)"] --&gt; EF1["EF = S_EFS"]</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    B["S_OS(t)"] --&gt; PP1["PP = S_OS − S_EFS"]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    B --&gt; D1["D = 1 − S_OS"]</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  end</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  subgraph STM["STM: ước lượng từng chuyển tiếp"]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    direction LR</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    EF2["EF"] --&gt;|"h12(t)"| PP2["PP"]</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    EF2 --&gt;|"h13(t)"| D2["D"]</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    PP2 --&gt;|"h23"| D2</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  end</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TB
+  subgraph PSM["PSM: chia đoàn hệ theo hai đường cong"]
+    direction LR
+    A["S_EFS(t)"] --&gt; EF1["EF = S_EFS"]
+    B["S_OS(t)"] --&gt; PP1["PP = S_OS − S_EFS"]
+    B --&gt; D1["D = 1 − S_OS"]
+  end
+  subgraph STM["STM: ước lượng từng chuyển tiếp"]
+    direction LR
+    EF2["EF"] --&gt;|"h12(t)"| PP2["PP"]
+    EF2 --&gt;|"h13(t)"| D2["D"]
+    PP2 --&gt;|"h23"| D2
+  end
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="diện-tích-dưới-đường-cong" class="level3">
+<h3 class="anchored" data-anchor-id="diện-tích-dưới-đường-cong">Diện tích dưới đường cong</h3>
+<p>Với chu kỳ tháng, năm sống là <span class="math inline">\(\sum_m \tfrac{1}{12}\,\overline{S}_{\text{OS}}(m)\)</span>, với <span class="math inline">\(\overline{S}(m)\)</span> là trung bình của S đầu và cuối tháng (hiệu chỉnh trong chu kỳ theo quy tắc hình thang, M02 Bài 3). Chi phí và QALY nhân tỷ lệ mỗi trạng thái với chi phí và thỏa dụng của nó, chiết khấu ở giữa chu kỳ. <code>evaluate_occupancy()</code> nhận mọi ma trận tỷ lệ trạng thái (PSM, STM, đường cong thật) nên dùng chung một công thức.</p>
+<p>Chi phí đơn vị (VNĐ, năm giá 2025) do <code>build_inputs()</code> tính: đơn giá dùng chung của khóa học (giá khám, ngày giường, xét nghiệm theo bảng giá BHYT <span class="citation" data-cites="byt2024qd3220">(<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">Bộ Y tế 2024</a>)</span>, giá ARV TLD của Global Fund <span class="citation" data-cites="globalfund2026ppmarv">(<a href="../m00-r-foundations/index.html#ref-globalfund2026ppmarv" role="doc-biblioref">The Global Fund 2026</a>)</span>, giá thuốc lao 6 tháng theo bảng tóm tắt phác đồ của Treatment Action Group <span class="citation" data-cites="mcconnell2025tbcheat">(<a href="../m00-r-foundations/index.html#ref-mcconnell2025tbcheat" role="doc-biblioref">McConnell 2025</a>)</span>) nhân với lượng chăm sóc trong <code>params/model_inputs.csv</code>. Một tháng chăm sóc HIV khi ổn định tốn 167,000 VNĐ (ARV, 4 lượt khám mỗi năm vì người ổn định được cấp thuốc tới 90 ngày <span class="citation" data-cites="vaac2022cv235">(<a href="../m00-r-foundations/index.html#ref-vaac2022cv235" role="doc-biblioref">Cục Phòng, chống HIV/AIDS (Bộ Y tế) 2022</a>)</span>, một xét nghiệm tải lượng HIV mỗi năm); một tháng điều trị lao 330,000 VNĐ; gói tăng cường 385,000 VNĐ mỗi tháng trong 6 tháng đầu; một tháng sau biến cố 1,148,000 VNĐ vì có ngày nằm viện. Giá là thật, còn số lượt khám, số ngày nằm viện của gói và của trạng thái sau biến cố là giả định (giá trị minh họa). Thỏa dụng khi chưa có biến cố là 0.65, trung bình EQ-5D-5L của người sống chung với HIV ở ba thành phố Việt Nam <span class="citation" data-cites="tran2012quality">(<a href="../m00-r-foundations/index.html#ref-tran2012quality" role="doc-biblioref">Tran, Ohinmaa, và Nguyen 2012</a>)</span>, tính theo bộ giá trị chuyển đổi tạm thời của Thái Lan vì khi đó chưa có bộ giá trị Việt Nam (xem M09). Mức giảm sau biến cố (0.07) là chênh lệch giữa toàn mẫu và nhóm CD4 ≤200 (0.58) trong cùng nghiên cứu, gần đúng cho người vừa tái phát lao hay mắc bệnh chỉ điểm AIDS.</p>
+</section>
+<section id="kết-quả-của-psm" class="level3">
+<h3 class="anchored" data-anchor-id="kết-quả-của-psm">Kết quả của PSM</h3>
+<p>AIC tổng hai nhánh chọn log-chuẩn cho cả OS và EFS. Chăm sóc tăng cường đem lại thêm 2.42 QALY mỗi người (chiết khấu 3% mỗi năm, tỷ lệ chung của khóa học) với chi phí thêm 7,600,000 VNĐ; NMB gia tăng ở ngưỡng 1 × GDP bình quân đầu người, 125,500,000 VNĐ/QALY <span class="citation" data-cites="gso2026gdp2025 ong2026costutility">(<a href="../m00-r-foundations/index.html#ref-gso2026gdp2025" role="doc-biblioref">Cục Thống kê (Bộ Tài chính) 2026</a>; <a href="../m00-r-foundations/index.html#ref-ong2026costutility" role="doc-biblioref">Ong và c.s. 2026</a>)</span>, là 296,300,000 VNĐ, ICER: 3,200,000 VNĐ/QALY, bằng 2.5% ngưỡng. Chỉ 28% chi phí gia tăng là tiền gói; phần còn lại là ARV, khám định kỳ và chăm sóc cho những người sống thêm. Tiền làm tròn tới 100,000 VNĐ vì lượng chăm sóc là giả định; NMB dùng được cả khi ICER không xác định. Cỡ hiệu quả của gói được đặt bằng cỡ hiệu quả của ART sớm trong CAMELIA, một giả định chuyển giao (gói của ta không phải ART sớm), nên đây không phải bằng chứng về một can thiệp thật.</p>
+</section>
+<section id="sai-số-mẫu-hay-sai-số-mô-hình" class="level3">
+<h3 class="anchored" data-anchor-id="sai-số-mẫu-hay-sai-số-mô-hình">Sai số mẫu hay sai số mô hình?</h3>
+<p>Lặp lại trên 100 thử nghiệm mới (Bài 3), QALY gia tăng trung bình là 1.82 với PSM khớp riêng (khoảng 0.47 tới 3.14), 1.58 với PSM khớp chung và 1.89 với STM, so với 1.51 thật. Thử nghiệm chính (2.42 với PSM khớp riêng, 2.29 với STM) nằm ở phần cao của khoảng đó. Sai số cấu trúc (trung bình trừ thật) là 0.31 QALY (PSM khớp riêng), 0.07 (khớp chung) và 0.38 (STM), nhỏ hơn sai số 0.91 của thử nghiệm chính. NMB gia tăng dương ở 100% thử nghiệm với PSM khớp riêng và 100% với STM: quyết định ít đổi, độ lớn lợi ích đổi nhiều.</p>
+</section>
+<section id="so-với-mô-hình-chuyển-trạng-thái" class="level3">
+<h3 class="anchored" data-anchor-id="so-với-mô-hình-chuyển-trạng-thái">So với mô hình chuyển trạng thái</h3>
+<p>Có IPD, ta ước lượng từng chuyển tiếp như một mô hình đa trạng thái (multistate model) <span class="citation" data-cites="putter2007tutorial">(<a href="../m00-r-foundations/index.html#ref-putter2007tutorial" role="doc-biblioref">Putter, Fiocco, và Geskus 2007</a>)</span>. EF→PP và EF→D là hai nguy cơ cạnh tranh (competing risks), mỗi chuyển tiếp coi sự kiện kia là kiểm duyệt; PP→D khớp theo thời gian từ biến cố với nguy cơ không đổi. Chỉ 36 người gặp biến cố và 22 người trong số đó tử vong: PP→D dựa trên rất ít dữ liệu.</p>
+<p>Thời gian sống sau biến cố (không chiết khấu) ở nhánh chuẩn là 0.99 năm với PSM, 0.27 với STM và 0.46 thật. Trung bình trên các thử nghiệm lặp lại là 1.28, 0.48 và 0.46: ở ví dụ này PSM cao hơn thật một cách hệ thống, còn STM sát thật. Hướng sai lệch phụ thuộc cấu trúc và dữ liệu <span class="citation" data-cites="woods2020partitioned williams2017estimation">(<a href="../m00-r-foundations/index.html#ref-woods2020partitioned" role="doc-biblioref">Woods và c.s. 2020</a>; <a href="../m00-r-foundations/index.html#ref-williams2017estimation" role="doc-biblioref">Williams và c.s. 2017</a>)</span>.</p>
+<p>Cơ chế: hai đuôi log-chuẩn của EFS và OS, ngoại suy độc lập, có nguy cơ gần như bằng nhau nên khoảng giữa chúng co lại rất chậm. Sai lệch có trước khi sàn tử vong nền chạm OS (tháng 201 ở nhánh chuẩn, tháng 146 ở nhánh tăng cường): ở năm 10, tỷ lệ PP là 0.028 (PSM), 0.007 (STM) và 0.014 (thật). Sau đó khoảng cách chỉ thu theo tử vong nền, như thể người đã có biến cố chết chậm như người chưa có, trái với mô phỏng.</p>
+<p><strong>Khớp riêng hay chung.</strong> Khớp riêng cho <code>sdlog</code> của OS là 3.75 ở nhánh chuẩn và 4.73 ở nhánh tăng cường (khớp chung: 4.12), nên hai đuôi phân kỳ: nhánh tăng cường hơn nhánh chuẩn 6.5 năm sống với khớp riêng, 4.7 năm với khớp chung. QALY gia tăng của khớp chung là 1.79 (ICER: 3,400,000 VNĐ/QALY). Chọn giữa hai cách dựa vào đồ thị chẩn đoán (Bài 2), cách còn lại vào kịch bản <span class="citation" data-cites="latimer2011survival">(<a href="../m00-r-foundations/index.html#ref-latimer2011survival" role="doc-biblioref">Latimer 2011</a>)</span>.</p>
+</section>
+<section id="giới-hạn-cấu-trúc-của-psm" class="level3">
+<h3 class="anchored" data-anchor-id="giới-hạn-cấu-trúc-của-psm">Giới hạn cấu trúc của PSM</h3>
+<ol type="1">
+<li><strong>Không có liên kết cấu trúc.</strong> Giảm một nửa nguy cơ tử vong sau biến cố làm năm sống của STM tăng từ 18.55 lên 18.81 năm, còn PSM giữ nguyên 20.01 năm vì đường OS không biết gì về chuyển tiếp đó.</li>
+<li><strong>Ngoại suy độc lập.</strong> EFS có thể vượt OS ở đuôi; <code>psm_states()</code> chặn EFS ≤ OS (số tháng phải chặn ở đây: 0, nhưng không có gì đảm bảo với họ phân phối khác).</li>
+<li><strong>Hiệu quả lên OS lấy trực tiếp từ dữ liệu OS,</strong> vốn thường chưa trưởng thành và có thể bị nhiễu bởi điều trị sau biến cố <span class="citation" data-cites="woods2017partitioned">(<a href="../m00-r-foundations/index.html#ref-woods2017partitioned" role="doc-biblioref">Woods và c.s. 2017</a>)</span>.</li>
+</ol>
+<p>Các tác giả của TSD 19 khuyến nghị dùng STM song song với PSM, xem kỹ thời gian ở từng trạng thái, và kiểm tra tính hợp lý bằng dữ liệu biến cố cá thể, dữ liệu ngoài và ý kiến chuyên gia <span class="citation" data-cites="woods2020partitioned">(<a href="../m00-r-foundations/index.html#ref-woods2020partitioned" role="doc-biblioref">Woods và c.s. 2020</a>)</span>.</p>
+</section>
+</section>
+<section id="thực-hành" class="level2">
+<h2 class="anchored" data-anchor-id="thực-hành">Thực hành</h2>
+<p>Nạp hàm, tham số, thử nghiệm; đặt lưới 720 tháng và nguy cơ nền × SMR.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">isTRUE</span>(<span class="fu">l10n_info</span>()[[<span class="st">"UTF-8"</span>]])) <span class="fu">invisible</span>(<span class="fu">Sys.setlocale</span>(<span class="st">"LC_CTYPE"</span>, <span class="st">"en_US.UTF-8"</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/helpers.R"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/vn_data.R"</span>)   <span class="co"># course-wide context, unit prices and life table</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>({</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(survival)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(flexsurv)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>ps <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/sim_truth.csv"</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>pm <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/model_inputs.csv"</span>)</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>cfg <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/lesson_settings.csv"</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>ctx <span class="ot">&lt;-</span> <span class="fu">vn_context</span>()               <span class="co"># course-wide: discount rate, threshold, exchange rate, wages</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>pr <span class="ot">&lt;-</span> <span class="fu">vn_prices</span>()                 <span class="co"># course-wide unit prices (BHYT fees, tests, ART, bed-days)</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>inp <span class="ot">&lt;-</span> <span class="fu">build_inputs</span>(pm, ctx, pr)  <span class="co"># decision-model inputs: module values + shared values and prices</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>lt <span class="ot">&lt;-</span> <span class="fu">vn_lifetable</span>(<span class="st">"both"</span>)        <span class="co"># WHO life table, Viet Nam 2023, both sexes</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(ctx<span class="sc">$</span>wtp <span class="sc">-</span> ctx<span class="sc">$</span>gdp_pc_vnd) <span class="sc">&lt;</span> <span class="dv">1</span>)   <span class="co"># the text uses the threshold 1 x GDP per capita (course-wide)</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>trial <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(ps, lt, <span class="at">seed =</span> SEED_TRIAL)</span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>n_months <span class="ot">&lt;-</span> pm<span class="sc">$</span>horizon_years <span class="sc">*</span> <span class="dv">12</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>months <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span>n_months</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>h_bg <span class="ot">&lt;-</span> <span class="fu">bg_hazard_monthly</span>(pm<span class="sc">$</span>age_cohort, n_months, lt, pm<span class="sc">$</span>smr_bg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Chọn họ phân phối bằng tổng AIC hai nhánh (bảng có cả AIC khớp chung).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Candidate distributions for each endpoint; the same family is used in both arms.</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Two ways to fit: one model per arm (separate; AIC summed over the arms) or one model</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># with the arm as covariate (joint; shared shape parameters, as in Lesson 2).</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>cands <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"weibull"</span>, <span class="st">"llogis"</span>, <span class="st">"lnorm"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>aic_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">dist =</span> cands, <span class="at">os_separate =</span> <span class="cn">NA</span>, <span class="at">os_joint =</span> <span class="cn">NA</span>, <span class="at">efs_separate =</span> <span class="cn">NA</span>, <span class="at">efs_joint =</span> <span class="cn">NA</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(cands)) {</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (ep <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"os"</span>, <span class="st">"efs"</span>)) {</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    aic_sum <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> (g <span class="cf">in</span> ARMS) {</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>      f <span class="ot">&lt;-</span> <span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> <span class="fu">endpoint_data</span>(trial, ep, g), <span class="at">dist =</span> cands[i])</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>      aic_sum <span class="ot">&lt;-</span> aic_sum <span class="sc">+</span> f<span class="sc">$</span>AIC</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    aic_tab[i, <span class="fu">paste0</span>(ep, <span class="st">"_separate"</span>)] <span class="ot">&lt;-</span> aic_sum</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    f_joint <span class="ot">&lt;-</span> <span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> arm, <span class="at">data =</span> <span class="fu">endpoint_data</span>(trial, ep), <span class="at">dist =</span> cands[i])</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    aic_tab[i, <span class="fu">paste0</span>(ep, <span class="st">"_joint"</span>)] <span class="ot">&lt;-</span> f_joint<span class="sc">$</span>AIC</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>aic_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     dist os_separate os_joint efs_separate efs_joint
+1 weibull    1469.622 1467.922     1522.353  1520.557
+2  llogis    1467.590 1466.289     1518.080  1516.763
+3   lnorm    1464.377 1465.058     1510.816  1511.618</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The family is chosen by the summed AIC of the separate fits</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>dist_os <span class="ot">&lt;-</span> aic_tab<span class="sc">$</span>dist[<span class="fu">which.min</span>(aic_tab<span class="sc">$</span>os_separate)]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>dist_efs <span class="ot">&lt;-</span> aic_tab<span class="sc">$</span>dist[<span class="fu">which.min</span>(aic_tab<span class="sc">$</span>efs_separate)]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">os =</span> dist_os, <span class="at">efs =</span> dist_efs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     os     efs 
+"lnorm" "lnorm" </code></pre>
+</div>
+</div>
+<p>Dựng bốn đường cong (hai nhánh × hai kết cục) bằng <code>psm_curves()</code>. Kiểm tra: mỗi tháng mỗi đường mất ít nhất bằng nguy cơ nền; đo EFS vượt OS bao nhiêu.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit, extrapolate and add the background-mortality floor for each arm and endpoint.</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Base case: separate fits (the same way the STM below is fitted).</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>curves <span class="ot">&lt;-</span> <span class="fu">psm_curves</span>(trial, dist_os, dist_efs, months, h_bg)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: in every month every curve loses at least the background hazard</span></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (g <span class="cf">in</span> ARMS) {</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="sc">-</span><span class="fu">diff</span>(<span class="fu">log</span>(curves[[g]]<span class="sc">$</span>os)) <span class="sc">&gt;=</span> h_bg <span class="sc">-</span> <span class="fl">1e-12</span>),</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>            <span class="fu">all</span>(<span class="sc">-</span><span class="fu">diff</span>(<span class="fu">log</span>(curves[[g]]<span class="sc">$</span>efs)) <span class="sc">&gt;=</span> h_bg <span class="sc">-</span> <span class="fl">1e-12</span>))</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># EFS and OS are extrapolated independently: how far can EFS rise above OS before the cap?</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>crossing <span class="ot">&lt;-</span> <span class="fu">sapply</span>(ARMS, <span class="cf">function</span>(g) <span class="fu">sum</span>(curves[[g]]<span class="sc">$</span>efs <span class="sc">&gt;</span> curves[[g]]<span class="sc">$</span>os <span class="sc">+</span> <span class="fl">1e-12</span>))</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>worst_cross <span class="ot">&lt;-</span> <span class="fu">sapply</span>(ARMS, <span class="cf">function</span>(g) <span class="fu">max</span>(<span class="dv">0</span>, <span class="fu">max</span>(curves[[g]]<span class="sc">$</span>efs <span class="sc">-</span> curves[[g]]<span class="sc">$</span>os)))</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">months_to_cap =</span> crossing, <span class="at">largest_excess =</span> worst_cross)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>               soc enh
+months_to_cap    0   0
+largest_excess   0   0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: the excess is tiny, so the cap changes almost nothing (otherwise rethink the curves)</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(worst_cross <span class="sc">&lt;</span> <span class="fl">0.005</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Tính tỷ lệ trạng thái bằng <code>psm_states()</code>; kiểm tra phép chặn không đổi OS.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># State membership straight from the two curves</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>psm <span class="ot">&lt;-</span> <span class="fu">psm_occupancy</span>(curves)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(psm<span class="sc">$</span>soc[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">13</span>, <span class="dv">61</span>, <span class="dv">121</span>, <span class="dv">241</span>) , ], <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        EF    PP     D
+[1,] 1.000 0.000 0.000
+[2,] 0.741 0.031 0.228
+[3,] 0.593 0.030 0.377
+[4,] 0.524 0.028 0.448
+[5,] 0.452 0.025 0.523</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: the cap did not change OS (EF + PP is exactly the OS curve)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (g <span class="cf">in</span> ARMS) <span class="fu">stopifnot</span>(<span class="fu">max</span>(<span class="fu">abs</span>(psm[[g]][, <span class="st">"EF"</span>] <span class="sc">+</span> psm[[g]][, <span class="st">"PP"</span>] <span class="sc">-</span> curves[[g]]<span class="sc">$</span>os)) <span class="sc">&lt;</span> <span class="fl">1e-12</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>area_df <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (g <span class="cf">in</span> ARMS) {</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  occ <span class="ot">&lt;-</span> psm[[g]]</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  area_df[[g]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">year =</span> <span class="fu">rep</span>(months <span class="sc">/</span> <span class="dv">12</span>, <span class="dv">3</span>),</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>                             <span class="at">share =</span> <span class="fu">c</span>(occ[, <span class="st">"EF"</span>], occ[, <span class="st">"PP"</span>], occ[, <span class="st">"D"</span>]),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>                             <span class="at">state =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"Sống, chưa biến cố"</span>, <span class="st">"Sống sau biến cố"</span>, <span class="st">"Tử vong"</span>),</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">each =</span> <span class="fu">nrow</span>(occ)),</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>                             <span class="at">arm =</span> ARM_LABELS[[g]])</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>area_df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, area_df)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>area_df<span class="sc">$</span>state <span class="ot">&lt;-</span> <span class="fu">factor</span>(area_df<span class="sc">$</span>state, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"Tử vong"</span>, <span class="st">"Sống sau biến cố"</span>, <span class="st">"Sống, chưa biến cố"</span>))</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>area_df<span class="sc">$</span>arm <span class="ot">&lt;-</span> <span class="fu">factor</span>(area_df<span class="sc">$</span>arm, <span class="at">levels =</span> ARM_LABELS)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>fig_area <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(area_df[area_df<span class="sc">$</span>year <span class="sc">&lt;=</span> <span class="dv">40</span>, ], <span class="fu">aes</span>(year, share, <span class="at">fill =</span> state)) <span class="sc">+</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_area</span>() <span class="sc">+</span></span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>arm) <span class="sc">+</span></span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"grey80"</span>, pal_course[<span class="dv">4</span>], pal_course[<span class="dv">3</span>]), <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Năm"</span>, <span class="at">y =</span> <span class="st">"Tỷ lệ đoàn hệ"</span>,</span>
+<span id="cb12-21"><a href="#cb12-21" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Mô hình sống còn phân vùng: trạng thái suy ra từ hai đường EFS và OS"</span>) <span class="sc">+</span></span>
+<span id="cb12-22"><a href="#cb12-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb12-23"><a href="#cb12-23" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_area, <span class="st">"l05-psm-areas.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l05-psm-areas.png" class="img-fluid figure-img"></p>
+<figcaption>Tỷ lệ ba trạng thái theo thời gian trong PSM</figcaption>
+</figure>
+</div>
+<p>In bảng chi phí đơn vị (đơn giá dùng chung × lượng chăm sóc), rồi tính chi phí, QALY, năm sống và kết quả gia tăng. Kiểm tra độc lập: năm sống bằng diện tích dưới OS, chi phí gói tháng đầu tính tay, các phần chi phí cộng đúng tổng.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Unit costs (VND, course cost year) from build_inputs(): shared unit prices (BHYT price list,</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Global Fund ARV price, Treatment Action Group TB drug price) x quantities of care from params/model_inputs.csv</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>ct <span class="ot">&lt;-</span> <span class="fu">cost_table</span>(inp)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>ct<span class="sc">$</span>vnd <span class="ot">&lt;-</span> <span class="fu">round</span>(ct<span class="sc">$</span>vnd)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>ct</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         item                                label     vnd
+1  c_ef_month Chăm sóc HIV mỗi tháng, chưa biến cố  166760
+2  c_tb_month Điều trị lao mỗi tháng (6 tháng đầu)  329543
+3 c_enh_month             Gói tăng cường mỗi tháng  385283
+4  c_pp_month       Chăm sóc mỗi tháng sau biến cố 1148060
+5     c_death          Chăm sóc cuối đời (một lần) 4324300</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pkg_person <span class="ot">&lt;-</span> inp<span class="sc">$</span>c_enh_month <span class="sc">*</span> inp<span class="sc">$</span>enh_months     <span class="co"># the whole package for one person (undiscounted)</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The utility decrement after an event is the gap between all patients and CD4 &lt;= 200 (same study)</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(inp<span class="sc">$</span>u_ef <span class="sc">-</span> inp<span class="sc">$</span>u_ef_cd4low <span class="sc">-</span> inp<span class="sc">$</span>dec_pp) <span class="sc">&lt;</span> <span class="fl">1e-9</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>res_psm <span class="ot">&lt;-</span> <span class="fu">evaluate_arms</span>(psm, inp)</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(res_psm, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        cost cost_pkg cost_tb  cost_ef cost_pp cost_death   qaly     ly
+soc 36419570        0 1725652 23651906 8305797    2736215  8.032 12.422
+enh 44049309  2124436 1817088 31340631 6505449    2261705 10.454 16.134
+    ly_undisc ly_ef_undisc ly_pp_undisc
+soc    20.007       19.016        0.991
+enh    26.471       25.678        0.792</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>inc_psm <span class="ot">&lt;-</span> <span class="fu">incremental</span>(res_psm, inp<span class="sc">$</span>wtp)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>inc_psm</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   d_cost   d_qaly     d_ly    icer     d_nmb status
+1 7629738 2.421647 3.711538 3150640 296286990   ICER</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check 1: undiscounted life-years equal the area under the OS curve, computed on its own</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (g <span class="cf">in</span> ARMS) <span class="fu">stopifnot</span>(<span class="fu">abs</span>(res_psm[g, <span class="st">"ly_undisc"</span>] <span class="sc">-</span> <span class="fu">area_years</span>(curves[[g]]<span class="sc">$</span>os)) <span class="sc">&lt;</span> <span class="fl">1e-9</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Check 2: the package cost of month 1, recomputed by hand (people alive, averaged over the</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># cycle, x monthly price x discount weight at the middle of the cycle)</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>alive_m1 <span class="ot">&lt;-</span> <span class="fu">mean</span>(<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span> <span class="sc">-</span> psm<span class="sc">$</span>enh[<span class="dv">2</span>, <span class="st">"D"</span>]))</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>pkg_m1_hand <span class="ot">&lt;-</span> alive_m1 <span class="sc">*</span> inp<span class="sc">$</span>c_enh_month <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">+</span> inp<span class="sc">$</span>disc_rate)<span class="sc">^</span>(<span class="fl">0.5</span> <span class="sc">/</span> <span class="dv">12</span>)</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>pkg_m1_fn <span class="ot">&lt;-</span> <span class="fu">evaluate_occupancy</span>(psm<span class="sc">$</span>enh[<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, ], <span class="st">"enh"</span>, inp)[[<span class="st">"cost_pkg"</span>]]</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(pkg_m1_hand <span class="sc">-</span> pkg_m1_fn) <span class="sc">&lt;</span> <span class="fl">1e-6</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Check 3: the cost parts add up to the total, and standard care pays no package</span></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>cost_parts <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"cost_pkg"</span>, <span class="st">"cost_tb"</span>, <span class="st">"cost_ef"</span>, <span class="st">"cost_pp"</span>, <span class="st">"cost_death"</span>)</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">abs</span>(<span class="fu">rowSums</span>(res_psm[, cost_parts]) <span class="sc">-</span> res_psm[, <span class="st">"cost"</span>]) <span class="sc">&lt;</span> <span class="fl">1e-6</span>), res_psm[<span class="st">"soc"</span>, <span class="st">"cost_pkg"</span>] <span class="sc">==</span> <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Khớp các chuyển tiếp của STM: EF→PP (Weibull), EF→D (họ của OS), PP→D (nguy cơ không đổi, gộp hai nhánh).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Transition-specific models from the same individual data</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   EF -&gt; PP : clinical event (death without event and censoring count as censored)</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   EF -&gt; D  : death without a prior event</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   PP -&gt; D  : death after an event, time measured from the event (pooled arms, constant rate)</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>stm_fits <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (g <span class="cf">in</span> ARMS) {</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> trial[trial<span class="sc">$</span>arm <span class="sc">==</span> g, ]</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  d12 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">time =</span> d<span class="sc">$</span>efs_time, <span class="at">status =</span> d<span class="sc">$</span>prog_event)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  d13 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">time =</span> d<span class="sc">$</span>efs_time, <span class="at">status =</span> d<span class="sc">$</span>efs_event <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> d<span class="sc">$</span>prog_event))</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  stm_fits[[g]] <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">f12 =</span> <span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d12, <span class="at">dist =</span> <span class="st">"weibull"</span>),</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">f13 =</span> <span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d13, <span class="at">dist =</span> dist_os)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>pp <span class="ot">&lt;-</span> trial[trial<span class="sc">$</span>prog_event <span class="sc">==</span> <span class="dv">1</span>, ]</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>d23 <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">time =</span> pp<span class="sc">$</span>os_time <span class="sc">-</span> pp<span class="sc">$</span>efs_time, <span class="at">status =</span> pp<span class="sc">$</span>os_event)</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>f23 <span class="ot">&lt;-</span> <span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d23, <span class="at">dist =</span> <span class="st">"exp"</span>)</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>h23 <span class="ot">&lt;-</span> f23<span class="sc">$</span>res[<span class="st">"rate"</span>, <span class="st">"est"</span>]</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">n_after_event =</span> <span class="fu">nrow</span>(d23), <span class="at">deaths_after_event =</span> <span class="fu">sum</span>(d23<span class="sc">$</span>status), <span class="at">rate_per_month =</span> h23)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     n_after_event deaths_after_event     rate_per_month 
+       36.00000000        22.00000000         0.04368459 </code></pre>
+</div>
+</div>
+<p>Chạy vết đoàn hệ của STM. Kiểm tra: <code>check_tm()</code>, <code>check_trace()</code>, và OS của PSM, STM so với KM trong thời gian theo dõi (sai lệch dưới 0.03).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>stm <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (g <span class="cf">in</span> ARMS) {</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  H12 <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">log</span>(<span class="fu">fit_curve</span>(stm_fits[[g]]<span class="sc">$</span>f12, months))   <span class="co"># cumulative hazard = -log S</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  H13 <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">log</span>(<span class="fu">fit_curve</span>(stm_fits[[g]]<span class="sc">$</span>f13, months))</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  stm[[g]] <span class="ot">&lt;-</span> <span class="fu">run_stm</span>(H12, H13, h23, h_bg)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">check_trace</span>(stm[[g]])</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>P_first <span class="ot">&lt;-</span> <span class="fu">stm_P</span>(<span class="sc">-</span><span class="fu">log</span>(<span class="fu">fit_curve</span>(stm_fits<span class="sc">$</span>soc<span class="sc">$</span>f12, <span class="dv">1</span>)), <span class="sc">-</span><span class="fu">log</span>(<span class="fu">fit_curve</span>(stm_fits<span class="sc">$</span>soc<span class="sc">$</span>f13, <span class="dv">1</span>)), h23)</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(P_first, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       EF     PP      D
+EF 0.9004 0.0203 0.0793
+PP 0.0000 0.9573 0.0427
+D  0.0000 0.0000 1.0000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_tm</span>(P_first)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>res_stm <span class="ot">&lt;-</span> <span class="fu">evaluate_arms</span>(stm, inp)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>inc_stm <span class="ot">&lt;-</span> <span class="fu">incremental</span>(res_stm, inp<span class="sc">$</span>wtp)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: the function used for the replicate trials reproduces the step-by-step trace</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>stm_fn <span class="ot">&lt;-</span> <span class="fu">stm_from_trial</span>(trial, dist_os, months, h_bg)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (g <span class="cf">in</span> ARMS) <span class="fu">stopifnot</span>(<span class="fu">max</span>(<span class="fu">abs</span>(stm_fn[[g]] <span class="sc">-</span> stm[[g]])) <span class="sc">&lt;</span> <span class="fl">1e-10</span>)</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: inside the follow-up, OS from the PSM and from the STM stays close to Kaplan-Meier</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>km_os <span class="ot">&lt;-</span> <span class="fu">lapply</span>(ARMS, <span class="cf">function</span>(g) {</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">endpoint_data</span>(trial, <span class="st">"os"</span>, g)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">km_by_hand</span>(d<span class="sc">$</span>time, d<span class="sc">$</span>status)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(km_os) <span class="ot">&lt;-</span> ARMS</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>grid_fu <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span>(ps<span class="sc">$</span>study_months <span class="sc">-</span> <span class="dv">3</span>)      <span class="co"># the last months rest on few people</span></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>fu_gap <span class="ot">&lt;-</span> <span class="fu">sapply</span>(ARMS, <span class="cf">function</span>(g) {</span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">PSM =</span> <span class="fu">max</span>(<span class="fu">abs</span>(psm[[g]][grid_fu <span class="sc">+</span> <span class="dv">1</span>, <span class="st">"EF"</span>] <span class="sc">+</span> psm[[g]][grid_fu <span class="sc">+</span> <span class="dv">1</span>, <span class="st">"PP"</span>] <span class="sc">-</span> <span class="fu">km_at</span>(km_os[[g]], grid_fu))),</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">STM =</span> <span class="fu">max</span>(<span class="fu">abs</span>(<span class="dv">1</span> <span class="sc">-</span> stm[[g]][grid_fu <span class="sc">+</span> <span class="dv">1</span>, <span class="st">"D"</span>] <span class="sc">-</span> <span class="fu">km_at</span>(km_os[[g]], grid_fu))))</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(fu_gap, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      soc   enh
+PSM 0.014 0.018
+STM 0.020 0.017</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(fu_gap <span class="sc">&lt;</span> <span class="fl">0.03</span>))    <span class="co"># stated tolerance: both models stay within 0.03 of KM</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Kịch bản khớp chung: một mô hình mỗi kết cục với biến nhánh.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scenario: joint fit, one model per endpoint with the arm as covariate (shared sdlog etc.)</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>curves_joint <span class="ot">&lt;-</span> <span class="fu">psm_curves</span>(trial, dist_os, dist_efs, months, h_bg, <span class="at">joint =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (g <span class="cf">in</span> ARMS) <span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="sc">-</span><span class="fu">diff</span>(<span class="fu">log</span>(curves_joint[[g]]<span class="sc">$</span>os)) <span class="sc">&gt;=</span> h_bg <span class="sc">-</span> <span class="fl">1e-12</span>))</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>psm_joint <span class="ot">&lt;-</span> <span class="fu">psm_occupancy</span>(curves_joint)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>res_joint <span class="ot">&lt;-</span> <span class="fu">evaluate_arms</span>(psm_joint, inp)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>inc_joint <span class="ot">&lt;-</span> <span class="fu">incremental</span>(res_joint, inp<span class="sc">$</span>wtp)</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Why the tails differ: sdlog of the log-normal OS fits, one per arm</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(dist_os <span class="sc">==</span> <span class="st">"lnorm"</span>)     <span class="co"># the comparison below is written for the log-normal</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>sdlog_sep <span class="ot">&lt;-</span> <span class="fu">sapply</span>(ARMS, <span class="cf">function</span>(g) {</span>
+<span id="cb27-10"><a href="#cb27-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> <span class="fu">endpoint_data</span>(trial, <span class="st">"os"</span>, g), <span class="at">dist =</span> <span class="st">"lnorm"</span>)<span class="sc">$</span>res[<span class="st">"sdlog"</span>, <span class="st">"est"</span>]</span>
+<span id="cb27-11"><a href="#cb27-11" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb27-12"><a href="#cb27-12" aria-hidden="true" tabindex="-1"></a>sdlog_sep</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     soc      enh 
+3.749566 4.725027 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>sdlog_joint <span class="ot">&lt;-</span> <span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(os_time, os_event) <span class="sc">~</span> arm, <span class="at">data =</span> trial, <span class="at">dist =</span> <span class="st">"lnorm"</span>)<span class="sc">$</span>res[<span class="st">"sdlog"</span>, <span class="st">"est"</span>]</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>sdlog_joint</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4.11811</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">rbind</span>(<span class="at">separate =</span> <span class="fu">c</span>(res_psm[<span class="st">"soc"</span>, <span class="st">"ly_undisc"</span>], res_psm[<span class="st">"enh"</span>, <span class="st">"ly_undisc"</span>]),</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>      <span class="at">joint =</span> <span class="fu">c</span>(res_joint[<span class="st">"soc"</span>, <span class="st">"ly_undisc"</span>], res_joint[<span class="st">"enh"</span>, <span class="st">"ly_undisc"</span>]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             [,1]     [,2]
+separate 20.00743 26.47075
+joint    20.89135 25.58317</code></pre>
+</div>
+</div>
+<p>So PSM, STM và đường cong thật; thời gian sau biến cố theo năm; tháng sàn nền chạm vào.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># PSM, STM and the truth (true EFS/OS curves of the simulation run through the PSM formula)</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>truth <span class="ot">&lt;-</span> <span class="fu">true_curves</span>(ps, lt, n_months, <span class="at">seed =</span> SEED_TRUTH)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>occ_true <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (g <span class="cf">in</span> ARMS) {</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  tg <span class="ot">&lt;-</span> truth[truth<span class="sc">$</span>arm <span class="sc">==</span> g, ]</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  occ_true[[g]] <span class="ot">&lt;-</span> <span class="fu">psm_states</span>(tg<span class="sc">$</span>efs, tg<span class="sc">$</span>os)</span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>res_true <span class="ot">&lt;-</span> <span class="fu">evaluate_arms</span>(occ_true, inp)</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>inc_true <span class="ot">&lt;-</span> <span class="fu">incremental</span>(res_true, inp<span class="sc">$</span>wtp)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>mk_row <span class="ot">&lt;-</span> <span class="cf">function</span>(model, res, inc) {</span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">model =</span> model, <span class="at">ly_soc =</span> res[<span class="st">"soc"</span>, <span class="st">"ly_undisc"</span>], <span class="at">ly_pp_soc =</span> res[<span class="st">"soc"</span>, <span class="st">"ly_pp_undisc"</span>],</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>             <span class="at">d_qaly =</span> inc<span class="sc">$</span>d_qaly, <span class="at">d_cost =</span> inc<span class="sc">$</span>d_cost, <span class="at">d_nmb =</span> inc<span class="sc">$</span>d_nmb, <span class="at">icer =</span> inc<span class="sc">$</span>icer, <span class="at">status =</span> inc<span class="sc">$</span>status)</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>summary_tab <span class="ot">&lt;-</span> <span class="fu">rbind</span>(<span class="fu">mk_row</span>(<span class="st">"PSM (khớp riêng)"</span>, res_psm, inc_psm),</span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">mk_row</span>(<span class="st">"PSM (khớp chung)"</span>, res_joint, inc_joint),</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">mk_row</span>(<span class="st">"STM"</span>, res_stm, inc_stm),</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>                     <span class="fu">mk_row</span>(<span class="st">"Thật (mô phỏng)"</span>, res_true, inc_true))</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>summary_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             model   ly_soc ly_pp_soc   d_qaly  d_cost     d_nmb    icer status
+1 PSM (khớp riêng) 20.00743 0.9910878 2.421647 7629738 296286990 3150640   ICER
+2 PSM (khớp chung) 20.89135 0.9761343 1.790809 6115498 218630971 3414937   ICER
+3              STM 18.54934 0.2656183 2.288435 9158109 278040496 4001909   ICER
+4  Thật (mô phỏng) 20.91991 0.4579954 1.508840 6009079 183350287 3982583   ICER</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Time after an event (PP) in standard care at 1, 5, 10, 20 and 40 years</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>yrs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">40</span>)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>pp_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">year =</span> yrs, <span class="at">PSM =</span> psm<span class="sc">$</span>soc[yrs <span class="sc">*</span> <span class="dv">12</span> <span class="sc">+</span> <span class="dv">1</span>, <span class="st">"PP"</span>], <span class="at">STM =</span> stm<span class="sc">$</span>soc[yrs <span class="sc">*</span> <span class="dv">12</span> <span class="sc">+</span> <span class="dv">1</span>, <span class="st">"PP"</span>],</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>                     Thật <span class="ot">=</span> occ_true<span class="sc">$</span>soc[yrs <span class="sc">*</span> <span class="dv">12</span> <span class="sc">+</span> <span class="dv">1</span>, <span class="st">"PP"</span>])</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(pp_tab, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    year   PSM   STM  Thật
+12     1 0.031 0.034 0.042
+60     5 0.030 0.015 0.028
+120   10 0.028 0.007 0.014
+240   20 0.025 0.003 0.006
+480   40 0.011 0.001 0.002</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First month in which the background floor binds the OS curve (hazard = background hazard)</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>floor_month <span class="ot">&lt;-</span> <span class="fu">sapply</span>(ARMS, <span class="cf">function</span>(g) <span class="fu">which</span>(<span class="fu">abs</span>(<span class="sc">-</span><span class="fu">diff</span>(<span class="fu">log</span>(curves[[g]]<span class="sc">$</span>os)) <span class="sc">-</span> h_bg) <span class="sc">&lt;</span> <span class="fl">1e-12</span>)[<span class="dv">1</span>])</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>floor_month</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>soc enh 
+201 146 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prose claim: the PSM already overstates time after an event at year 10, before the floor binds</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(pp_tab<span class="sc">$</span>PSM[pp_tab<span class="sc">$</span>year <span class="sc">==</span> <span class="dv">10</span>] <span class="sc">&gt;</span> pp_tab<span class="sc">$</span>Thật[pp_tab<span class="sc">$</span>year <span class="sc">==</span> <span class="dv">10</span>], <span class="fu">all</span>(floor_month <span class="sc">&gt;</span> <span class="dv">120</span>))</span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>os_df <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (g <span class="cf">in</span> ARMS) {</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>  os_df[[<span class="fu">paste</span>(g, <span class="st">"psm"</span>)]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">year =</span> months <span class="sc">/</span> <span class="dv">12</span>, <span class="at">S =</span> <span class="dv">1</span> <span class="sc">-</span> psm[[g]][, <span class="st">"D"</span>], <span class="at">model =</span> <span class="st">"PSM"</span>, <span class="at">arm =</span> ARM_LABELS[[g]])</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>  os_df[[<span class="fu">paste</span>(g, <span class="st">"stm"</span>)]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">year =</span> months <span class="sc">/</span> <span class="dv">12</span>, <span class="at">S =</span> <span class="dv">1</span> <span class="sc">-</span> stm[[g]][, <span class="st">"D"</span>], <span class="at">model =</span> <span class="st">"STM"</span>, <span class="at">arm =</span> ARM_LABELS[[g]])</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>  os_df[[<span class="fu">paste</span>(g, <span class="st">"true"</span>)]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">year =</span> months <span class="sc">/</span> <span class="dv">12</span>, <span class="at">S =</span> truth<span class="sc">$</span>os[truth<span class="sc">$</span>arm <span class="sc">==</span> g], <span class="at">model =</span> <span class="st">"Thật (mô phỏng)"</span>, <span class="at">arm =</span> ARM_LABELS[[g]])</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>os_df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, os_df)</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>os_df<span class="sc">$</span>arm <span class="ot">&lt;-</span> <span class="fu">factor</span>(os_df<span class="sc">$</span>arm, <span class="at">levels =</span> ARM_LABELS)</span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>fig_cmp <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(os_df[os_df<span class="sc">$</span>year <span class="sc">&lt;=</span> <span class="dv">40</span>, ], <span class="fu">aes</span>(year, S, <span class="at">colour =</span> model, <span class="at">linetype =</span> model)) <span class="sc">+</span></span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb39-14"><a href="#cb39-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>arm) <span class="sc">+</span></span>
+<span id="cb39-15"><a href="#cb39-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(pal_course[<span class="dv">1</span>], pal_course[<span class="dv">2</span>], <span class="st">"black"</span>), <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb39-16"><a href="#cb39-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>), <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb39-17"><a href="#cb39-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Năm"</span>, <span class="at">y =</span> <span class="st">"Sống còn toàn bộ"</span>,</span>
+<span id="cb39-18"><a href="#cb39-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Cùng dữ liệu, hai cấu trúc: OS từ PSM và từ STM</span><span class="sc">\n</span><span class="st">so với đường cong thật"</span>) <span class="sc">+</span></span>
+<span id="cb39-19"><a href="#cb39-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb39-20"><a href="#cb39-20" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_cmp, <span class="st">"l05-psm-vs-stm.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l05-psm-vs-stm.png" class="img-fluid figure-img"></p>
+<figcaption>OS từ PSM, STM và đường cong thật</figcaption>
+</figure>
+</div>
+<p>Lặp lại trên các thử nghiệm mới; tóm tắt trung bình, khoảng và tỷ lệ NMB dương.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># One trial = one draw of the sampling error (Lesson 3). Repeat the whole analysis on n_rep</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co"># new trials from the same true world; the distribution family is kept as chosen above.</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>seeds <span class="ot">&lt;-</span> SEED_REP <span class="sc">+</span> <span class="fu">seq_len</span>(cfg<span class="sc">$</span>n_rep)</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>mods <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"PSM (khớp riêng)"</span>, <span class="st">"PSM (khớp chung)"</span>, <span class="st">"STM"</span>)</span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>dq <span class="ot">&lt;-</span> dc <span class="ot">&lt;-</span> dn <span class="ot">&lt;-</span> lp <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA_real_</span>, <span class="fu">length</span>(seeds), <span class="fu">length</span>(mods), <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="cn">NULL</span>, mods))</span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (r <span class="cf">in</span> <span class="fu">seq_along</span>(seeds)) {</span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  tr <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(ps, lt, seeds[r])</span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  occ_r <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">psm_occupancy</span>(<span class="fu">psm_curves</span>(tr, dist_os, dist_efs, months, h_bg)),</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a>                <span class="fu">psm_occupancy</span>(<span class="fu">psm_curves</span>(tr, dist_os, dist_efs, months, h_bg, <span class="at">joint =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a>                <span class="fu">stm_from_trial</span>(tr, dist_os, months, h_bg))</span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (m <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) {</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>    res_r <span class="ot">&lt;-</span> <span class="fu">evaluate_arms</span>(occ_r[[m]], inp)</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>    inc_r <span class="ot">&lt;-</span> <span class="fu">incremental</span>(res_r, inp<span class="sc">$</span>wtp)</span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>    dq[r, m] <span class="ot">&lt;-</span> inc_r<span class="sc">$</span>d_qaly</span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a>    dc[r, m] <span class="ot">&lt;-</span> inc_r<span class="sc">$</span>d_cost</span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a>    dn[r, m] <span class="ot">&lt;-</span> inc_r<span class="sc">$</span>d_nmb</span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>    lp[r, m] <span class="ot">&lt;-</span> res_r[<span class="st">"soc"</span>, <span class="st">"ly_pp_undisc"</span>]</span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>rep_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="fu">c</span>(mods, <span class="st">"Thật (mô phỏng)"</span>),</span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_qaly_mean =</span> <span class="fu">c</span>(<span class="fu">colMeans</span>(dq), inc_true<span class="sc">$</span>d_qaly), <span class="at">d_qaly_min =</span> <span class="fu">c</span>(<span class="fu">apply</span>(dq, <span class="dv">2</span>, min), <span class="cn">NA</span>), <span class="at">d_qaly_max =</span> <span class="fu">c</span>(<span class="fu">apply</span>(dq, <span class="dv">2</span>, max), <span class="cn">NA</span>),</span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_cost_mean =</span> <span class="fu">c</span>(<span class="fu">colMeans</span>(dc), inc_true<span class="sc">$</span>d_cost),</span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_nmb_mean =</span> <span class="fu">c</span>(<span class="fu">colMeans</span>(dn), inc_true<span class="sc">$</span>d_nmb), <span class="at">share_nmb_positive =</span> <span class="fu">c</span>(<span class="fu">colMeans</span>(dn <span class="sc">&gt;</span> <span class="dv">0</span>), <span class="fu">as.numeric</span>(inc_true<span class="sc">$</span>d_nmb <span class="sc">&gt;</span> <span class="dv">0</span>)),</span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">ly_pp_soc_mean =</span> <span class="fu">c</span>(<span class="fu">colMeans</span>(lp), res_true[<span class="st">"soc"</span>, <span class="st">"ly_pp_undisc"</span>]))</span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a>rep_tab[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(rep_tab[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">2</span>)</span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a>rep_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                            model d_qaly_mean d_qaly_min d_qaly_max d_cost_mean
+PSM (khớp riêng) PSM (khớp riêng)        1.82       0.47       3.14     6247075
+PSM (khớp chung) PSM (khớp chung)        1.58       0.46       3.25     7175077
+STM                           STM        1.89       0.31       3.40     7173778
+                  Thật (mô phỏng)        1.51         NA         NA     6009079
+                 d_nmb_mean share_nmb_positive ly_pp_soc_mean
+PSM (khớp riêng)  222171014                  1           1.28
+PSM (khớp chung)  191135765                  1           1.15
+STM               230485684                  1           0.48
+                  183350287                  1           0.46</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prose claims: the single trial is further from the truth than the average trial; PSM</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="co"># overstates time after an event on average while the STM does not; the joint fit is less</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a><span class="co"># biased than the separate fit; the decision (NMB &gt; 0) rarely changes</span></span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(inc_psm<span class="sc">$</span>d_qaly <span class="sc">-</span> inc_true<span class="sc">$</span>d_qaly) <span class="sc">&gt;</span> <span class="fu">abs</span>(rep_tab<span class="sc">$</span>d_qaly_mean[<span class="dv">1</span>] <span class="sc">-</span> rep_tab<span class="sc">$</span>d_qaly_mean[<span class="dv">4</span>]),</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>          rep_tab<span class="sc">$</span>ly_pp_soc_mean[<span class="dv">1</span>] <span class="sc">&gt;</span> rep_tab<span class="sc">$</span>ly_pp_soc_mean[<span class="dv">4</span>],</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>          <span class="fu">abs</span>(rep_tab<span class="sc">$</span>ly_pp_soc_mean[<span class="dv">3</span>] <span class="sc">-</span> rep_tab<span class="sc">$</span>ly_pp_soc_mean[<span class="dv">4</span>]) <span class="sc">&lt;</span> <span class="fl">0.1</span>,</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>          <span class="fu">abs</span>(rep_tab<span class="sc">$</span>d_qaly_mean[<span class="dv">2</span>] <span class="sc">-</span> rep_tab<span class="sc">$</span>d_qaly_mean[<span class="dv">4</span>]) <span class="sc">&lt;</span> <span class="fu">abs</span>(rep_tab<span class="sc">$</span>d_qaly_mean[<span class="dv">1</span>] <span class="sc">-</span> rep_tab<span class="sc">$</span>d_qaly_mean[<span class="dv">4</span>]),</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>          <span class="fu">all</span>(rep_tab<span class="sc">$</span>share_nmb_positive[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>] <span class="sc">&gt;</span> <span class="fl">0.9</span>))</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Prose claim: the main trial lies inside the range of the replicate trials, in the upper part</span></span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(inc_psm<span class="sc">$</span>d_qaly <span class="sc">&gt;=</span> <span class="fu">min</span>(dq[, <span class="dv">1</span>]), inc_psm<span class="sc">$</span>d_qaly <span class="sc">&lt;=</span> <span class="fu">max</span>(dq[, <span class="dv">1</span>]), inc_psm<span class="sc">$</span>d_qaly <span class="sc">&gt;</span> rep_tab<span class="sc">$</span>d_qaly_mean[<span class="dv">1</span>])</span>
+<span id="cb42-11"><a href="#cb42-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: the replicate code path on the main trial reproduces the single-trial PSM result</span></span>
+<span id="cb42-12"><a href="#cb42-12" aria-hidden="true" tabindex="-1"></a>chk <span class="ot">&lt;-</span> <span class="fu">evaluate_arms</span>(<span class="fu">psm_occupancy</span>(<span class="fu">psm_curves</span>(trial, dist_os, dist_efs, months, h_bg)), inp)</span>
+<span id="cb42-13"><a href="#cb42-13" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(<span class="fu">incremental</span>(chk, inp<span class="sc">$</span>wtp)<span class="sc">$</span>d_qaly <span class="sc">-</span> inc_psm<span class="sc">$</span>d_qaly) <span class="sc">&lt;</span> <span class="fl">1e-10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Kịch bản cấu trúc: giảm một nửa nguy cơ tử vong sau biến cố. STM phản ứng, PSM không.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Scenario: better care after an event halves the hazard of death after an event.</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The STM responds through its PP -&gt; D transition; the PSM has no such link, so its</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="co"># OS curve (fitted to trial data) stays the same unless the analyst changes it by hand.</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>stm_half <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (g <span class="cf">in</span> ARMS) {</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>  H12 <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">log</span>(<span class="fu">fit_curve</span>(stm_fits[[g]]<span class="sc">$</span>f12, months))</span>
+<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>  H13 <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">log</span>(<span class="fu">fit_curve</span>(stm_fits[[g]]<span class="sc">$</span>f13, months))</span>
+<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a>  stm_half[[g]] <span class="ot">&lt;-</span> <span class="fu">run_stm</span>(H12, H13, h23 <span class="sc">/</span> <span class="dv">2</span>, h_bg)</span>
+<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>res_half <span class="ot">&lt;-</span> <span class="fu">evaluate_arms</span>(stm_half, inp)</span>
+<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>scen <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">model =</span> <span class="fu">c</span>(<span class="st">"STM cơ sở"</span>, <span class="st">"STM, tử vong sau biến cố giảm một nửa"</span>, <span class="st">"PSM (không đổi)"</span>),</span>
+<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a>                   <span class="at">ly_soc =</span> <span class="fu">c</span>(res_stm[<span class="st">"soc"</span>, <span class="st">"ly_undisc"</span>], res_half[<span class="st">"soc"</span>, <span class="st">"ly_undisc"</span>], res_psm[<span class="st">"soc"</span>, <span class="st">"ly_undisc"</span>]),</span>
+<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>                   <span class="at">ly_pp_soc =</span> <span class="fu">c</span>(res_stm[<span class="st">"soc"</span>, <span class="st">"ly_pp_undisc"</span>], res_half[<span class="st">"soc"</span>, <span class="st">"ly_pp_undisc"</span>], res_psm[<span class="st">"soc"</span>, <span class="st">"ly_pp_undisc"</span>]))</span>
+<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>scen</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                  model   ly_soc ly_pp_soc
+1                             STM cơ sở 18.54934 0.2656183
+2 STM, tử vong sau biến cố giảm một nửa 18.80785 0.5241370
+3                       PSM (không đổi) 20.00743 0.9910878</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(res_half[<span class="st">"soc"</span>, <span class="st">"ly_undisc"</span>] <span class="sc">&gt;</span> res_stm[<span class="st">"soc"</span>, <span class="st">"ly_undisc"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Mẹo thực hành">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mẹo thực hành
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Báo cáo năm sống ở <strong>từng</strong> trạng thái cho cả PSM và STM: thời gian sau biến cố phi lý là dấu hiệu sớm của ngoại suy không nhất quán.</li>
+<li>Vẽ EFS và OS chung một hình tới hết khung thời gian; EFS chạm OS là cờ đỏ.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Lỗi thường gặp">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lỗi thường gặp
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Không chặn EFS ≤ OS:</strong> tỷ lệ sau biến cố thành âm.</li>
+<li><strong>Dùng PSM cho can thiệp tác động sau biến cố</strong> (ví dụ phác đồ bậc hai tốt hơn): PSM không có kênh để tác động đó tới OS.</li>
+<li><strong>Quên rằng PP→D dựa trên rất ít người:</strong> báo cáo số sự kiện từng chuyển tiếp.</li>
+<li><strong>Đọc kết quả một thử nghiệm như sai số của phương pháp:</strong> phần lớn có thể là sai số mẫu.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="bài-tập" class="level2">
+<h2 class="anchored" data-anchor-id="bài-tập">Bài tập</h2>
+<p><strong>Bài tập 1 (dễ).</strong> Thay log-chuẩn bằng Weibull cho cả EFS và OS. QALY gia tăng và ICER thay đổi ra sao? Đây là loại bất định nào?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>QALY gia tăng thành 2.82, ICER: 4,000,000 VNĐ/QALY. Đây là bất định cấu trúc (chọn hình dạng ngoại suy), xử lý bằng phân tích kịch bản.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 1: use a Weibull for OS (and EFS) instead of the AIC choice</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>curves_wb <span class="ot">&lt;-</span> <span class="fu">psm_curves</span>(trial, <span class="st">"weibull"</span>, <span class="st">"weibull"</span>, months, h_bg)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>res_wb <span class="ot">&lt;-</span> <span class="fu">evaluate_arms</span>(<span class="fu">psm_occupancy</span>(curves_wb), inp)</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Does EFS now rise above OS (the cap in psm_states() has to act)? Largest excess by arm:</span></span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(ARMS, <span class="cf">function</span>(g) <span class="fu">max</span>(<span class="dv">0</span>, <span class="fu">max</span>(curves_wb[[g]]<span class="sc">$</span>efs <span class="sc">-</span> curves_wb[[g]]<span class="sc">$</span>os)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>soc enh 
+  0   0 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>inc_wb <span class="ot">&lt;-</span> <span class="fu">incremental</span>(res_wb, inp<span class="sc">$</span>wtp)</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(inc_wb[, <span class="fu">c</span>(<span class="st">"d_cost"</span>, <span class="st">"d_qaly"</span>, <span class="st">"icer"</span>, <span class="st">"d_nmb"</span>)], <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    d_cost d_qaly    icer     d_nmb
+1 11212869  2.823 3971611 343105611</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Bài tập 2 (trung bình).</strong> Chạy lại PSM với tỷ lệ chiết khấu 0% và 5% (bên cạnh mức cơ sở). ICER thay đổi ra sao, và vì sao?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>ICER là 3,000,000 VNĐ (0%), 3,200,000 VNĐ (3%) và 3,300,000 VNĐ (5%) mỗi QALY: tăng vừa phải. Chi phí gói chỉ chiếm 28% chi phí gia tăng và phát sinh ngay nên gần như không bị chiết khấu; phần còn lại (chăm sóc người sống thêm) và QALY thêm đều trải dài nhiều thập kỷ nên bị chiết khấu như nhau. Chiết khấu cao làm phần gói chiếm tỷ trọng lớn hơn (36% ở mức 5%), ICER nhích lên.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 2: discount rates of 0% and 5% (PSM), with the incremental cost split into</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="co"># the package itself and everything else (care of the extra survivors, end-of-life cost)</span></span>
+<span id="cb50-3"><a href="#cb50-3" aria-hidden="true" tabindex="-1"></a>disc_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">rate =</span> <span class="fu">c</span>(<span class="dv">0</span>, inp<span class="sc">$</span>disc_rate, <span class="fl">0.05</span>), <span class="at">d_qaly =</span> <span class="cn">NA</span>, <span class="at">d_cost =</span> <span class="cn">NA</span>, <span class="at">d_pkg =</span> <span class="cn">NA</span>, <span class="at">d_other =</span> <span class="cn">NA</span>, <span class="at">icer =</span> <span class="cn">NA</span>)</span>
+<span id="cb50-4"><a href="#cb50-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) {</span>
+<span id="cb50-5"><a href="#cb50-5" aria-hidden="true" tabindex="-1"></a>  inp_r <span class="ot">&lt;-</span> inp</span>
+<span id="cb50-6"><a href="#cb50-6" aria-hidden="true" tabindex="-1"></a>  inp_r<span class="sc">$</span>disc_rate <span class="ot">&lt;-</span> disc_tab<span class="sc">$</span>rate[i]</span>
+<span id="cb50-7"><a href="#cb50-7" aria-hidden="true" tabindex="-1"></a>  res_r <span class="ot">&lt;-</span> <span class="fu">evaluate_arms</span>(psm, inp_r)</span>
+<span id="cb50-8"><a href="#cb50-8" aria-hidden="true" tabindex="-1"></a>  inc_r <span class="ot">&lt;-</span> <span class="fu">incremental</span>(res_r, inp<span class="sc">$</span>wtp)</span>
+<span id="cb50-9"><a href="#cb50-9" aria-hidden="true" tabindex="-1"></a>  disc_tab[i, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">c</span>(inc_r<span class="sc">$</span>d_qaly, inc_r<span class="sc">$</span>d_cost, res_r[<span class="st">"enh"</span>, <span class="st">"cost_pkg"</span>] <span class="sc">-</span> res_r[<span class="st">"soc"</span>, <span class="st">"cost_pkg"</span>],</span>
+<span id="cb50-10"><a href="#cb50-10" aria-hidden="true" tabindex="-1"></a>                       inc_r<span class="sc">$</span>d_cost <span class="sc">-</span> (res_r[<span class="st">"enh"</span>, <span class="st">"cost_pkg"</span>] <span class="sc">-</span> res_r[<span class="st">"soc"</span>, <span class="st">"cost_pkg"</span>]), inc_r<span class="sc">$</span>icer)</span>
+<span id="cb50-11"><a href="#cb50-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb50-12"><a href="#cb50-12" aria-hidden="true" tabindex="-1"></a>disc_tab<span class="sc">$</span>pkg_share <span class="ot">&lt;-</span> disc_tab<span class="sc">$</span>d_pkg <span class="sc">/</span> disc_tab<span class="sc">$</span>d_cost</span>
+<span id="cb50-13"><a href="#cb50-13" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(disc_tab, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  rate d_qaly   d_cost   d_pkg  d_other    icer pkg_share
+1 0.00  4.215 12826626 2139938 10686688 3043044     0.167
+2 0.03  2.422  7629738 2124436  5505302 3150640     0.278
+3 0.05  1.790  5872075 2114431  3757644 3280101     0.360</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prose claims: the ICER and the package's share of the incremental cost both rise with the rate</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">diff</span>(disc_tab<span class="sc">$</span>icer) <span class="sc">&gt;</span> <span class="dv">0</span>), <span class="fu">all</span>(<span class="fu">diff</span>(disc_tab<span class="sc">$</span>pkg_share) <span class="sc">&gt;</span> <span class="dv">0</span>))</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Prose claims: the ICER rises only moderately, and the package is the smaller part of the incremental cost</span></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">max</span>(disc_tab<span class="sc">$</span>icer) <span class="sc">/</span> <span class="fu">min</span>(disc_tab<span class="sc">$</span>icer) <span class="sc">&lt;</span> <span class="fl">1.5</span>, disc_tab<span class="sc">$</span>pkg_share[<span class="dv">2</span>] <span class="sc">&lt;</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Bài tập 3 (khó).</strong> Tính tay tỷ lệ ba trạng thái tại năm 5 của nhánh chuẩn và đối chiếu với <code>psm$soc</code>.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Tại tháng 60: EF = S_EFS = 0.593, PP = S_OS − S_EFS = 0.030, D = 1 − S_OS = 0.377. Ba số cộng bằng 1 và trùng hàng thứ 61 của <code>psm$soc</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 3: state membership at 5 years by hand, from the two curves (standard care)</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>m5 <span class="ot">&lt;-</span> <span class="dv">5</span> <span class="sc">*</span> <span class="dv">12</span> <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">EF =</span> curves<span class="sc">$</span>soc<span class="sc">$</span>efs[m5], <span class="at">PP =</span> curves<span class="sc">$</span>soc<span class="sc">$</span>os[m5] <span class="sc">-</span> curves<span class="sc">$</span>soc<span class="sc">$</span>efs[m5], <span class="at">D =</span> <span class="dv">1</span> <span class="sc">-</span> curves<span class="sc">$</span>soc<span class="sc">$</span>os[m5])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       EF        PP         D 
+0.5933180 0.0301611 0.3765209 </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="tài-liệu-tham-khảo" class="level2">
+<h2 class="anchored" data-anchor-id="tài-liệu-tham-khảo">Tài liệu tham khảo</h2>
+<p>Đọc thêm: <span class="citation" data-cites="woods2017partitioned">Woods và c.s. (<a href="../m00-r-foundations/index.html#ref-woods2017partitioned" role="doc-biblioref">2017</a>)</span> (TSD 19), <span class="citation" data-cites="woods2020partitioned">Woods và c.s. (<a href="../m00-r-foundations/index.html#ref-woods2020partitioned" role="doc-biblioref">2020</a>)</span> (PSM và STM hiện nay), <span class="citation" data-cites="williams2017estimation">Williams và c.s. (<a href="../m00-r-foundations/index.html#ref-williams2017estimation" role="doc-biblioref">2017</a>)</span> (so sánh trên một thử nghiệm), <span class="citation" data-cites="putter2007tutorial">Putter, Fiocco, và Geskus (<a href="../m00-r-foundations/index.html#ref-putter2007tutorial" role="doc-biblioref">2007</a>)</span> (nguy cơ cạnh tranh, mô hình đa trạng thái).</p>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-byt2024qd3220" class="csl-entry" role="listitem">
+Bộ Y tế. 2024. <span>“Quyết định số 3220/<span>QĐ-BYT</span> ngày 01/11/2024 về giá dịch vụ khám bệnh, chữa bệnh áp dụng tại Bệnh viện Bạch Mai”</span>. 1 Tháng Mười-Một 2024. <a href="https://apicms.bachmai.gov.vn/documents/37204/1543632/8_Nov_2024_022948_GMTupload_00004592.pdf/b3ab6717-2151-db08-9913-3cfbfd7e0738">https://apicms.bachmai.gov.vn/documents/37204/1543632/8_Nov_2024_022948_GMTupload_00004592.pdf/b3ab6717-2151-db08-9913-3cfbfd7e0738</a>.
+</div>
+<div id="ref-chinhphu2025nd293" class="csl-entry" role="listitem">
+Chính phủ. 2025. <span>“Nghị định 293/2025/<span>NĐ-CP</span> quy định mức lương tối thiểu đối với người lao động làm việc theo hợp đồng lao động (hiệu lực từ 1/1/2026)”</span>. 2025. <a href="https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026">https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026</a>.
+</div>
+<div id="ref-vaac2022cv235" class="csl-entry" role="listitem">
+Cục Phòng, chống HIV/AIDS (Bộ Y tế). 2022. <span>“Công văn 235/<span>AIDS-ĐT</span> ngày 21/4/2022 về kê đơn, cấp thuốc <span>ARV</span> tối đa 90 ngày cho người nhiễm <span>HIV</span> điều trị thuốc <span>ARV</span> ổn định”</span>. 21 Tháng Tư 2022. <a href="https://luatvietnam.vn/y-te/cong-van-235-aids-dt-cuc-phong-chong-hiv-aids-220057-d6.html">https://luatvietnam.vn/y-te/cong-van-235-aids-dt-cuc-phong-chong-hiv-aids-220057-d6.html</a>.
+</div>
+<div id="ref-gso2026gdp2025" class="csl-entry" role="listitem">
+Cục Thống kê (Bộ Tài chính). 2026. <span>“Họp báo công bố tình hình kinh tế – xã hội quý <span>IV</span> và năm 2025”</span>. 5 Tháng Giêng 2026. <a href="https://www.nso.gov.vn/?p=59699">https://www.nso.gov.vn/?p=59699</a>.
+</div>
+<div id="ref-latimer2011survival" class="csl-entry" role="listitem">
+Latimer, Nicholas R. 2011. <span>“<span>NICE DSU</span> Technical Support Document 14: Survival analysis for economic evaluations alongside clinical trials – extrapolation with patient-level data”</span>. Decision Support Unit, ScHARR, University of Sheffield. <a href="https://doi.org/10.15131/shef.data.33745843">https://doi.org/10.15131/shef.data.33745843</a>.
+</div>
+<div id="ref-mcconnell2025tbcheat" class="csl-entry" role="listitem">
+McConnell, Erin. 2025. <span>“<span>TB</span> treatment regimen cheat sheet”</span>. Treatment Action Group. Tháng Ba 2025. <a href="https://www.treatmentactiongroup.org/wp-content/uploads/2025/03/TB_TX_regimen_cheat_sheet_2025_final.pdf">https://www.treatmentactiongroup.org/wp-content/uploads/2025/03/TB_TX_regimen_cheat_sheet_2025_final.pdf</a>.
+</div>
+<div id="ref-nhadautu2025pho" class="csl-entry" role="listitem">
+Nhadautu.vn. 2025. <span>“Tô phở 30.000 đồng dần biến mất, hàng ăn lập mặt bằng giá mới”</span>. 28 Tháng Tám 2025. <a href="https://nhadautu.vn/to-pho-30000-dong-dan-bien-mat-hang-an-lap-mat-bang-gia-moi-d98663.html">https://nhadautu.vn/to-pho-30000-dong-dan-bien-mat-hang-an-lap-mat-bang-gia-moi-d98663.html</a>.
+</div>
+<div id="ref-ong2026costutility" class="csl-entry" role="listitem">
+Ong, The Due, Anh Son Dao, Quoc Trung Ly, Thi Tuyet Mai Kieu, và Hong Minh Le. 2026. <span>“Cost-effectiveness of luseogliflozin for the management of type 2 diabetes mellitus in <span>Vietnam</span>: a <span>Markov</span> model analysis from the <span>Vietnam</span> social health insurance perspective”</span>. <em>Cost Effectiveness and Resource Allocation</em> 24 (1). <a href="https://doi.org/10.1186/s12962-026-00797-y">https://doi.org/10.1186/s12962-026-00797-y</a>.
+</div>
+<div id="ref-putter2007tutorial" class="csl-entry" role="listitem">
+Putter, H., M. Fiocco, và R. B. Geskus. 2007. <span>“Tutorial in biostatistics: competing risks and multi-state models”</span>. <em>Statistics in Medicine</em> 26 (11): 2389–2430. <a href="https://doi.org/10.1002/sim.2712">https://doi.org/10.1002/sim.2712</a>.
+</div>
+<div id="ref-globalfund2026ppmarv" class="csl-entry" role="listitem">
+The Global Fund. 2026. <span>“Pooled Procurement Mechanism Reference Pricing: <span>ARVs</span> (Version <span>Q1</span> 2026)”</span>. Tháng Ba 2026. <a href="https://www.theglobalfund.org/media/3x0lhsks/ppm_arvreferencepricing_table_en.pdf">https://www.theglobalfund.org/media/3x0lhsks/ppm_arvreferencepricing_table_en.pdf</a>.
+</div>
+<div id="ref-tran2012quality" class="csl-entry" role="listitem">
+Tran, Bach Xuan, Arto Ohinmaa, và Long Thanh Nguyen. 2012. <span>“Quality of life profile and psychometric properties of the <span>EQ-5D-5L</span> in <span>HIV/AIDS</span> patients”</span>. <em>Health and Quality of Life Outcomes</em> 10: 132. <a href="https://doi.org/10.1186/1477-7525-10-132">https://doi.org/10.1186/1477-7525-10-132</a>.
+</div>
+<div id="ref-williams2017estimation" class="csl-entry" role="listitem">
+Williams, Claire, James D. Lewsey, Daniel F. Mackay, và Andrew H. Briggs. 2017. <span>“Estimation of survival probabilities for use in cost-effectiveness analyses: a comparison of a multi-state modeling survival analysis approach with partitioned survival and <span>Markov</span> decision-analytic modeling”</span>. <em>Medical Decision Making</em> 37 (4): 427–39. <a href="https://doi.org/10.1177/0272989X16670617">https://doi.org/10.1177/0272989X16670617</a>.
+</div>
+<div id="ref-woods2017partitioned" class="csl-entry" role="listitem">
+Woods, Beth S., Eleftherios Sideris, Stephen Palmer, Nick Latimer, và Marta Soares. 2017. <span>“<span>NICE DSU</span> Technical Support Document 19: Partitioned survival analysis as a decision modelling tool”</span>. Decision Support Unit, ScHARR, University of Sheffield. <a href="https://doi.org/10.15131/shef.data.33848653">https://doi.org/10.15131/shef.data.33848653</a>.
+</div>
+<div id="ref-woods2020partitioned" class="csl-entry" role="listitem">
+———. 2020. <span>“Partitioned survival and state transition models for healthcare decision making in oncology: where are we now?”</span> <em>Value in Health</em> 23 (12): 1613–21. <a href="https://doi.org/10.1016/j.jval.2020.08.2094">https://doi.org/10.1016/j.jval.2020.08.2094</a>.
+</div>
+<div id="ref-who2026tbestimates" class="csl-entry" role="listitem">
+World Health Organization. 2026. <span>“Global tuberculosis data: <span>WHO</span> estimates of <span>TB</span> incidence and mortality by country (CSV download, <span>Viet Nam</span>, 2024)”</span>. 2026. <a href="https://extranet.who.int/tme/generateCSV.asp?ds=estimates">https://extranet.who.int/tme/generateCSV.asp?ds=estimates</a>.
+</div>
+</div>
+<div class="video-script">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Kịch bản video (~15 phút)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Slide</th>
+<th>Lời giảng chính</th>
+<th>Hình/Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Hai cách dựng mô hình</td>
+<td>STM đẩy đoàn hệ qua mũi tên; PSM chia đoàn hệ theo đường cong</td>
+<td>Sơ đồ PSM/STM</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Ba công thức</td>
+<td>EF = S_EFS; PP = S_OS − S_EFS; D = 1 − S_OS</td>
+<td>Công thức</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Chọn đường cong</td>
+<td>Cùng họ cho hai nhánh; tổng AIC; sàn tử vong nền</td>
+<td>Chunk <code>l05-choose</code></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Tỷ lệ trạng thái</td>
+<td>Diện tích giữa hai đường là thời gian sau biến cố</td>
+<td><code>figs/l05-psm-areas.png</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Chi phí và QALY</td>
+<td>Hình thang, chiết khấu giữa chu kỳ; kiểm tra độc lập</td>
+<td>Chunk <code>l05-cea</code></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Kết quả</td>
+<td>Chi phí đơn vị theo giá BHYT; lượng chăm sóc là giả định; NMB, ICER so với ngưỡng 1 × GDP/người</td>
+<td>Chunk <code>l05-cea</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>STM từ IPD</td>
+<td>Nguy cơ cạnh tranh từ EF; PP→D theo thời gian từ biến cố</td>
+<td>Chunk <code>l05-stm-fit</code></td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>PSM vs STM vs thật</td>
+<td>Một thử nghiệm: khác nhau nhiều; thời gian sau biến cố theo năm</td>
+<td><code>figs/l05-psm-vs-stm.png</code></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Sai số mẫu</td>
+<td>Lặp lại nhiều thử nghiệm: trung bình, khoảng, tỷ lệ NMB dương</td>
+<td>Chunk <code>l05-replicates</code></td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Khớp riêng hay chung</td>
+<td>sdlog hai nhánh; đuôi phân kỳ; kịch bản</td>
+<td>Chunk <code>l05-joint</code></td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Không có liên kết cấu trúc</td>
+<td>Kịch bản giảm tử vong sau biến cố: STM đổi, PSM không</td>
+<td>Chunk <code>l05-structural</code></td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Khi nào dùng gì</td>
+<td>PSM khi chỉ có đường cong; STM song song để kiểm tra giả định</td>
+<td>Danh sách giới hạn</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td>Tổng kết module</td>
+<td>KM → mô hình tham số → ngoại suy → tái tạo → PSM/STM</td>
+<td>Sơ đồ quy trình Bài 1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="pagination-link" aria-label="Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../kb/m08-calibration/index.html" class="pagination-link" aria-label="M08 · Hiệu chuẩn mô hình (calibration)">
+        <span class="nav-page-text">M08 · Hiệu chuẩn mô hình (calibration)</span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

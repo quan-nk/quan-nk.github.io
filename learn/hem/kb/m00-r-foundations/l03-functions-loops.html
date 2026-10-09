@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="vi" xml:lang="vi"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa – Mô hình Kinh tế Y tế với R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../kb/m00-r-foundations/l04-data-frames.html" rel="next">
+<link href="../../kb/m00-r-foundations/l02-vectors-matrices.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-9e7f0c659d5fa2cace8548cb57964278.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c18d72663580ed8ca19ce2a2f99af51b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m00-r-foundations/index.html">M00 · R cho mô hình kinh tế y tế</a></li><li class="breadcrumb-item"><a href="../../kb/m00-r-foundations/l03-functions-loops.html"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Mô hình Kinh tế Y tế với R</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lời mở đầu</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m00-r-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M00 · R cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l01-reproducible-workflow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Quy trình làm việc tái lập với R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m01-ee-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M01 · Nền tảng đánh giá kinh tế và cây quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l01-evaluation-types.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại đánh giá kinh tế, quan điểm, khung thời gian và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l03-decision-rules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l05-decision-tree.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Xây cây quyết định từ đầu trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m02-cohort-markov/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M02 · Mô hình chuyển trạng thái đoàn hệ (Markov)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l01-state-transition.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao cần mô hình chuyển trạng thái</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l02-rates-probabilities.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tỷ suất, xác suất và độ dài chu kỳ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l03-cohort-trace.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vết đoàn hệ, giá trị gắn với trạng thái và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l04-time-dependence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Phụ thuộc thời gian: lão hóa, trạng thái đường hầm và mảng 3 chiều</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l05-results-verification.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị gắn với lần chuyển, đường biên hiệu quả và xác minh mô hình</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m03-uncertainty-voi/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M03 · Bất định, phân tích độ nhạy và giá trị thông tin</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l01-deterministic-sa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại bất định và phân tích độ nhạy tất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l02-distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Chọn phân phối cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l03-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích độ nhạy xác suất (PSA) trong R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l04-ceac-reporting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: CEAC, CEAF, tổn thất kỳ vọng và cách báo cáo bất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l05-voi.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị thông tin: EVPI, EVPPI và EVSI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m04-microsimulation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M04 · Mô phỏng vi mô (microsimulation)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l01-why-microsimulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Khi mô hình đoàn hệ không đủ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l02-microsim-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô phỏng vi mô bằng vòng lặp trong R cơ bản</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l03-vectorisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vectơ hóa theo cá thể và đo hiệu năng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l04-parallel-rcpp.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tính toán song song và Rcpp cho vòng lặp nóng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l05-mc-error-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bao nhiêu cá thể là đủ? Sai số Monte Carlo, PSA và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m05-dynamic-transmission/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M05 · Mô hình lây truyền động</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l01-static-vs-dynamic.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Mô hình tĩnh và mô hình lây truyền động</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l02-sir-seir-desolve.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình SIR và SEIR trong R với deSolve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m06-amr-economics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M06 · Kinh tế học kháng kháng sinh (AMR)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l01-amr-burden.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Kinh tế học kháng kháng sinh: ngoại ứng, gánh nặng và kịch bản phản thực</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l03-ward-transmission.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m07-survival-psm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M07 · Phân tích sống còn cho mô hình quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l03-extrapolation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l05-partitioned-survival.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m08-calibration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M08 · Hiệu chuẩn mô hình (calibration)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l01-why-calibrate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao phải hiệu chuẩn mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l02-search-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tìm kiếm tham số: ngẫu nhiên, siêu khối Latin và Nelder–Mead</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l03-bayes-sir.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hiệu chuẩn Bayes và thuật toán SIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l04-psa-validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đưa kết quả hiệu chuẩn vào PSA, thẩm định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m09-inputs-vietnam/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M09 · Dữ liệu đầu vào cho Việt Nam và LMIC</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l01-costing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ước tính chi phí cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l02-cost-adjustment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Điều chỉnh chi phí về một năm tham chiếu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l03-outcome-inputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Đầu vào về kết cục sức khỏe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l04-evidence-synthesis.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tổng hợp bằng chứng cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l05-decision-context.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bối cảnh ra quyết định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m10-policy-bia-equity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l04-communicating-hta.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Truyền đạt kết quả cho người ra quyết định và quy trình HTA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m11-software-engineering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l01-code-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Cấu trúc mã cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l02-testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Xác minh và kiểm thử mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l03-version-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l04-r-package.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/glossary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Trong bài</h2>
+   
+  <ul class="collapse">
+  <li><a href="#mục-tiêu-học-tập" id="toc-mục-tiêu-học-tập" class="nav-link active" data-scroll-target="#mục-tiêu-học-tập">Mục tiêu học tập</a></li>
+  <li><a href="#ý-chính" id="toc-ý-chính" class="nav-link" data-scroll-target="#ý-chính">Ý chính</a></li>
+  <li><a href="#nội-dung" id="toc-nội-dung" class="nav-link" data-scroll-target="#nội-dung">Nội dung</a></li>
+  <li><a href="#thực-hành" id="toc-thực-hành" class="nav-link" data-scroll-target="#thực-hành">Thực hành</a></li>
+  <li><a href="#bài-tập" id="toc-bài-tập" class="nav-link" data-scroll-target="#bài-tập">Bài tập</a></li>
+  <li><a href="#tài-liệu-tham-khảo" id="toc-tài-liệu-tham-khảo" class="nav-link" data-scroll-target="#tài-liệu-tham-khảo">Tài liệu tham khảo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m00-r-foundations/index.html">M00 · R cho mô hình kinh tế y tế</a></li><li class="breadcrumb-item"><a href="../../kb/m00-r-foundations/l03-functions-loops.html"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></h1>
+<p class="subtitle lead">Viết mô hình thành hàm của tham số, và biết khi nào cần vòng lặp, khi nào không</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-important callout-titled" title="Vì sao bạn nên quan tâm?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Vì sao bạn nên quan tâm?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Phòng Kiểm soát nhiễm khuẩn (KSNK) của một bệnh viện tuyến trung ương đề xuất sàng lọc CRE cho mọi người bệnh khi vào ICU và xếp người mang khuẩn chung buồng. Ở ICU nhi của Bệnh viện Nhi Trung ương, cách làm này đã kéo tỷ lệ mắc mới (acquisition) CRE giảm rõ rệt <span class="citation" data-cites="garpvall2021admission">(<a href="index.html#ref-garpvall2021admission" role="doc-biblioref">Garpvall và c.s. 2021</a>)</span>. Với mô hình của module, mỗi lượt vào ICU tốn kỳ vọng 12,954,108 VNĐ (giá 2025), bằng 1.5 tháng thu nhập bình quân của một người lao động <span class="citation" data-cites="gso2026population2025">(<a href="index.html#ref-gso2026population2025" role="doc-biblioref">Cục Thống kê (Bộ Tài chính) 2026</a>)</span>. Nếu xác suất mắc mới giảm một nửa, chi phí giảm 1,462,107 VNĐ mỗi lượt và số ngày nhiễm khuẩn CRE kỳ vọng giảm từ 0.66 xuống 0.42 ngày. Một kịch bản chưa đủ để quyết định có đầu tư hay không; bài này dạy viết mô hình thành hàm để chạy nó cho cả một dải giá trị.</p>
+</div>
+</div>
+<section id="mục-tiêu-học-tập" class="level2">
+<h2 class="anchored" data-anchor-id="mục-tiêu-học-tập">Mục tiêu học tập</h2>
+<p>Sau bài này, bạn có thể:</p>
+<ol type="1">
+<li>Viết một hàm có đối số mặc định, kiểm tra đầu vào bằng <code>stopifnot()</code> và trả về một giá trị.</li>
+<li>Đóng gói một mô hình thành hàm của bảng tham số, rồi chạy nó cho nhiều kịch bản.</li>
+<li>Dùng <code>if</code>/<code>else</code>, <code>for</code> và <code>while</code> đúng chỗ, và biết khi nào cần <code>ifelse()</code> thay cho <code>if</code>.</li>
+<li>Nhận ra phép tính nào bắt buộc phải lặp và phép tính nào vectơ hóa được.</li>
+<li>Tránh lỗi “nối dài vectơ trong vòng lặp” bằng cách cấp phát trước.</li>
+</ol>
+</section>
+<section id="ý-chính" class="level2">
+<h2 class="anchored" data-anchor-id="ý-chính">Ý chính</h2>
+<ul>
+<li>Một mô hình là một <strong>hàm của tham số</strong>: tham số vào, kết quả ra. Mọi phân tích độ nhạy sau này chỉ là gọi lại hàm đó với tham số khác.</li>
+<li>Hàm tốt thì ngắn, làm một việc, kiểm tra đầu vào và dừng kèm thông báo rõ ràng thay vì trả về một con số sai.</li>
+<li>Sửa đối số bên trong hàm không làm thay đổi đối tượng bên ngoài. R sao chép đối tượng khi bạn sửa nó (copy-on-modify).</li>
+<li><code>if</code> chỉ làm việc với <strong>một</strong> giá trị. Với cả vectơ, dùng <code>ifelse()</code> hoặc chỉ mục logic.</li>
+<li>Muốn có <strong>mọi hàng của vết đoàn hệ (Markov trace)</strong>, ta lặp theo chu kỳ vì hàng t cần hàng t − 1; lặp cũng là cách tự nhiên khi ma trận chuyển đổi theo thời gian. Chi phí và kết cục gắn với trạng thái, phân loại kết quả và cờ đa kháng thì <strong>vectơ hóa</strong> được.</li>
+<li><strong>Cấp phát trước (preallocation)</strong> kết quả (<code>numeric(n)</code>, <code>matrix(0, …)</code>) rồi điền vào. Không nối dài vectơ bằng <code>c()</code> trong vòng lặp.</li>
+<li>Chi phí tính theo hàng nào của vết là một <strong>quy ước</strong>: đầu ngày, cuối ngày hay nửa chu kỳ cho tổng khác nhau. Hãy chọn một cách, ghi rõ và dùng nhất quán.</li>
+<li><code>sapply()</code> áp dụng một hàm cho từng giá trị; đó là cách chạy một dải kịch bản ngắn gọn.</li>
+</ul>
+</section>
+<section id="nội-dung" class="level2">
+<h2 class="anchored" data-anchor-id="nội-dung">Nội dung</h2>
+<section id="hàm-đơn-vị-xây-dựng-của-mô-hình" class="level3">
+<h3 class="anchored" data-anchor-id="hàm-đơn-vị-xây-dựng-của-mô-hình">Hàm: đơn vị xây dựng của mô hình</h3>
+<p>Một hàm R gồm tên, các đối số và thân hàm; biểu thức cuối cùng trong thân là giá trị trả về. Đối số có thể có giá trị mặc định, ví dụ <code>nonsusceptible = FALSE</code>, nên lời gọi ngắn gọn khi dùng mặc định và vẫn rõ ràng khi đổi. Sách <em>Advanced R</em> giải thích kỹ cơ chế này cho ai muốn đi sâu <span class="citation" data-cites="wickham2019advanced">(<a href="index.html#ref-wickham2019advanced" role="doc-biblioref">Wickham 2019</a>)</span>.</p>
+<p>Viết mô hình thành hàm có ba lợi ích. Một là <strong>kiểm tra được</strong>: so sánh kết quả của hàm với một phép tính tay. Hai là <strong>tái sử dụng</strong>: cùng một hàm chạy cho phân tích cơ sở, phân tích kịch bản và hàng nghìn lần trong PSA. Ba là <strong>minh bạch</strong>: người đọc thấy rõ đầu vào và đầu ra. Khung mã hóa được đề xuất cho mô hình quyết định trong R xây trên ý tưởng này <span class="citation" data-cites="alaridescudero2019need">(<a href="index.html#ref-alaridescudero2019need" role="doc-biblioref">Alarid-Escudero và c.s. 2019</a>)</span>.</p>
+<p>Trong R, hàm không làm thay đổi đối tượng được truyền vào. Khi <code>scenario_cost()</code> sửa <code>p$p_u_c</code> bên trong, R tạo một bản sao; danh sách tham số gốc bên ngoài giữ nguyên. Nhờ vậy, chạy một kịch bản không bao giờ làm hỏng phân tích cơ sở.</p>
+</section>
+<section id="cấu-trúc-điều-khiển" class="level3">
+<h3 class="anchored" data-anchor-id="cấu-trúc-điều-khiển">Cấu trúc điều khiển</h3>
+<ul>
+<li><code>if (điều kiện) { … } else { … }</code> rẽ nhánh theo <strong>một</strong> giá trị <code>TRUE</code>/<code>FALSE</code>. Dùng để phân loại một giá trị nồng độ ức chế tối thiểu (MIC, minimum inhibitory concentration) theo điểm gãy (breakpoint) hoặc kiểm tra một điều kiện trước khi tính.</li>
+<li><code>for (i in seq_along(x)) { … }</code> lặp một số lần đã biết trước. Dùng <code>seq_along(x)</code> thay cho <code>1:length(x)</code>, vì khi <code>x</code> rỗng thì <code>1:0</code> vẫn sinh ra hai lần lặp.</li>
+<li><code>while (điều kiện) { … }</code> lặp cho đến khi điều kiện sai, khi chưa biết trước số lần lặp. Ví dụ: tìm ngày đầu tiên còn dưới 10% đoàn hệ ở khoa hồi sức tích cực (ICU). Luôn đặt giới hạn cho vòng <code>while</code>, để nó dừng được ngay cả khi điều kiện không bao giờ sai.</li>
+</ul>
+<p>Giá trị MIC và điểm gãy trong bài là <strong>giá trị minh họa</strong> để luyện lập trình. Khi phân loại kết quả thật, luôn tra phiên bản hiện hành của bảng điểm gãy do Clinical and Laboratory Standards Institute (CLSI) hoặc European Committee on Antimicrobial Susceptibility Testing (EUCAST) công bố.</p>
+</section>
+<section id="vòng-lặp-hay-vectơ-hóa" class="level3">
+<h3 class="anchored" data-anchor-id="vòng-lặp-hay-vectơ-hóa">Vòng lặp hay vectơ hóa?</h3>
+<p><strong>Vectơ hóa (vectorisation)</strong> nghĩa là viết phép tính tác động lên cả vectơ hoặc ma trận cùng lúc. <code>rowSums()</code> và <code>%*%</code> chạy vòng lặp bên trong bằng mã đã biên dịch; <code>ifelse()</code> là mã R nhưng dựa trên các phép toán vectơ hóa. Mã vectơ hóa thường ngắn hơn, ít chỗ sai hơn và thường nhanh hơn.</p>
+<p>Không phải phép tính nào cũng vectơ hóa được. Vết đoàn hệ là một quan hệ truy hồi, <span class="math inline">\(s_{t+1} = s_t P\)</span>. Khi <span class="math inline">\(P\)</span> không đổi, một hàng riêng lẻ vẫn tính được bằng lũy thừa ma trận <span class="math inline">\(s_0 P^n\)</span> (Bài 2). Nhưng để có <strong>mọi</strong> hàng của vết, và khi <span class="math inline">\(P\)</span> đổi theo thời gian hoặc theo lịch sử, ta lặp theo chu kỳ: hàng <span class="math inline">\(t+1\)</span> được tính từ hàng <span class="math inline">\(t\)</span>. Ngược lại, khi đã có vết, chi phí mọi ngày tính bằng <strong>một</strong> phép nhân ma trận:</p>
+<p><span class="math display">\[
+\text{chi phí} = \sum_{t} \sum_{k} \text{vết}_{t,k}\, c_k = \mathbf{1}^\top (\text{vết} \cdot \mathbf{c}).
+\]</span></p>
+<p>Quy tắc thực hành: lặp theo <strong>thời gian</strong> khi cần; vectơ hóa theo <strong>trạng thái</strong> và theo <strong>cá thể</strong>. M04 sẽ vectơ hóa theo cá thể trong mô phỏng vi mô.</p>
+</section>
+<section id="lặp-qua-nhiều-kịch-bản" class="level3">
+<h3 class="anchored" data-anchor-id="lặp-qua-nhiều-kịch-bản">Lặp qua nhiều kịch bản</h3>
+<p>Muốn biết chi phí thay đổi ra sao khi xác suất mắc mới định cư CRE thay đổi, ta viết hàm <code>scenario_cost(p, giá_trị)</code> rồi gọi nó cho một dãy giá trị bằng <code>sapply()</code>. Đây là dạng đơn giản nhất của phân tích độ nhạy một chiều (OWSA). M01 và M03 sẽ dạy cách làm đầy đủ.</p>
+</section>
+</section>
+<section id="thực-hành" class="level2">
+<h2 class="anchored" data-anchor-id="thực-hành">Thực hành</h2>
+<p>Nạp hàm, ba bảng tham số và bộ dữ liệu mô phỏng.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">isTRUE</span>(<span class="fu">l10n_info</span>()[[<span class="st">"UTF-8"</span>]])) <span class="fu">invisible</span>(<span class="fu">Sys.setlocale</span>(<span class="st">"LC_CTYPE"</span>, <span class="st">"en_US.UTF-8"</span>))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/helpers.R"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/vn_data.R"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">warnPartialMatchDollar =</span> <span class="cn">TRUE</span>)   <span class="co"># `$` that silently matches a shortened name now warns</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>p_sim <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/amr_sim.csv"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>q <span class="ot">&lt;-</span> <span class="fu">load_icu_params</span>()   <span class="co"># params/icu_markov.csv + the shared ICU bed-day and drug prices</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/teaching_demos.csv"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>iso <span class="ot">&lt;-</span> <span class="fu">simulate_isolates</span>(p_sim, <span class="at">seed =</span> <span class="dv">2025</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Hàm đầu tiên tính tỷ lệ đề kháng của một vectơ kết quả S/I/R. Nó loại <code>NA</code> khỏi mẫu số, có đối số mặc định cho định nghĩa “đề kháng”, và dừng nếu nhận sai kiểu dữ liệu. Kiểm tra: kết quả trùng với cách viết một dòng ở Bài 2, và lời gọi sai kiểu trả về thông báo lỗi thay vì một con số.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A function: inputs (arguments, some with defaults) -&gt; one returned value</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>prop_resistant <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">nonsusceptible =</span> <span class="cn">FALSE</span>) {</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.character</span>(x))                  <span class="co"># fail loudly on the wrong input type</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> x[<span class="sc">!</span><span class="fu">is.na</span>(x)]                           <span class="co"># untested isolates are not in the denominator</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  flag <span class="ot">&lt;-</span> <span class="cf">if</span> (nonsusceptible) x <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"I"</span>, <span class="st">"R"</span>) <span class="cf">else</span> x <span class="sc">==</span> <span class="st">"R"</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(flag) <span class="sc">/</span> <span class="fu">length</span>(x)                       <span class="co"># the last expression is returned</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>mem_aba <span class="ot">&lt;-</span> iso<span class="sc">$</span>MEM[iso<span class="sc">$</span>organism <span class="sc">==</span> <span class="st">"A. baumannii"</span>]</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">R_only =</span> <span class="fu">prop_resistant</span>(mem_aba), <span class="at">I_or_R =</span> <span class="fu">prop_resistant</span>(mem_aba, <span class="at">nonsusceptible =</span> <span class="cn">TRUE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   R_only    I_or_R 
+0.7240039 0.7327502 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Same answer as the one-liner used in Lesson 2</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(<span class="fu">prop_resistant</span>(mem_aba) <span class="sc">-</span> <span class="fu">mean</span>(mem_aba <span class="sc">==</span> <span class="st">"R"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">&lt;</span> <span class="fl">1e-12</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># A wrong input type stops with an error instead of returning a silent wrong number</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">tryCatch</span>(<span class="fu">prop_resistant</span>(mem_aba <span class="sc">==</span> <span class="st">"R"</span>), <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">conditionMessage</span>(e))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "is.character(x) is not TRUE"</code></pre>
+</div>
+</div>
+<p>Mô hình ICU, gói thành một hàm của danh sách tham số. Hàm dựng ma trận, chạy vết và nhân vết với vectơ chi phí theo trạng thái. Kiểm tra: kết quả khớp với <code>icu_outcomes()</code> trong <code>code/model.R</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A model is a function of its parameters: parameters in, result out</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>icu_cost <span class="ot">&lt;-</span> <span class="cf">function</span>(p) {</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  P <span class="ot">&lt;-</span> <span class="fu">build_icu_P</span>(p)</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  s0 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">U =</span> <span class="dv">1</span>, <span class="at">C =</span> <span class="dv">0</span>, <span class="at">I =</span> <span class="dv">0</span>, <span class="at">X =</span> <span class="dv">0</span>, <span class="at">D =</span> <span class="dv">0</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  trace <span class="ot">&lt;-</span> <span class="fu">cohort_trace</span>(P, s0, p<span class="sc">$</span>n_days)</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  days <span class="ot">&lt;-</span> trace[<span class="dv">1</span><span class="sc">:</span>p<span class="sc">$</span>n_days, ]                 <span class="co"># occupancy at the start of each day</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sum</span>(days <span class="sc">%*%</span> <span class="fu">icu_state_costs</span>(p))            <span class="co"># expected cost per admission (VND)</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>cost_base <span class="ot">&lt;-</span> <span class="fu">icu_cost</span>(q)</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(cost_base <span class="sc">-</span> <span class="fu">icu_outcomes</span>(q)<span class="sc">$</span>cost) <span class="sc">&lt;</span> <span class="fl">1e-6</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a><span class="fu">fmt_vnd</span>(cost_base)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "12,954,108 VNĐ"</code></pre>
+</div>
+</div>
+<p>Chi phí kỳ vọng cho mỗi lượt vào ICU là 12,954,108 VNĐ (giá 2025). Con số này chỉ gồm giá ngày giường BHYT, chi phí phòng ngừa tiếp xúc (giá trị minh họa) và thuốc điều trị nhiễm khuẩn CRE (colistin và meropenem) trong tối đa 30 ngày; nó chưa gồm xét nghiệm, máy thở hay các thuốc khác.</p>
+<p>Hàm <code>scenario_cost()</code> đổi một tham số rồi chạy lại mô hình. Kiểm tra: sau lời gọi, <code>q$p_u_c</code> bên ngoài vẫn giữ giá trị trong CSV.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Changing an argument inside a function does not change the object outside</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (a demonstration: R copies the list when the function modifies it)</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>scenario_cost <span class="ot">&lt;-</span> <span class="cf">function</span>(p, p_u_c) {</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  p<span class="sc">$</span>p_u_c <span class="ot">&lt;-</span> p_u_c</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">icu_cost</span>(p)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>cost_double <span class="ot">&lt;-</span> <span class="fu">scenario_cost</span>(q, <span class="dv">2</span> <span class="sc">*</span> q<span class="sc">$</span>p_u_c)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">q_p_u_c_after_call =</span> q<span class="sc">$</span>p_u_c, <span class="at">cost_double =</span> cost_double)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>q_p_u_c_after_call        cost_double 
+      1.288000e-01       1.445587e+07 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(q<span class="sc">$</span>p_u_c <span class="sc">==</span> <span class="fu">attr</span>(q, <span class="st">"table"</span>)<span class="sc">$</span>value[<span class="fu">attr</span>(q, <span class="st">"table"</span>)<span class="sc">$</span>name <span class="sc">==</span> <span class="st">"p_u_c"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>if</code>/<code>else if</code>/<code>else</code> phân loại <strong>một</strong> giá trị MIC theo điểm gãy minh họa (nhạy cảm nếu MIC ≤ 1 mg/L, đề kháng nếu MIC ≥ 4 mg/L). <code>sapply()</code> gọi hàm này cho từng phần tử. Kiểm tra: giá trị <code>NA</code> cho ra <code>NA</code>, không bị xếp nhầm vào nhóm nào.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># if / else on ONE value: classify one MIC with (illustrative) breakpoints</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>classify_one <span class="ot">&lt;-</span> <span class="cf">function</span>(mic, s_max, r_min) {</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">is.na</span>(mic)) {</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="cn">NA_character_</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (mic <span class="sc">&lt;=</span> s_max) {</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    <span class="st">"S"</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (mic <span class="sc">&gt;=</span> r_min) {</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"R"</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"I"</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a><span class="fu">sapply</span>(<span class="fu">c</span>(<span class="fl">0.25</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">4</span>, <span class="dv">16</span>, <span class="cn">NA</span>), classify_one, <span class="at">s_max =</span> d<span class="sc">$</span>bp_s_max, <span class="at">r_min =</span> d<span class="sc">$</span>bp_r_min)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "S" "S" "I" "R" "R" NA </code></pre>
+</div>
+</div>
+<p>Vòng <code>while</code> tìm ngày đầu tiên còn dưới 10% đoàn hệ ở ICU, rồi so sánh với cách vectơ hóa bằng <code>which()</code>. Vòng lặp có giới hạn theo số ngày của vết và dừng với thông báo lỗi nếu chưa đạt ngưỡng. Kiểm tra: hai cách cho cùng một ngày.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># while: repeat until a condition fails. First day on which the share of the cohort still</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># in ICU falls below the threshold (thr_in_icu in params/teaching_demos.csv)</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>trace <span class="ot">&lt;-</span> <span class="fu">cohort_trace</span>(<span class="fu">build_icu_P</span>(q), <span class="fu">c</span>(<span class="at">U =</span> <span class="dv">1</span>, <span class="at">C =</span> <span class="dv">0</span>, <span class="at">I =</span> <span class="dv">0</span>, <span class="at">X =</span> <span class="dv">0</span>, <span class="at">D =</span> <span class="dv">0</span>), q<span class="sc">$</span>n_days)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>in_icu <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(trace[, <span class="fu">c</span>(<span class="st">"U"</span>, <span class="st">"C"</span>, <span class="st">"I"</span>)])</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>day <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Always bound a while loop: day &lt; n_days stops it at the end of the trace</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (day <span class="sc">&lt;</span> q<span class="sc">$</span>n_days <span class="sc">&amp;&amp;</span> in_icu[day <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">&gt;=</span> d<span class="sc">$</span>thr_in_icu) {</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  day <span class="ot">&lt;-</span> day <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (in_icu[day <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">&gt;=</span> d<span class="sc">$</span>thr_in_icu) <span class="fu">stop</span>(<span class="st">"threshold not reached within n_days"</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>day</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 21</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The vectorised way gives the same answer without a loop</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(day <span class="sc">==</span> <span class="fu">min</span>(<span class="fu">which</span>(in_icu <span class="sc">&lt;</span> d<span class="sc">$</span>thr_in_icu)) <span class="sc">-</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>So sánh vòng lặp với vectơ hóa trên 100,000 giá trị MIC mô phỏng. Vòng lặp gọi <code>classify_one()</code> cho từng giá trị; cách vectơ hóa dùng hai lớp <code>ifelse()</code>. Kiểm tra: <code>identical()</code> xác nhận hai kết quả giống hệt nhau.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">303</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>mic <span class="ot">&lt;-</span> <span class="dv">2</span><span class="sc">^</span><span class="fu">round</span>(<span class="fu">rnorm</span>(d<span class="sc">$</span>n_mic, <span class="at">mean =</span> d<span class="sc">$</span>mic_log2_mean, <span class="at">sd =</span> d<span class="sc">$</span>mic_log2_sd))  <span class="co"># dilution series</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># (a) loop with a pre-allocated result vector</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>t_loop <span class="ot">&lt;-</span> <span class="fu">system.time</span>({</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  sir_loop <span class="ot">&lt;-</span> <span class="fu">character</span>(<span class="fu">length</span>(mic))</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(mic)) sir_loop[i] <span class="ot">&lt;-</span> <span class="fu">classify_one</span>(mic[i], d<span class="sc">$</span>bp_s_max, d<span class="sc">$</span>bp_r_min)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>})[[<span class="st">"elapsed"</span>]]</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="co"># (b) vectorised: one call works on the whole vector</span></span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>t_vec <span class="ot">&lt;-</span> <span class="fu">system.time</span>({</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  sir_vec <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(mic <span class="sc">&lt;=</span> d<span class="sc">$</span>bp_s_max, <span class="st">"S"</span>, <span class="fu">ifelse</span>(mic <span class="sc">&gt;=</span> d<span class="sc">$</span>bp_r_min, <span class="st">"R"</span>, <span class="st">"I"</span>))</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>})[[<span class="st">"elapsed"</span>]]</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">identical</span>(sir_loop, sir_vec))</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(sir_vec)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>sir_vec
+    I     R     S 
+17400 22830 59770 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">loop_sec =</span> t_loop, <span class="at">vectorised_sec =</span> t_vec)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      loop_sec vectorised_sec 
+         0.043          0.011 </code></pre>
+</div>
+</div>
+<p>Trên máy tạo ra trang này, vòng lặp mất 0.043 giây, còn cách vectơ hóa mất 0.011 giây. Thời gian thay đổi theo máy và theo lần chạy. Lý do chính để vectơ hóa ở đây là mã ngắn hơn và ít chỗ sai hơn.</p>
+<p>Tiếp theo là cái bẫy phổ biến nhất về tốc độ: nối dài vectơ bằng <code>c()</code> trong vòng lặp. Mỗi lần nối, R chép toàn bộ vectơ sang chỗ mới. Kiểm tra: hai kết quả giống hệt nhau, chỉ khác thời gian chạy.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Growing a vector inside a loop copies it again and again: avoid</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>n_small <span class="ot">&lt;-</span> <span class="dv">20000</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>t_grow <span class="ot">&lt;-</span> <span class="fu">system.time</span>({</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  out_grow <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_small) out_grow <span class="ot">&lt;-</span> <span class="fu">c</span>(out_grow, mic[i] <span class="sc">&lt;=</span> d<span class="sc">$</span>bp_s_max)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>})[[<span class="st">"elapsed"</span>]]</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>t_prealloc <span class="ot">&lt;-</span> <span class="fu">system.time</span>({</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>  out_pre <span class="ot">&lt;-</span> <span class="fu">logical</span>(n_small)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>n_small) out_pre[i] <span class="ot">&lt;-</span> mic[i] <span class="sc">&lt;=</span> d<span class="sc">$</span>bp_s_max</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>})[[<span class="st">"elapsed"</span>]]</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">identical</span>(out_grow, out_pre))</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">grow_sec =</span> t_grow, <span class="at">preallocated_sec =</span> t_prealloc)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        grow_sec preallocated_sec 
+           0.235            0.003 </code></pre>
+</div>
+</div>
+<p>Với 20,000 phần tử, nối dài mất 0.235 giây, cấp phát trước mất 0.003 giây. Khoảng cách này tăng nhanh hơn tuyến tính khi vectơ dài ra.</p>
+<p>Tính chi phí từ vết đoàn hệ theo hai cách: hai vòng lặp lồng nhau (ngày × trạng thái) và một phép nhân ma trận. Kiểm tra: hai kết quả bằng nhau đến sai số làm tròn.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Over cycles a cohort model needs a loop (day t needs day t - 1), but rewards do not.</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>costs <span class="ot">&lt;-</span> <span class="fu">icu_state_costs</span>(q)</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>days <span class="ot">&lt;-</span> trace[<span class="dv">1</span><span class="sc">:</span>q<span class="sc">$</span>n_days, ]</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>cost_loop <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (t <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(days)) {</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (s <span class="cf">in</span> <span class="fu">colnames</span>(days)) cost_loop <span class="ot">&lt;-</span> cost_loop <span class="sc">+</span> days[t, s] <span class="sc">*</span> costs[[s]]</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>cost_vec <span class="ot">&lt;-</span> <span class="fu">sum</span>(days <span class="sc">%*%</span> costs)            <span class="co"># one matrix product</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(cost_loop <span class="sc">-</span> cost_vec) <span class="sc">&lt;</span> <span class="fl">1e-6</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="fu">fmt_vnd</span>(cost_vec)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "12,954,108 VNĐ"</code></pre>
+</div>
+</div>
+<p>Còn một quyết định mà chính đoạn mã trên giấu đi: chi phí của ngày <span class="math inline">\(d\)</span> được gán cho hàng nào của vết? Vết có <span class="math inline">\(n+1\)</span> hàng (ngày <span class="math inline">\(0, \dots, n\)</span>) nhưng chỉ có <span class="math inline">\(n\)</span> ngày cần tính chi phí. <code>icu_outcomes()</code> dùng trạng thái ở <strong>đầu</strong> ngày (hàng <span class="math inline">\(0, \dots, n-1\)</span>), hợp lý cho ngày giường vì người bệnh có mặt khi ngày bắt đầu. Đếm theo <strong>cuối</strong> ngày (hàng <span class="math inline">\(1, \dots, n\)</span>) hoặc theo <strong>nửa chu kỳ</strong> (trung bình hai cách) cho tổng khác. Ta tính cả ba để thấy quy mô chênh lệch. Kiểm tra: cách đầu ngày khớp với <code>icu_outcomes()</code>, và cách nửa chu kỳ nằm giữa hai cách còn lại.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Which rows of the trace are charged for day d? Three conventions, three totals.</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> q<span class="sc">$</span>n_days</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>cost_start <span class="ot">&lt;-</span> <span class="fu">sum</span>(trace[<span class="dv">1</span><span class="sc">:</span>n, ] <span class="sc">%*%</span> costs)           <span class="co"># occupancy at the START of each day (rows 0..n-1)</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>cost_end <span class="ot">&lt;-</span> <span class="fu">sum</span>(trace[<span class="dv">2</span><span class="sc">:</span>(n <span class="sc">+</span> <span class="dv">1</span>), ] <span class="sc">%*%</span> costs)       <span class="co"># at the </span><span class="re">END</span><span class="co"> of each day (rows 1..n)</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>cost_half <span class="ot">&lt;-</span> (cost_start <span class="sc">+</span> cost_end) <span class="sc">/</span> <span class="dv">2</span>            <span class="co"># half-cycle: average of the two</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(cost_start <span class="sc">-</span> <span class="fu">icu_outcomes</span>(q)<span class="sc">$</span>cost) <span class="sc">&lt;</span> <span class="fl">1e-6</span>)   <span class="co"># icu_outcomes() uses the start-of-day rule</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># The lesson says: end-of-day and half-cycle are LOWER than start-of-day, half-cycle lies between</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(cost_end <span class="sc">&lt;</span> cost_start, cost_half <span class="sc">&lt;</span> cost_start, cost_half <span class="sc">&gt;</span> cost_end)</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>timing_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">convention =</span> <span class="fu">c</span>(<span class="st">"start of day"</span>, <span class="st">"end of day"</span>, <span class="st">"half-cycle"</span>),</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>                         <span class="at">cost_million =</span> <span class="fu">c</span>(cost_start, cost_end, cost_half) <span class="sc">/</span> <span class="fl">1e6</span>)</span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>timing_tab<span class="sc">$</span>vs_start <span class="ot">&lt;-</span> timing_tab<span class="sc">$</span>cost_million <span class="sc">/</span> timing_tab<span class="sc">$</span>cost_million[<span class="dv">1</span>] <span class="sc">-</span> <span class="dv">1</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>timing_tab<span class="sc">$</span>cost_million <span class="ot">&lt;-</span> <span class="fu">round</span>(timing_tab<span class="sc">$</span>cost_million, <span class="dv">3</span>)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>timing_tab<span class="sc">$</span>vs_start <span class="ot">&lt;-</span> <span class="fu">round</span>(timing_tab<span class="sc">$</span>vs_start, <span class="dv">4</span>)</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>timing_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    convention cost_million vs_start
+1 start of day       12.954    0.000
+2   end of day       12.048   -0.070
+3   half-cycle       12.501   -0.035</code></pre>
+</div>
+</div>
+<p>So với cách đầu ngày, cách cuối ngày cho chi phí thấp hơn 7.0% và cách nửa chu kỳ thấp hơn 3.5%. Không cách nào “đúng” tuyệt đối; điều bắt buộc là chọn một quy ước, nói rõ nó trong báo cáo và dùng nhất quán cho mọi kết quả. M02 Bài 3 dạy hiệu chỉnh nửa chu kỳ đầy đủ.</p>
+<p>Chạy mô hình cho một dãy giá trị cách đều của xác suất mắc mới định cư CRE, từ 0 đến ba lần giá trị cơ sở, bằng <code>sapply()</code> và bằng vòng <code>for</code>. Kiểm tra: hai cách cho cùng kết quả, và chi phí tăng dần theo xác suất mắc mới.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># One parameter, many values: sapply() applies a function to each value</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>grid_puc <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">3</span> <span class="sc">*</span> q<span class="sc">$</span>p_u_c, <span class="at">length.out =</span> <span class="dv">13</span>)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>sweep_cost <span class="ot">&lt;-</span> <span class="fu">sapply</span>(grid_puc, <span class="cf">function</span>(v) <span class="fu">scenario_cost</span>(q, v))</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co"># The same with a for loop (pre-allocated)</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>sweep_loop <span class="ot">&lt;-</span> <span class="fu">numeric</span>(<span class="fu">length</span>(grid_puc))</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">seq_along</span>(grid_puc)) sweep_loop[k] <span class="ot">&lt;-</span> <span class="fu">scenario_cost</span>(q, grid_puc[k])</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all.equal</span>(sweep_cost, sweep_loop), <span class="fu">all</span>(<span class="fu">diff</span>(sweep_cost) <span class="sc">&gt;</span> <span class="dv">0</span>))</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>sweep_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">p_u_c =</span> grid_puc, <span class="at">cost_million =</span> sweep_cost <span class="sc">/</span> <span class="fl">1e6</span>)</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(sweep_df[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">13</span>), ], <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    p_u_c cost_million
+1  0.0000       8.7977
+5  0.1288      12.9541
+13 0.3864      15.2130</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>cost_zero <span class="ot">&lt;-</span> sweep_cost[<span class="dv">1</span>]</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>cost_triple <span class="ot">&lt;-</span> sweep_cost[<span class="dv">13</span>]</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>steps <span class="ot">&lt;-</span> <span class="fu">diff</span>(sweep_cost)          <span class="co"># extra cost per step of p_u_c</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">first_step =</span> steps[<span class="dv">1</span>], <span class="at">last_step =</span> steps[<span class="fu">length</span>(steps)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>first_step  last_step 
+ 1573484.6   151549.9 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>concave <span class="ot">&lt;-</span> steps[<span class="dv">1</span>] <span class="sc">&gt;</span> steps[<span class="fu">length</span>(steps)]   <span class="co"># TRUE: each extra step adds less cost than the one before</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Vẽ chi phí theo xác suất mắc mới, với đường đứt nét dọc đánh dấu giá trị cơ sở. Kiểm tra: đường đi lên từ trái sang phải, và đường đứt nét nằm đúng tại <code>p_u_c</code> của tệp CSV.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>fig_sweep <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(sweep_df, <span class="fu">aes</span>(p_u_c, cost_million)) <span class="sc">+</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour =</span> pal_course[<span class="dv">1</span>], <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">colour =</span> pal_course[<span class="dv">1</span>]) <span class="sc">+</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> q<span class="sc">$</span>p_u_c, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">colour =</span> pal_course[<span class="dv">2</span>]) <span class="sc">+</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Xác suất mắc mới định cư CRE mỗi ngày (p_u_c)"</span>,</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Chi phí kỳ vọng mỗi lượt vào ICU (triệu VNĐ)"</span>,</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Chi phí kỳ vọng theo xác suất mắc mới định cư CRE (giá 2025)"</span>,</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Đường đứt nét: giá trị cơ sở"</span>) <span class="sc">+</span></span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_sweep, <span class="st">"l03-sweep.png"</span>, <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="fl">4.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l03-sweep.png" class="img-fluid figure-img"></p>
+<figcaption>Chi phí kỳ vọng mỗi lượt vào ICU theo xác suất mắc mới định cư CRE (giá 2025)</figcaption>
+</figure>
+</div>
+<p>Với 13 giá trị, khi xác suất mắc mới tăng từ 0 lên 0.39 (ba lần giá trị cơ sở), chi phí kỳ vọng tăng từ 8,797,665 VNĐ lên 15,212,955 VNĐ. Đường cong xuống: mỗi bước tăng như nhau của xác suất làm chi phí tăng ít dần, từ 1,573,485 VNĐ ở bước đầu đến 151,550 VNĐ ở bước cuối. Kết quả của mô hình thường phi tuyến theo tham số như vậy; Bài 6 sẽ cho thấy điều này ảnh hưởng thế nào đến kết quả Monte Carlo.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Mẹo thực hành">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mẹo thực hành
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Viết hàm ngay khi bạn chép cùng một đoạn mã lần thứ hai.</li>
+<li>Đặt <code>stopifnot()</code> ở dòng đầu tiên của hàm để kiểm tra đầu vào: kiểu dữ liệu, khoảng giá trị, tổng xác suất.</li>
+<li>Muốn đo tốc độ, dùng <code>system.time()</code> cho một phép đo nhanh. M04 dùng gói <code>bench</code> để đo kỹ hơn.</li>
+<li>Viết bản vòng lặp dễ hiểu trước, rồi mới vectơ hóa. Giữ bản vòng lặp làm phép thử: <code>stopifnot(identical(ket_qua_vong_lap, ket_qua_vecto))</code>.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Lỗi thường gặp">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lỗi thường gặp
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Dùng <code>if</code> với vectơ hoặc với <code>NA</code>.</strong> Từ R 4.2, <code>if (c(TRUE, FALSE))</code> báo lỗi, và <code>if (NA)</code> cũng vậy. Với vectơ, dùng <code>ifelse()</code> hoặc chỉ mục logic; với <code>NA</code>, xử lý tường minh như <code>classify_one()</code> làm ở nhánh đầu tiên.</li>
+<li><strong>Vòng <code>while</code> không có giới hạn.</strong> Nếu điều kiện không bao giờ sai, hoặc chỉ số vượt quá độ dài vectơ, vòng lặp chạy mãi hoặc dừng với lỗi <code>NA</code>. Luôn thêm điều kiện dừng theo số vòng, rồi kiểm tra sau vòng lặp rằng ngưỡng đã đạt.</li>
+<li><strong><code>1:length(x)</code> khi <code>x</code> rỗng.</strong> Kết quả là <code>c(1, 0)</code>, nên vòng lặp chạy hai lần trên dữ liệu không tồn tại. Dùng <code>seq_along(x)</code>.</li>
+<li><strong>Hàm đọc biến toàn cục.</strong> Nếu thân hàm dùng <code>q</code> thay vì đối số <code>p</code>, hàm vẫn chạy nhưng bỏ qua tham số bạn truyền vào. Mọi thứ hàm cần phải đi qua đối số.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="bài-tập" class="level2">
+<h2 class="anchored" data-anchor-id="bài-tập">Bài tập</h2>
+<p><strong>Bài tập 1 (dễ).</strong> Viết hàm <code>stay_prob(exits)</code> trả về xác suất ở lại một trạng thái. Hàm phải từ chối xác suất âm và tổng xác suất rời đi lớn hơn 1. Thử với trạng thái C.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 1: a function that returns the "stay" probability and refuses impossible inputs</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>stay_prob <span class="ot">&lt;-</span> <span class="cf">function</span>(exits) {</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">is.numeric</span>(exits), <span class="fu">all</span>(exits <span class="sc">&gt;=</span> <span class="dv">0</span>), <span class="fu">sum</span>(exits) <span class="sc">&lt;=</span> <span class="dv">1</span>)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>  <span class="dv">1</span> <span class="sc">-</span> <span class="fu">sum</span>(exits)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stay_prob</span>(<span class="fu">c</span>(q<span class="sc">$</span>p_c_u, q<span class="sc">$</span>p_c_i, q<span class="sc">$</span>p_c_x, q<span class="sc">$</span>p_c_d))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.8591</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tryCatch</span>(<span class="fu">stay_prob</span>(<span class="fu">c</span>(<span class="fl">0.7</span>, <span class="fl">0.5</span>)), <span class="at">error =</span> <span class="cf">function</span>(e) <span class="fu">conditionMessage</span>(e))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "sum(exits) &lt;= 1 is not TRUE"</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Bài tập 2 (vừa).</strong> Tìm ngày đầu tiên mà tỷ lệ tử vong cộng dồn của đoàn hệ đạt 10%, bằng vòng <code>while</code> có giới hạn và bằng cách vectơ hóa.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Cột <code>D</code> của vết là tỷ lệ tử vong cộng dồn vì D là trạng thái hấp thụ. Hàng <code>k + 1</code> của vết ứng với ngày <code>k</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 2: first day on which cumulative mortality reaches the threshold thr_dead</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (while loop with an upper bound, then vectorised)</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>dead <span class="ot">&lt;-</span> trace[, <span class="st">"D"</span>]</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="cf">while</span> (k <span class="sc">&lt;</span> q<span class="sc">$</span>n_days <span class="sc">&amp;&amp;</span> dead[k <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">&lt;</span> d<span class="sc">$</span>thr_dead) k <span class="ot">&lt;-</span> k <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (dead[k <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">&lt;</span> d<span class="sc">$</span>thr_dead) <span class="fu">stop</span>(<span class="st">"threshold not reached within n_days"</span>)</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">while_loop =</span> k, <span class="at">vectorised =</span> <span class="fu">min</span>(<span class="fu">which</span>(dead <span class="sc">&gt;=</span> d<span class="sc">$</span>thr_dead)) <span class="sc">-</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>while_loop vectorised 
+         6          6 </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Bài tập 3 (khó hơn).</strong> Gắn cờ những chủng không nhạy cảm (I hoặc R) với ít nhất 3 trong 5 kháng sinh, bằng vòng lặp qua từng chủng và bằng <code>rowSums()</code>. Tính tỷ lệ theo loài. Đây là phiên bản rút gọn của định nghĩa vi khuẩn đa kháng <span class="citation" data-cites="magiorakos2012multidrugresistant">(<a href="index.html#ref-magiorakos2012multidrugresistant" role="doc-biblioref">Magiorakos và c.s. 2012</a>)</span>: định nghĩa chuẩn đòi hỏi thử nghiệm đủ các nhóm kháng sinh theo từng loài, còn năm kháng sinh ở đây thuộc năm nhóm khác nhau. Bài này coi I là không nhạy cảm, theo quy ước của CLSI và Magiorakos; theo EUCAST hiện hành, I nghĩa là nhạy cảm khi tăng liều.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>So sánh trên ma trận cho ra ma trận logic cùng kích thước; <code>rowSums(..., na.rm = TRUE)</code> đếm số kháng sinh không nhạy cảm của mỗi chủng.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 3: flag isolates non-susceptible (I or R) to at least 3 of the 5 antibiotics</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>abx <span class="ot">&lt;-</span> <span class="fu">names</span>(ANTIBIOTICS)</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>ns <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(iso[, abx]) <span class="sc">==</span> <span class="st">"I"</span> <span class="sc">|</span> <span class="fu">as.matrix</span>(iso[, abx]) <span class="sc">==</span> <span class="st">"R"</span></span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="co"># (a) loop over isolates</span></span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>mdr_loop <span class="ot">&lt;-</span> <span class="fu">logical</span>(<span class="fu">nrow</span>(iso))</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(iso))) mdr_loop[i] <span class="ot">&lt;-</span> <span class="fu">sum</span>(ns[i, ], <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">&gt;=</span> <span class="dv">3</span></span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a><span class="co"># (b) vectorised with rowSums</span></span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>mdr_vec <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(ns, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">&gt;=</span> <span class="dv">3</span></span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">identical</span>(mdr_loop, <span class="fu">unname</span>(mdr_vec)))</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">tapply</span>(mdr_vec, iso<span class="sc">$</span>organism, mean), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> A. baumannii       E. coli K. pneumoniae 
+        0.793         0.591         0.513 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Caveats. (1) How many of the 5 antibiotics were tested at all for each organism?</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>n_abx_tested <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">split</span>(iso[, abx], iso<span class="sc">$</span>organism), <span class="cf">function</span>(x) <span class="fu">sum</span>(<span class="fu">colSums</span>(<span class="sc">!</span><span class="fu">is.na</span>(x)) <span class="sc">&gt;</span> <span class="dv">0</span>))</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>n_abx_tested</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> A. baumannii       E. coli K. pneumoniae 
+            4             5             5 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># (2) rowSums(na.rm = TRUE) counts a missing result as "not non-susceptible".</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Share of isolates with at least one missing result among the antibiotics tested for their species:</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>miss_any <span class="ot">&lt;-</span> <span class="fu">logical</span>(<span class="fu">nrow</span>(iso))</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (o <span class="cf">in</span> <span class="fu">unique</span>(iso<span class="sc">$</span>organism)) {</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>  rows <span class="ot">&lt;-</span> <span class="fu">which</span>(iso<span class="sc">$</span>organism <span class="sc">==</span> o)</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>  cols <span class="ot">&lt;-</span> abx[<span class="fu">colSums</span>(<span class="sc">!</span><span class="fu">is.na</span>(iso[rows, abx])) <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a>  miss_any[rows] <span class="ot">&lt;-</span> <span class="fu">rowSums</span>(<span class="fu">is.na</span>(iso[rows, cols])) <span class="sc">&gt;</span> <span class="dv">0</span></span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb42-9"><a href="#cb42-9" aria-hidden="true" tabindex="-1"></a>share_miss <span class="ot">&lt;-</span> <span class="fu">mean</span>(miss_any)</span>
+<span id="cb42-10"><a href="#cb42-10" aria-hidden="true" tabindex="-1"></a>share_miss</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1355392</code></pre>
+</div>
+</div>
+<p>Ba lưu ý khi đọc kết quả. Thứ nhất, <em>A. baumannii</em> chỉ có 4 trong 5 kháng sinh được thử nghiệm (không có CRO), còn hai loài kia có 5, nên tỷ lệ giữa các loài không so sánh trực tiếp được. Thứ hai, <code>na.rm = TRUE</code> coi kết quả thiếu là “không phải không nhạy cảm”: 13.6% chủng thiếu ít nhất một kết quả trong các kháng sinh được thử của loài mình, nên tỷ lệ đa kháng bị đánh thấp nhẹ. Thứ ba, mọi con số tính trên tất cả chủng, kể cả chủng lặp lại (Bài 4).</p>
+</div>
+</div>
+</div>
+</section>
+<section id="tài-liệu-tham-khảo" class="level2">
+<h2 class="anchored" data-anchor-id="tài-liệu-tham-khảo">Tài liệu tham khảo</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-alaridescudero2019need" class="csl-entry" role="listitem">
+Alarid-Escudero, Fernando, Eline M. Krijkamp, Petros Pechlivanoglou, Hawre Jalal, Szu-Yu Zoe Kao, Alan Yang, và Eva A. Enns. 2019. <span>“A need for change! <span>A</span> coding framework for improving transparency in decision modeling”</span>. <em>PharmacoEconomics</em> 37 (11): 1329–39. <a href="https://doi.org/10.1007/s40273-019-00837-x">https://doi.org/10.1007/s40273-019-00837-x</a>.
+</div>
+<div id="ref-gso2026population2025" class="csl-entry" role="listitem">
+Cục Thống kê (Bộ Tài chính). 2026. <span>“Thông cáo báo chí về tình hình dân số, lao động, việc làm quý <span>IV</span> và năm 2025”</span>. 5 Tháng Giêng 2026. <a href="https://www.nso.gov.vn/?p=59530">https://www.nso.gov.vn/?p=59530</a>.
+</div>
+<div id="ref-garpvall2021admission" class="csl-entry" role="listitem">
+Garpvall, K., V. Duong, S. Linnros, T. N. Quốc, D. Mucchiano, S. Modeen, và c.s. 2021. <span>“Admission screening and cohort care decrease carbapenem resistant enterobacteriaceae in <span>Vietnamese</span> pediatric <span>ICU’s</span>”</span>. <em>Antimicrobial Resistance and Infection Control</em> 10 (1): 128. <a href="https://doi.org/10.1186/s13756-021-00994-9">https://doi.org/10.1186/s13756-021-00994-9</a>.
+</div>
+<div id="ref-magiorakos2012multidrugresistant" class="csl-entry" role="listitem">
+Magiorakos, A.-P., A. Srinivasan, R. B. Carey, Y. Carmeli, M. E. Falagas, C. G. Giske, và c.s. 2012. <span>“Multidrug-resistant, extensively drug-resistant and pandrug-resistant bacteria: an international expert proposal for interim standard definitions for acquired resistance”</span>. <em>Clinical Microbiology and Infection</em> 18 (3): 268–81. <a href="https://doi.org/10.1111/j.1469-0691.2011.03570.x">https://doi.org/10.1111/j.1469-0691.2011.03570.x</a>.
+</div>
+<div id="ref-wickham2019advanced" class="csl-entry" role="listitem">
+Wickham, Hadley. 2019. <em>Advanced <span>R</span></em>. 2nd ab. Chapman &amp; Hall/CRC. <a href="https://adv-r.hadley.nz/">https://adv-r.hadley.nz/</a>.
+</div>
+</div>
+<div class="video-script">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Kịch bản video (~13 phút)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Slide</th>
+<th>Lời giảng chính</th>
+<th>Hình/Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Mô hình là một hàm</td>
+<td>Tham số vào, kết quả ra; mọi phân tích độ nhạy là gọi lại hàm</td>
+<td>Sơ đồ đầu vào → hàm → đầu ra</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Giải phẫu một hàm</td>
+<td>Đối số, mặc định, giá trị trả về, <code>stopifnot()</code></td>
+<td><code>l03-function-basics</code></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Đóng gói mô hình ICU</td>
+<td>Dựng ma trận → vết → chi phí; so với <code>icu_outcomes()</code></td>
+<td><code>l03-function-model</code></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Copy-on-modify</td>
+<td>Sửa trong hàm không làm hỏng tham số gốc</td>
+<td><code>l03-copy-on-modify</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><code>if</code> và <code>while</code></td>
+<td>Một giá trị; lặp đến khi điều kiện sai</td>
+<td><code>l03-if-else</code>, <code>l03-while</code></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Vòng lặp và vectơ hóa</td>
+<td>Cùng kết quả; mã ngắn hơn</td>
+<td><code>l03-loop-vs-vector</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Bẫy nối dài vectơ</td>
+<td>Cấp phát trước</td>
+<td><code>l03-growing</code></td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Khi nào cần lặp, và quy ước đếm ngày</td>
+<td>Truy hồi theo thời gian; vectơ hóa theo trạng thái; đầu ngày, cuối ngày, nửa chu kỳ</td>
+<td><code>l03-rewards</code>, <code>l03-timing</code></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Dải kịch bản</td>
+<td><code>sapply()</code>; tiền thân của OWSA</td>
+<td><code>l03-sweep</code>, <code>figs/l03-sweep.png</code></td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Lỗi thường gặp</td>
+<td><code>if</code> với vectơ hoặc <code>NA</code>, <code>while</code> không giới hạn, <code>1:length(x)</code>, biến toàn cục</td>
+<td>Callout cảnh báo</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="pagination-link" aria-label="Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="pagination-link" aria-label="Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu">
+        <span class="nav-page-text"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

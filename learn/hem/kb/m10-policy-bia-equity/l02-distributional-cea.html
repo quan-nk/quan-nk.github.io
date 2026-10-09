@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="vi" xml:lang="vi"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA) – Mô hình Kinh tế Y tế với R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" rel="next">
+<link href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-9e7f0c659d5fa2cace8548cb57964278.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c18d72663580ed8ca19ce2a2f99af51b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m10-policy-bia-equity/index.html">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</a></li><li class="breadcrumb-item"><a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Mô hình Kinh tế Y tế với R</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lời mở đầu</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m00-r-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M00 · R cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l01-reproducible-workflow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Quy trình làm việc tái lập với R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m01-ee-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M01 · Nền tảng đánh giá kinh tế và cây quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l01-evaluation-types.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại đánh giá kinh tế, quan điểm, khung thời gian và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l03-decision-rules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l05-decision-tree.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Xây cây quyết định từ đầu trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m02-cohort-markov/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M02 · Mô hình chuyển trạng thái đoàn hệ (Markov)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l01-state-transition.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao cần mô hình chuyển trạng thái</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l02-rates-probabilities.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tỷ suất, xác suất và độ dài chu kỳ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l03-cohort-trace.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vết đoàn hệ, giá trị gắn với trạng thái và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l04-time-dependence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Phụ thuộc thời gian: lão hóa, trạng thái đường hầm và mảng 3 chiều</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l05-results-verification.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị gắn với lần chuyển, đường biên hiệu quả và xác minh mô hình</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m03-uncertainty-voi/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M03 · Bất định, phân tích độ nhạy và giá trị thông tin</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l01-deterministic-sa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại bất định và phân tích độ nhạy tất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l02-distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Chọn phân phối cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l03-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích độ nhạy xác suất (PSA) trong R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l04-ceac-reporting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: CEAC, CEAF, tổn thất kỳ vọng và cách báo cáo bất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l05-voi.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị thông tin: EVPI, EVPPI và EVSI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m04-microsimulation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M04 · Mô phỏng vi mô (microsimulation)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l01-why-microsimulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Khi mô hình đoàn hệ không đủ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l02-microsim-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô phỏng vi mô bằng vòng lặp trong R cơ bản</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l03-vectorisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vectơ hóa theo cá thể và đo hiệu năng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l04-parallel-rcpp.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tính toán song song và Rcpp cho vòng lặp nóng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l05-mc-error-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bao nhiêu cá thể là đủ? Sai số Monte Carlo, PSA và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m05-dynamic-transmission/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M05 · Mô hình lây truyền động</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l01-static-vs-dynamic.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Mô hình tĩnh và mô hình lây truyền động</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l02-sir-seir-desolve.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình SIR và SEIR trong R với deSolve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m06-amr-economics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M06 · Kinh tế học kháng kháng sinh (AMR)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l01-amr-burden.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Kinh tế học kháng kháng sinh: ngoại ứng, gánh nặng và kịch bản phản thực</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l03-ward-transmission.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m07-survival-psm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M07 · Phân tích sống còn cho mô hình quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l03-extrapolation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l05-partitioned-survival.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m08-calibration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M08 · Hiệu chuẩn mô hình (calibration)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l01-why-calibrate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao phải hiệu chuẩn mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l02-search-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tìm kiếm tham số: ngẫu nhiên, siêu khối Latin và Nelder–Mead</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l03-bayes-sir.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hiệu chuẩn Bayes và thuật toán SIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l04-psa-validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đưa kết quả hiệu chuẩn vào PSA, thẩm định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m09-inputs-vietnam/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M09 · Dữ liệu đầu vào cho Việt Nam và LMIC</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l01-costing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ước tính chi phí cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l02-cost-adjustment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Điều chỉnh chi phí về một năm tham chiếu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l03-outcome-inputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Đầu vào về kết cục sức khỏe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l04-evidence-synthesis.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tổng hợp bằng chứng cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l05-decision-context.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bối cảnh ra quyết định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m10-policy-bia-equity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l04-communicating-hta.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Truyền đạt kết quả cho người ra quyết định và quy trình HTA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m11-software-engineering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l01-code-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Cấu trúc mã cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l02-testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Xác minh và kiểm thử mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l03-version-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l04-r-package.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/glossary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Trong bài</h2>
+   
+  <ul class="collapse">
+  <li><a href="#mục-tiêu-học-tập" id="toc-mục-tiêu-học-tập" class="nav-link active" data-scroll-target="#mục-tiêu-học-tập">Mục tiêu học tập</a></li>
+  <li><a href="#ý-chính" id="toc-ý-chính" class="nav-link" data-scroll-target="#ý-chính">Ý chính</a></li>
+  <li><a href="#nội-dung" id="toc-nội-dung" class="nav-link" data-scroll-target="#nội-dung">Nội dung</a></li>
+  <li><a href="#thực-hành" id="toc-thực-hành" class="nav-link" data-scroll-target="#thực-hành">Thực hành</a></li>
+  <li><a href="#bài-tập" id="toc-bài-tập" class="nav-link" data-scroll-target="#bài-tập">Bài tập</a></li>
+  <li><a href="#tài-liệu-tham-khảo" id="toc-tài-liệu-tham-khảo" class="nav-link" data-scroll-target="#tài-liệu-tham-khảo">Tài liệu tham khảo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m10-policy-bia-equity/index.html">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</a></li><li class="breadcrumb-item"><a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></h1>
+<p class="subtitle lead">Ước tính ai được lợi, ai chịu chi phí cơ hội, và đánh đổi giữa tổng sức khỏe với công bằng</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-important callout-titled" title="Vì sao bạn nên quan tâm?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Vì sao bạn nên quan tâm?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Ở một điểm điều trị có giám sát trực tiếp (DOT) tại trạm y tế xã, người bệnh lao kháng thuốc đến uống thuốc gần như mỗi ngày; với một người làm thuê theo ngày, mỗi lần đi là một buổi mất công. Kế hoạch năm 2025 của Chương trình Chống lao dự trù 13.1 triệu USD cho hỗ trợ người bệnh lao, nhưng tại thời điểm báo cáo cho WHO, chỉ 2.6% số đó đã xác định được nguồn tài trợ <span class="citation" data-cites="who2026tbfinance">(<a href="../m00-r-foundations/index.html#ref-who2026tbfinance" role="doc-biblioref">World Health Organization 2026b</a>)</span>. Một khoản hỗ trợ 1,000,000 VNĐ mỗi tháng (giá trị minh họa) bằng 27% lương tối thiểu vùng IV <span class="citation" data-cites="chinhphu2025nd293">(<a href="../m00-r-foundations/index.html#ref-chinhphu2025nd293" role="doc-biblioref">Chính phủ 2025</a>)</span>, tức khoảng 25 bát phở <span class="citation" data-cites="nhadautu2025pho">(<a href="../m00-r-foundations/index.html#ref-nhadautu2025pho" role="doc-biblioref">Nhadautu.vn 2025</a>)</span>. Với ít tiền như vậy, nên hỗ trợ mọi người bệnh hay chỉ người nghèo? Bài này cho bạn cách trả lời bằng con số, và tách rõ phần nào là phán đoán giá trị.</p>
+</div>
+</div>
+<section id="mục-tiêu-học-tập" class="level2">
+<h2 class="anchored" data-anchor-id="mục-tiêu-học-tập">Mục tiêu học tập</h2>
+<p>Sau bài này, bạn có thể:</p>
+<ol type="1">
+<li>Giải thích vì sao phân tích chi phí-hiệu quả (CEA) thông thường không nói gì về phân bố lợi ích, và mô tả hai giai đoạn của phân tích chi phí-hiệu quả theo phân phối (distributional cost-effectiveness analysis, DCEA).</li>
+<li>Tính lợi ích sức khỏe ròng (net health benefit, NHB) theo nhóm ngũ phân vị giàu nghèo, gồm cả phần chi phí cơ hội sức khỏe mà mỗi nhóm gánh.</li>
+<li>Tính khoảng cách tuyệt đối, khoảng cách tương đối, chỉ số độ dốc bất bình đẳng (SII), chỉ số Atkinson và sức khỏe tương đương phân bố đều (EDE).</li>
+<li>Vẽ mặt phẳng tác động công bằng và tìm mức ác cảm bất bình đẳng ε* làm đổi thứ hạng hai chiến lược.</li>
+</ol>
+</section>
+<section id="ý-chính" class="level2">
+<h2 class="anchored" data-anchor-id="ý-chính">Ý chính</h2>
+<ul>
+<li>CEA cộng mọi năm sống điều chỉnh theo chất lượng (QALY) như nhau, bất kể ai nhận. DCEA hỏi thêm: lợi ích và chi phí cơ hội phân bố ra sao giữa các nhóm xã hội <span class="citation" data-cites="asaria2016distributional">(<a href="../m00-r-foundations/index.html#ref-asaria2016distributional" role="doc-biblioref">Asaria, Griffin, và Cookson 2016</a>)</span>.</li>
+<li>DCEA có hai giai đoạn: (1) mô hình hóa phân bố sức khỏe theo nhóm, (2) đánh giá phân bố đó bằng chỉ số bất bình đẳng và hàm phúc lợi xã hội.</li>
+<li>Lợi ích theo nhóm phụ thuộc vào ai mắc bệnh, ai tiếp cận và tuân thủ, ai hưởng lợi nhiều hơn, và <strong>ai chịu chi phí cơ hội</strong> khi tiền bị rút khỏi dịch vụ khác <span class="citation" data-cites="cookson2017using">(<a href="../m00-r-foundations/index.html#ref-cookson2017using" role="doc-biblioref">Cookson và c.s. 2017</a>)</span>.</li>
+<li>NHB của nhóm <span class="math inline">\(g\)</span> = QALY tăng thêm của nhóm <span class="math inline">\(g\)</span> − phần chi phí cơ hội sức khỏe nhóm <span class="math inline">\(g\)</span> gánh.</li>
+<li><strong>Mặt phẳng tác động công bằng</strong> (equity impact plane) đặt thay đổi tổng sức khỏe trên trục hoành, thay đổi bất bình đẳng trên trục tung; góc phần tư cho biết có buộc phải đánh đổi hay không.</li>
+<li>Chỉ số độ dốc (SII) là thước đo <strong>tuyệt đối</strong> (đơn vị là năm tuổi thọ điều chỉnh theo chất lượng, QALE); chỉ số Atkinson là thước đo <strong>tương đối</strong>, có tham số ε (ác cảm bất bình đẳng). ε = 0 là CEA thông thường; ε càng lớn, sức khỏe của nhóm kém nhất càng được coi trọng <span class="citation" data-cites="atkinson1970measurement">(<a href="../m00-r-foundations/index.html#ref-atkinson1970measurement" role="doc-biblioref">Atkinson 1970</a>)</span>.</li>
+<li>Tìm ε* làm đổi thứ hạng thay vì áp một ε duy nhất. Người ra quyết định tự hỏi: mình có quan tâm công bằng đến mức đó không?</li>
+</ul>
+</section>
+<section id="nội-dung" class="level2">
+<h2 class="anchored" data-anchor-id="nội-dung">Nội dung</h2>
+<section id="vì-sao-cea-chưa-đủ" class="level3">
+<h3 class="anchored" data-anchor-id="vì-sao-cea-chưa-đủ">Vì sao CEA chưa đủ</h3>
+<p>M02 cho thấy BPaLM tạo thêm QALY và tiết kiệm tiền cho mỗi người bệnh. Nhưng người bệnh lao kháng thuốc không phân bố đều trong dân số, và hỗ trợ đi kèm (tiền mặt, dinh dưỡng, chi phí đi lại) có thể được nhắm vào nhóm nghèo. CEA chỉ trả lời “phương án nào tạo nhiều sức khỏe nhất”. DCEA trả lời thêm “phương án nào thu hẹp khoảng cách sức khỏe giữa người giàu và người nghèo, và phải đổi bao nhiêu sức khỏe để có điều đó” <span class="citation" data-cites="cookson2017using cookson2021distributional">(<a href="../m00-r-foundations/index.html#ref-cookson2017using" role="doc-biblioref">Cookson và c.s. 2017</a>, <a href="../m00-r-foundations/index.html#ref-cookson2021distributional" role="doc-biblioref">2021</a>)</span>.</p>
+<p>Phân biệt hai khái niệm: <strong>bất bình đẳng sức khỏe</strong> (health inequality) là khác biệt đo được giữa các nhóm; <strong>bất công</strong> là phán đoán giá trị rằng khác biệt đó không công bằng. DCEA đo cái thứ nhất và để người ra quyết định nói về cái thứ hai qua tham số ε.</p>
+</section>
+<section id="giai-đoạn-1-mô-hình-hóa-phân-bố-sức-khỏe" class="level3">
+<h3 class="anchored" data-anchor-id="giai-đoạn-1-mô-hình-hóa-phân-bố-sức-khỏe">Giai đoạn 1: mô hình hóa phân bố sức khỏe</h3>
+<p>Chia dân số thành năm nhóm ngũ phân vị giàu nghèo <span class="math inline">\(g = 1, \dots, 5\)</span> (Q1 nghèo nhất). Với mỗi chiến lược so với cơ cấu phác đồ hiện tại, một đoàn hệ năm có <span class="math inline">\(n_g\)</span> người bệnh ở nhóm <span class="math inline">\(g\)</span>:</p>
+<p><span class="math display">\[
+\Delta Q_g = n_g \, \Delta q_g, \qquad \Delta C = \sum_g n_g \, \Delta c_g, \qquad
+\text{NHB}_g = \Delta Q_g - s_g \frac{\Delta C}{k},
+\]</span></p>
+<p>trong đó <span class="math inline">\(\Delta q_g, \Delta c_g\)</span> là QALY và chi phí tăng thêm mỗi người bệnh (từ M02), <span class="math inline">\(k\)</span> là chi phí để hệ thống y tế tạo ra một QALY ở nơi khác (ngưỡng chi phí cơ hội sức khỏe), và <span class="math inline">\(s_g\)</span> là tỷ lệ chi phí cơ hội rơi vào nhóm <span class="math inline">\(g\)</span>. Ở các nước thu nhập thấp và trung bình, ngưỡng phản ánh chi phí cơ hội sức khỏe thường thấp hơn các ngưỡng dựa trên GDP <span class="citation" data-cites="ochalek2018estimating woods2016country">(<a href="../m00-r-foundations/index.html#ref-ochalek2018estimating" role="doc-biblioref">Ochalek, Lomas, và Claxton 2018</a>; <a href="../m00-r-foundations/index.html#ref-woods2016country" role="doc-biblioref">Woods và c.s. 2016</a>)</span>; xem M01 Bài 4. Ở đây <span class="math inline">\(k\)</span> là ngưỡng thấp chung của khóa học, 62,750,000 VNĐ/QALY, bằng 0.5 × GDP bình quân đầu người <span class="citation" data-cites="gso2026gdp2025">(<a href="../m00-r-foundations/index.html#ref-gso2026gdp2025" role="doc-biblioref">Cục Thống kê (Bộ Tài chính) 2026a</a>)</span>. Khi chiến lược tiết kiệm tiền (<span class="math inline">\(\Delta C &lt; 0\)</span>), chi phí cơ hội mang dấu âm: tiền tiết kiệm được dùng cho dịch vụ khác và sinh thêm sức khỏe.</p>
+<p>Sức khỏe nền của mỗi nhóm là tuổi thọ điều chỉnh theo chất lượng lúc sinh (quality-adjusted life expectancy, QALE) <span class="math inline">\(h^0_g\)</span>, ở đây từ 61.0 (Q1) đến 69.0 QALY (Q5), đều là giá trị minh họa; trung bình của chúng ứng với thỏa dụng bình quân khoảng 0.87 trên tuổi thọ lúc sinh 74.7 năm <span class="citation" data-cites="gso2026population2025">(<a href="../m00-r-foundations/index.html#ref-gso2026population2025" role="doc-biblioref">Cục Thống kê (Bộ Tài chính) 2026b</a>)</span>. Sau can thiệp, <span class="math inline">\(h^1_g = h^0_g + \text{NHB}_g / P_g\)</span> với <span class="math inline">\(P_g\)</span> là dân số của nhóm (một phần năm của 102.3 triệu dân).</p>
+<p>Ba giả định cần nói rõ. (1) Cách cộng lợi ích trọn đời của một đoàn hệ vào QALE của cả nhóm là một xấp xỉ, và NHB có chiết khấu được cộng vào QALE không chiết khấu; đủ để so sánh các chiến lược, không đủ để dự báo QALE. (2) Tiền hỗ trợ được tính vào ngân sách y tế, nên nó cũng tạo chi phí cơ hội. Nếu ngành lao động-xã hội hay một quỹ từ thiện chi khoản này từ ngân sách riêng, phần chi phí cơ hội đó biến mất và hỗ trợ trông có lợi hơn <span class="citation" data-cites="hoa2019national">(<a href="../m00-r-foundations/index.html#ref-hoa2019national" role="doc-biblioref">Hoa và Nhung 2019</a>)</span>. (3) Phân bố chi phí cơ hội <span class="math inline">\(s_g\)</span> là một phán đoán; bài tập 1 cho thấy nó đổi kết luận về công bằng.</p>
+</section>
+<section id="giai-đoạn-2-đánh-giá-phân-bố" class="level3">
+<h3 class="anchored" data-anchor-id="giai-đoạn-2-đánh-giá-phân-bố">Giai đoạn 2: đánh giá phân bố</h3>
+<p>Bốn cách tóm tắt bất bình đẳng của vectơ <span class="math inline">\(h\)</span>:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Chỉ số</th>
+<th>Công thức</th>
+<th>Ý nghĩa</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Khoảng cách tuyệt đối</td>
+<td><span class="math inline">\(h_5 - h_1\)</span></td>
+<td>chỉ nhìn hai nhóm đầu–cuối</td>
+</tr>
+<tr class="even">
+<td>Khoảng cách tương đối</td>
+<td><span class="math inline">\(h_5 / h_1\)</span></td>
+<td>như trên, theo tỷ số</td>
+</tr>
+<tr class="odd">
+<td>Chỉ số độ dốc (SII)</td>
+<td>độ dốc hồi quy <span class="math inline">\(h_g\)</span> theo thứ hạng trung điểm của nhóm</td>
+<td>dùng cả năm nhóm</td>
+</tr>
+<tr class="even">
+<td>Atkinson</td>
+<td><span class="math inline">\(A_\varepsilon = 1 - \text{EDE}_\varepsilon / \bar h\)</span></td>
+<td>có tham số giá trị ε</td>
+</tr>
+</tbody>
+</table>
+<p>Sức khỏe tương đương phân bố đều (equally distributed equivalent, EDE) là mức sức khỏe mà, nếu mọi người cùng có, xã hội thấy tốt ngang phân bố hiện tại <span class="citation" data-cites="atkinson1970measurement">(<a href="../m00-r-foundations/index.html#ref-atkinson1970measurement" role="doc-biblioref">Atkinson 1970</a>)</span>:</p>
+<p><span class="math display">\[
+\text{EDE}_\varepsilon = \Big( \frac{1}{G} \sum_g h_g^{\,1-\varepsilon} \Big)^{1/(1-\varepsilon)}, \qquad
+\text{EDE}_1 = \exp\Big(\frac{1}{G}\sum_g \ln h_g\Big).
+\]</span></p>
+<p>Với ε = 0, EDE là trung bình; khi ε tăng, EDE tiến dần về sức khỏe của nhóm kém nhất. SII và khoảng cách <span class="math inline">\(h_5 - h_1\)</span> là thước đo tuyệt đối (một năm QALE thêm cho mọi người không đổi chúng), còn chỉ số Atkinson là thước đo tương đối (cộng cùng số năm cho mọi nhóm làm nó giảm). Hai loại có thể cho kết luận khác nhau về cùng một chính sách; họ hàng tuyệt đối của EDE là chỉ số Kolm. Bài này dùng SII cho mặt phẳng và Atkinson cho ε*. Thay đổi EDE nhân dân số là “QALY có trọng số công bằng”; với thay đổi nhỏ, một QALY đến Q1 được tính bằng <span class="math inline">\((h_1/h_5)^{-\varepsilon}\)</span> QALY đến Q5.</p>
+</section>
+<section id="mặt-phẳng-tác-động-công-bằng-và-phân-tích-đánh-đổi" class="level3">
+<h3 class="anchored" data-anchor-id="mặt-phẳng-tác-động-công-bằng-và-phân-tích-đánh-đổi">Mặt phẳng tác động công bằng và phân tích đánh đổi</h3>
+<p>Đặt mỗi chiến lược lên mặt phẳng: trục hoành là tổng NHB, trục tung là mức giảm bất bình đẳng (ở đây là mức giảm SII). Góc trên bên phải là “có lợi cả hai”: không cần đánh đổi. Hai góc chéo là đánh đổi thật <span class="citation" data-cites="cookson2017using">(<a href="../m00-r-foundations/index.html#ref-cookson2017using" role="doc-biblioref">Cookson và c.s. 2017</a>)</span>. Khi hai chiến lược đều nằm trong góc “có lợi cả hai” nhưng một cái nhiều sức khỏe hơn, cái kia công bằng hơn, ta tìm ε* tại đó hai chiến lược có cùng mức tăng EDE. Dawkins và cộng sự dùng đúng cách này cho vắc xin rotavirus ở Ethiopia, rồi diễn giải ε* thành tỷ số trọng số giữa nhóm nghèo nhất và giàu nhất <span class="citation" data-cites="dawkins2018distributional">(<a href="../m00-r-foundations/index.html#ref-dawkins2018distributional" role="doc-biblioref">Dawkins và c.s. 2018</a>)</span>.</p>
+</section>
+<section id="ba-chiến-lược-trong-ví-dụ" class="level3">
+<h3 class="anchored" data-anchor-id="ba-chiến-lược-trong-ví-dụ">Ba chiến lược trong ví dụ</h3>
+<p>So sánh với cơ cấu phác đồ năm 2024 (33% dài hạn, 42% ngắn 9 tháng, 25% BPaLM <span class="citation" data-cites="who2026tbnotif">(<a href="../m00-r-foundations/index.html#ref-who2026tbnotif" role="doc-biblioref">World Health Organization 2026a</a>)</span>): (1) BPaLM cho mọi người bệnh; (2) BPaLM kèm hỗ trợ tiền mặt 1,000,000 VNĐ mỗi tháng điều trị cho người bệnh thuộc 2 nhóm nghèo nhất; (3) BPaLM kèm hỗ trợ cho mọi người bệnh. “Mọi người bệnh” là cận trên; Bài 1 tính tỷ lệ đủ điều kiện và tỷ lệ áp dụng thực tế. Mức hỗ trợ là giá trị minh họa: chưa tìm được mức công khai cho người bệnh lao kháng thuốc ở Việt Nam <span class="citation" data-cites="scdi2024supports">(<a href="../m00-r-foundations/index.html#ref-scdi2024supports" role="doc-biblioref">Center for Supporting Community Development Initiatives (SCDI) 2024</a>)</span>. Hiệu quả của hỗ trợ lấy từ một phân tích gộp ở các nước thu nhập thấp và trung bình: hỗ trợ tiền mặt cho người bệnh lao có tỷ số chênh của kết cục điều trị tốt là 1.77 (KTC 95%: 1.57–2.01) <span class="citation" data-cites="richterman2018cash">(<a href="../m00-r-foundations/index.html#ref-richterman2018cash" role="doc-biblioref">Richterman và c.s. 2018</a>)</span>. Các nghiên cứu chủ yếu ở lao nhạy thuốc, và ta giả định toàn bộ lợi ích đến từ giảm bỏ điều trị (lost to follow-up) (<code>apply_support()</code>). Phân bố người bệnh, sức khỏe nền và chi phí cơ hội theo nhóm là giá trị minh họa; chưa có số liệu công bố cho Việt Nam.</p>
+</section>
+</section>
+<section id="thực-hành" class="level2">
+<h2 class="anchored" data-anchor-id="thực-hành">Thực hành</h2>
+<p>Nạp hàm, tham số và các giá trị chung; một đoàn hệ năm là 3,050 người bệnh, như năm 2024. Kiểm tra: tỷ lệ người bệnh và tỷ lệ chi phí cơ hội theo nhóm đều cộng bằng 1 (<code>stopifnot</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Vietnamese text in tables and figures needs a UTF-8 locale (Rscript may start in "C")</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">isTRUE</span>(<span class="fu">l10n_info</span>()[[<span class="st">"UTF-8"</span>]])) <span class="fu">invisible</span>(<span class="fu">Sys.setlocale</span>(<span class="st">"LC_CTYPE"</span>, <span class="st">"en_US.UTF-8"</span>))</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/helpers.R"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/vn_data.R"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../m02-cohort-markov/code/model.R"</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>p02 <span class="ot">&lt;-</span> <span class="fu">m02_params</span>(<span class="st">"../m02-cohort-markov/params/mdrtb.csv"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>pb <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/bia.csv"</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>pe <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/equity.csv"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>ctx <span class="ot">&lt;-</span> <span class="fu">vn_context</span>()</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>n_patients <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">current_counts</span>(pb))         <span class="co"># one annual cohort starting treatment (2024 size)</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>mix <span class="ot">&lt;-</span> <span class="fu">current_mix</span>(pb)                        <span class="co"># 2024 regimen mix = the comparator "now"</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> ctx<span class="sc">$</span>wtp_low                              <span class="co"># health opportunity cost: 0.5 x GDP per capita per QALY</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>pop <span class="ot">&lt;-</span> ctx<span class="sc">$</span>population</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>h0 <span class="ot">&lt;-</span> <span class="fu">quintile_vector</span>(pe, <span class="st">"qale_q"</span>)           <span class="co"># baseline QALE by wealth quintile (illustrative)</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(<span class="fu">sum</span>(<span class="fu">quintile_vector</span>(pe, <span class="st">"share_case_q"</span>)) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">&lt;</span> <span class="fl">1e-9</span>,</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>          <span class="fu">abs</span>(<span class="fu">sum</span>(<span class="fu">quintile_vector</span>(pe, <span class="st">"share_oc_q"</span>)) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">&lt;</span> <span class="fl">1e-9</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Grid of inequality-aversion values (epsilon) for the trade-off analysis (an analysis choice)</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>eps_grid <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">7</span>, <span class="dv">10</span>, <span class="dv">12</span>, <span class="dv">15</span>, <span class="dv">20</span>, <span class="dv">25</span>, <span class="dv">30</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Lấy chi phí và QALY có chiết khấu mỗi người bệnh từ M02 cho từng “loại người bệnh”, rồi so với cơ cấu hiện tại. Kiểm tra: BPaLM rẻ hơn và tốt hơn cơ cấu hiện tại; hỗ trợ làm tăng cả QALY lẫn chi phí so với BPaLM đơn thuần.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Per-patient discounted costs and QALYs from M02 for each patient type, versus the 2024 mix</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">patient_outcomes</span>(p02, pe, mix)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>types <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"now"</span>, <span class="st">"long"</span>, <span class="st">"short"</span>, <span class="st">"bpalm"</span>, <span class="st">"bpalm_cash"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>per_pat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cost_million =</span> pp[types, <span class="st">"cost"</span>] <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">qaly =</span> pp[types, <span class="st">"qaly"</span>],</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_cost_million =</span> (pp[types, <span class="st">"cost"</span>] <span class="sc">-</span> pp[<span class="st">"now"</span>, <span class="st">"cost"</span>]) <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">d_qaly =</span> pp[types, <span class="st">"qaly"</span>] <span class="sc">-</span> pp[<span class="st">"now"</span>, <span class="st">"qaly"</span>],</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> TYPE_LABELS[types]</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Net health benefit per patient versus the current mix: dQ - dC / k</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>per_pat<span class="sc">$</span>nhb <span class="ot">&lt;-</span> per_pat<span class="sc">$</span>d_qaly <span class="sc">-</span> per_pat<span class="sc">$</span>d_cost_million <span class="sc">*</span> <span class="fl">1e6</span> <span class="sc">/</span> k</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(per_pat, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                        cost_million   qaly d_cost_million d_qaly    nhb
+Cơ cấu hiện tại (2024)        22.581 12.889          0.000  0.000  0.000
+Phác đồ dài hạn               29.316 12.489          6.734 -0.399 -0.507
+Phác đồ ngắn 9 tháng          21.694 12.911         -0.887  0.022  0.036
+BPaLM                         15.017 13.390         -7.565  0.501  0.622
+BPaLM + hỗ trợ tiền mặt       20.826 13.482         -1.755  0.593  0.621</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(pp[<span class="st">"bpalm_cash"</span>, <span class="st">"qaly"</span>] <span class="sc">&gt;</span> pp[<span class="st">"bpalm"</span>, <span class="st">"qaly"</span>], pp[<span class="st">"bpalm_cash"</span>, <span class="st">"cost"</span>] <span class="sc">&gt;</span> pp[<span class="st">"bpalm"</span>, <span class="st">"cost"</span>],</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>          pp[<span class="st">"bpalm"</span>, <span class="st">"cost"</span>] <span class="sc">&lt;</span> pp[<span class="st">"now"</span>, <span class="st">"cost"</span>], pp[<span class="st">"bpalm"</span>, <span class="st">"qaly"</span>] <span class="sc">&gt;</span> pp[<span class="st">"now"</span>, <span class="st">"qaly"</span>])</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Value of support alone (BPaLM + cash versus BPaLM): ICER in VND per QALY</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>icer_cash <span class="ot">&lt;-</span> (pp[<span class="st">"bpalm_cash"</span>, <span class="st">"cost"</span>] <span class="sc">-</span> pp[<span class="st">"bpalm"</span>, <span class="st">"cost"</span>]) <span class="sc">/</span> (pp[<span class="st">"bpalm_cash"</span>, <span class="st">"qaly"</span>] <span class="sc">-</span> pp[<span class="st">"bpalm"</span>, <span class="st">"qaly"</span>])</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">icer_cash =</span> icer_cash, <span class="at">k =</span> k, <span class="at">wtp =</span> ctx<span class="sc">$</span>wtp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>icer_cash         k       wtp 
+ 63287995  62750000 125500000 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Why support adds little to BPaLM: it can only act through loss to follow-up, which is</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="co"># already rare with BPaLM. Share lost to follow-up during the first treatment episode:</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>ltfu <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">attr</span>(pp, <span class="st">"paths"</span>)[<span class="fu">c</span>(<span class="st">"long"</span>, <span class="st">"short"</span>, <span class="st">"bpalm"</span>)],</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>               <span class="cf">function</span>(d) <span class="fu">sum</span>(d<span class="sc">$</span>prob[d<span class="sc">$</span>exit <span class="sc">==</span> <span class="st">"LTFU"</span>]))</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(ltfu, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> long short bpalm 
+0.158 0.113 0.040 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(<span class="fu">sum</span>(<span class="fu">attr</span>(pp, <span class="st">"paths"</span>)<span class="sc">$</span>bpalm<span class="sc">$</span>prob) <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">&lt;</span> <span class="fl">1e-9</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Riêng phần hỗ trợ tiền mặt (so với BPaLM đơn thuần) có ICER khoảng 63.3 triệu VNĐ/QALY, cao hơn ngưỡng chi phí cơ hội <span class="math inline">\(k\)</span> = 62.75 triệu VNĐ/QALY và thấp hơn ngưỡng cơ sở của khóa học, 1 × GDP bình quân đầu người (125.50 triệu VNĐ/QALY). Ở ngưỡng chi phí cơ hội, hỗ trợ gần như hòa vốn: QALY nó tạo ra xấp xỉ QALY mà khoản tiền đó tạo ra ở nơi khác. Vì vậy câu hỏi về công bằng mới quyết định. Lý do: hỗ trợ chỉ cải thiện kết cục qua việc giảm bỏ điều trị, mà với BPaLM chỉ 4% người bệnh bỏ điều trị trong đợt đầu (phác đồ ngắn 9 tháng: 11%), nên hỗ trợ còn ít thứ để cải thiện.</p>
+<p>Mô tả phân bố sức khỏe nền bằng bốn chỉ số. Kiểm tra: SII dương (nhóm giàu khỏe hơn) và chỉ số Atkinson tăng khi ε tăng.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Baseline distribution of health and four ways to summarise its inequality</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>base_ineq <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">gap_abs =</span> h0[[<span class="st">"Q5"</span>]] <span class="sc">-</span> h0[[<span class="st">"Q1"</span>]],</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">gap_rel =</span> h0[[<span class="st">"Q5"</span>]] <span class="sc">/</span> h0[[<span class="st">"Q1"</span>]],</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">sii =</span> <span class="fu">sii</span>(h0),</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">atkinson_1 =</span> <span class="fu">atkinson_index</span>(h0, <span class="dv">1</span>),</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">atkinson_10 =</span> <span class="fu">atkinson_index</span>(h0, <span class="dv">10</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(base_ineq, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    gap_abs     gap_rel         sii  atkinson_1 atkinson_10 
+     8.0000      1.1311      9.7500      0.0009      0.0092 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">sii</span>(h0) <span class="sc">&gt;</span> <span class="dv">0</span>, <span class="fu">atkinson_index</span>(h0, <span class="dv">10</span>) <span class="sc">&gt;</span> <span class="fu">atkinson_index</span>(h0, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Tính NHB theo nhóm cho từng chiến lược. Kiểm tra độc lập: khi chiến lược không tốn thêm tiền thì không có chi phí cơ hội và NHB bằng QALY tăng thêm; tổng chi phí cơ hội của BPaLM khớp với chi phí tăng thêm mỗi người bệnh của M02 chia <span class="math inline">\(k\)</span>; và các nhận xét về Q1 và về hỗ trợ có mục tiêu ở dưới đều đúng (<code>stopifnot</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Who gains and who bears the opportunity cost, for each strategy versus the current mix</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>strat <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"bpalm"</span>, <span class="st">"bpalm_target"</span>, <span class="st">"bpalm_all"</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>dist <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (s <span class="cf">in</span> strat) dist[[s]] <span class="ot">&lt;-</span> <span class="fu">dcea_distribution</span>(pp, pe, n_patients, s, k)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Independent checks. (1) If a strategy costs nothing extra, there is no opportunity</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a><span class="co"># cost and NHB must equal the QALYs gained. (2) The opportunity costs of BPaLM must sum to</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="co"># the whole cohort's net extra cost per patient (from M02) divided by k.</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>pp_free <span class="ot">&lt;-</span> pp</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>pp_free<span class="sc">$</span>cost <span class="ot">&lt;-</span> pp[<span class="st">"now"</span>, <span class="st">"cost"</span>]</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>d_free <span class="ot">&lt;-</span> <span class="fu">dcea_distribution</span>(pp_free, pe, n_patients, <span class="st">"bpalm_all"</span>, k)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">abs</span>(d_free<span class="sc">$</span>nhb <span class="sc">-</span> d_free<span class="sc">$</span>d_qaly) <span class="sc">&lt;</span> <span class="fl">1e-9</span>))</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(<span class="fu">sum</span>(dist<span class="sc">$</span>bpalm<span class="sc">$</span>hoc) <span class="sc">-</span> n_patients <span class="sc">*</span> (pp[<span class="st">"bpalm"</span>, <span class="st">"cost"</span>] <span class="sc">-</span> pp[<span class="st">"now"</span>, <span class="st">"cost"</span>]) <span class="sc">/</span> k) <span class="sc">&lt;</span> <span class="fl">1e-6</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>nhb_tab <span class="ot">&lt;-</span> <span class="fu">sapply</span>(dist, <span class="cf">function</span>(d) d<span class="sc">$</span>nhb)</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="fu">rownames</span>(nhb_tab) <span class="ot">&lt;-</span> QUINTILES</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(nhb_tab) <span class="ot">&lt;-</span> STRATEGY_LABELS[strat]</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="fu">rbind</span>(nhb_tab, <span class="st">"Tổng"</span> <span class="ot">=</span> <span class="fu">colSums</span>(nhb_tab)), <span class="at">digits =</span> <span class="dv">0</span>,</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>             <span class="at">caption =</span> <span class="st">"Lợi ích sức khỏe ròng (QALY) theo nhóm ngũ phân vị, một đoàn hệ năm"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<caption>Lợi ích sức khỏe ròng (QALY) theo nhóm ngũ phân vị, một đoàn hệ năm</caption>
+<colgroup>
+<col style="width: 6%">
+<col style="width: 26%">
+<col style="width: 34%">
+<col style="width: 32%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;"></th>
+<th style="text-align: right;">BPaLM cho mọi người</th>
+<th style="text-align: right;">BPaLM + hỗ trợ nhóm nghèo</th>
+<th style="text-align: right;">BPaLM + hỗ trợ mọi người</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Q1</td>
+<td style="text-align: right;">547</td>
+<td style="text-align: right;">594</td>
+<td style="text-align: right;">563</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q2</td>
+<td style="text-align: right;">448</td>
+<td style="text-align: right;">481</td>
+<td style="text-align: right;">453</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q3</td>
+<td style="text-align: right;">364</td>
+<td style="text-align: right;">333</td>
+<td style="text-align: right;">361</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Q4</td>
+<td style="text-align: right;">295</td>
+<td style="text-align: right;">268</td>
+<td style="text-align: right;">287</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Q5</td>
+<td style="text-align: right;">242</td>
+<td style="text-align: right;">218</td>
+<td style="text-align: right;">231</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Tổng</td>
+<td style="text-align: right;">1896</td>
+<td style="text-align: right;">1895</td>
+<td style="text-align: right;">1894</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Claims in the text: Q1 gets the largest NHB (it has the most patients); targeted support</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># raises NHB in the supported quintiles and lowers it in the others, relative to BPaLM alone</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>sup_q <span class="ot">&lt;-</span> <span class="fu">seq_len</span>(pe<span class="sc">$</span>n_support_q)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">apply</span>(nhb_tab, <span class="dv">2</span>, which.max) <span class="sc">==</span> <span class="dv">1</span>),</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>          <span class="fu">all</span>(dist<span class="sc">$</span>bpalm_target<span class="sc">$</span>nhb[sup_q] <span class="sc">&gt;</span> dist<span class="sc">$</span>bpalm<span class="sc">$</span>nhb[sup_q]),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>          <span class="fu">all</span>(dist<span class="sc">$</span>bpalm_target<span class="sc">$</span>nhb[<span class="sc">-</span>sup_q] <span class="sc">&lt;</span> dist<span class="sc">$</span>bpalm<span class="sc">$</span>nhb[<span class="sc">-</span>sup_q]))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>nhb_df <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (s <span class="cf">in</span> strat) {</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  nhb_df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(nhb_df, <span class="fu">data.frame</span>(<span class="at">quintile =</span> QUINTILES, <span class="at">strategy =</span> STRATEGY_LABELS[[s]],</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">nhb =</span> dist[[s]]<span class="sc">$</span>nhb))</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>nhb_df<span class="sc">$</span>strategy <span class="ot">&lt;-</span> <span class="fu">factor</span>(nhb_df<span class="sc">$</span>strategy, <span class="at">levels =</span> STRATEGY_LABELS[strat])</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>fig_nhb <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(nhb_df, <span class="fu">aes</span>(quintile, nhb, <span class="at">fill =</span> strategy)) <span class="sc">+</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.75</span>), <span class="at">width =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> pal_course[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>)], <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Nhóm ngũ phân vị giàu nghèo (Q1 = nghèo nhất)"</span>, <span class="at">y =</span> <span class="st">"Lợi ích sức khỏe ròng (QALY)"</span>,</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Ai được lợi? Lợi ích sức khỏe ròng theo nhóm giàu nghèo"</span>,</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Một đoàn hệ năm, so với cơ cấu phác đồ 2024; phân bố theo nhóm là giá trị minh họa"</span>) <span class="sc">+</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_nhb, <span class="st">"l02-nhb-quintile.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l02-nhb-quintile.png" class="img-fluid figure-img"></p>
+<figcaption>Lợi ích sức khỏe ròng theo nhóm giàu nghèo</figcaption>
+</figure>
+</div>
+<p>Q1 nhận nhiều NHB nhất chỉ vì có nhiều người bệnh nhất. Hỗ trợ có mục tiêu tăng NHB ở 2 nhóm nghèo nhất (Q1–Q2), nhưng làm các nhóm còn lại mất một chút so với BPaLM đơn thuần vì họ gánh một phần chi phí cơ hội của khoản hỗ trợ.</p>
+<p>Tính tọa độ trên mặt phẳng tác động công bằng: tổng NHB và mức giảm SII. SII là độ dốc của QALE (tính bằng năm) theo thứ hạng 0–1, nên bản thân nó có đơn vị năm QALE; thay đổi rất nhỏ nên ta đổi sang ngày (nhân 365). Kiểm tra: ở ε = 0, mức tăng EDE nhân dân số đúng bằng tổng NHB (<code>stopifnot</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Equity impact plane: x = total net health benefit, y = reduction in inequality (SII).</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The SII is the slope of QALE (in years) on rank, so it is itself measured in years of QALE;</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># changes are tiny, so they are shown in days of QALE (x 365).</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>summ <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (s <span class="cf">in</span> strat) summ[[s]] <span class="ot">&lt;-</span> <span class="fu">dcea_summary</span>(dist[[s]], h0, pop, eps_grid)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>plane <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">strategy =</span> STRATEGY_LABELS[strat],</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">total_nhb =</span> <span class="fu">sapply</span>(summ, <span class="cf">function</span>(x) x<span class="sc">$</span>total_nhb),</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">sii_reduction_days =</span> <span class="fu">sapply</span>(summ, <span class="cf">function</span>(x) <span class="sc">-</span>x<span class="sc">$</span>d_sii <span class="sc">*</span> <span class="dv">365</span>)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a><span class="co"># At eps = 0 the change in total EDE health equals total NHB (no inequality aversion)</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (s <span class="cf">in</span> strat) <span class="fu">stopifnot</span>(<span class="fu">abs</span>(summ[[s]]<span class="sc">$</span>d_ede_total[<span class="dv">1</span>] <span class="sc">-</span> summ[[s]]<span class="sc">$</span>total_nhb) <span class="sc">&lt;</span> <span class="fl">1e-4</span>)</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(plane, <span class="at">digits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">4</span>), <span class="at">row.names =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>             <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Chiến lược"</span>, <span class="st">"Tổng NHB (QALY)"</span>, <span class="st">"Giảm SII (ngày QALE)"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Chiến lược</th>
+<th style="text-align: right;">Tổng NHB (QALY)</th>
+<th style="text-align: right;">Giảm SII (ngày QALE)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">BPaLM cho mọi người</td>
+<td style="text-align: right;">1896.1</td>
+<td style="text-align: right;">0.0068</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">BPaLM + hỗ trợ nhóm nghèo</td>
+<td style="text-align: right;">1894.8</td>
+<td style="text-align: right;">0.0086</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">BPaLM + hỗ trợ mọi người</td>
+<td style="text-align: right;">1893.7</td>
+<td style="text-align: right;">0.0074</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read by the text below (computed, not typed)</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>win_win <span class="ot">&lt;-</span> <span class="fu">all</span>(plane<span class="sc">$</span>total_nhb <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">&amp;&amp;</span> <span class="fu">all</span>(plane<span class="sc">$</span>sii_reduction_days <span class="sc">&gt;</span> <span class="dv">0</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>best_nhb <span class="ot">&lt;-</span> strat[<span class="fu">which.max</span>(plane<span class="sc">$</span>total_nhb)]</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>best_sii <span class="ot">&lt;-</span> strat[<span class="fu">which.max</span>(plane<span class="sc">$</span>sii_reduction_days)]</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Does support aimed at the poorest quintiles narrow the gap more than support for everyone?</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>sii_gain <span class="ot">&lt;-</span> stats<span class="sc">::</span><span class="fu">setNames</span>(plane<span class="sc">$</span>sii_reduction_days, strat)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>target_more_equal <span class="ot">&lt;-</span> sii_gain[[<span class="st">"bpalm_target"</span>]] <span class="sc">&gt;</span> sii_gain[[<span class="st">"bpalm_all"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>lim_x <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(plane<span class="sc">$</span>total_nhb)) <span class="sc">*</span> <span class="fl">1.2</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>lim_y <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(plane<span class="sc">$</span>sii_reduction_days)) <span class="sc">*</span> <span class="fl">1.4</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>plane<span class="sc">$</span>strategy <span class="ot">&lt;-</span> <span class="fu">factor</span>(plane<span class="sc">$</span>strategy, <span class="at">levels =</span> STRATEGY_LABELS[strat])</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>quad <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">*</span> lim_x <span class="sc">*</span> <span class="fl">0.97</span>, <span class="at">y =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>, <span class="sc">-</span><span class="dv">1</span>) <span class="sc">*</span> lim_y <span class="sc">*</span> <span class="fl">0.97</span>,</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>                   <span class="at">hj =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">1</span>), <span class="at">vj =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                   <span class="at">lab =</span> <span class="fu">c</span>(<span class="st">"Có lợi cả hai (win-win)"</span>, <span class="st">"Công bằng hơn, ít sức khỏe hơn"</span>,</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"Thiệt cả hai"</span>, <span class="st">"Nhiều sức khỏe hơn, bất bình đẳng hơn"</span>))</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>fig_plane <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(plane, <span class="fu">aes</span>(total_nhb, sii_reduction_days)) <span class="sc">+</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"grey40"</span>) <span class="sc">+</span></span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> quad, <span class="fu">aes</span>(x, y, <span class="at">label =</span> lab, <span class="at">hjust =</span> hj, <span class="at">vjust =</span> vj),</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">colour =</span> <span class="st">"grey40"</span>, <span class="at">size =</span> <span class="fl">3.2</span>) <span class="sc">+</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">colour =</span> strategy), <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> pal_course[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>)], <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="sc">-</span>lim_x, lim_x), <span class="at">ylim =</span> <span class="fu">c</span>(<span class="sc">-</span>lim_y, lim_y)) <span class="sc">+</span></span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Thay đổi tổng sức khỏe: NHB (QALY)"</span>, <span class="at">y =</span> <span class="st">"Giảm bất bình đẳng: giảm SII</span><span class="sc">\n</span><span class="st">(ngày QALE)"</span>,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Mặt phẳng tác động công bằng"</span>, <span class="at">subtitle =</span> <span class="st">"So với cơ cấu phác đồ 2024, một đoàn hệ năm"</span>) <span class="sc">+</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">colour =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_plane, <span class="st">"l02-equity-plane.png"</span>, <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l02-equity-plane.png" class="img-fluid figure-img"></p>
+<figcaption>Mặt phẳng tác động công bằng</figcaption>
+</figure>
+</div>
+<p>Cả ba chiến lược nằm trong góc “có lợi cả hai”. “BPaLM cho mọi người” cho tổng NHB lớn nhất (1,896 QALY); “BPaLM + hỗ trợ nhóm nghèo” giảm SII nhiều nhất (0.0086 ngày QALE). Các con số bất bình đẳng rất nhỏ vì mỗi năm chỉ khoảng 3,050 người bệnh trong 102.3 triệu dân: một chương trình cho một bệnh hiếm khi dịch chuyển được bất bình đẳng sức khỏe quốc gia.</p>
+<p>Phân tích đánh đổi: tính mức tăng EDE (QALY) theo ε, rồi tìm ε* tại đó BPaLM kèm hỗ trợ nhóm nghèo bắt kịp BPaLM đơn thuần. Hàm <code>eps_star_of()</code> trả 0 nếu chiến lược thứ nhất đã hơn ở ε = 0, và <code>NA</code> nếu nó không bắt kịp trong khoảng ε đã xét.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Equity trade-off: total EDE health gain (QALYs) as inequality aversion eps rises.</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Question: from which eps on does BPaLM + targeted cash beat BPaLM alone?</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>ede_df <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (s <span class="cf">in</span> strat) {</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  ede_df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(ede_df, <span class="fu">data.frame</span>(<span class="at">eps =</span> eps_grid, <span class="at">strategy =</span> STRATEGY_LABELS[[s]],</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">d_ede =</span> summ[[s]]<span class="sc">$</span>d_ede_total))</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a><span class="co"># eps* = the eps at which strategy a and strategy b give the same EDE gain:</span></span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a><span class="co"># 0 if a is already ahead at eps = 0; NA if a never catches up inside the grid</span></span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>eps_star_of <span class="ot">&lt;-</span> <span class="cf">function</span>(dist_a, dist_b) {</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  gap <span class="ot">&lt;-</span> <span class="cf">function</span>(e) <span class="fu">dcea_summary</span>(dist_a, h0, pop, e)<span class="sc">$</span>d_ede_total <span class="sc">-</span> <span class="fu">dcea_summary</span>(dist_b, h0, pop, e)<span class="sc">$</span>d_ede_total</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">gap</span>(<span class="dv">0</span>) <span class="sc">&gt;=</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="dv">0</span>)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">gap</span>(<span class="fu">max</span>(eps_grid)) <span class="sc">&lt;=</span> <span class="dv">0</span>) <span class="fu">return</span>(<span class="cn">NA_real_</span>)</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">uniroot</span>(gap, <span class="fu">c</span>(<span class="dv">0</span>, <span class="fu">max</span>(eps_grid)))<span class="sc">$</span>root</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>eps_star <span class="ot">&lt;-</span> <span class="fu">eps_star_of</span>(dist<span class="sc">$</span>bpalm_target, dist<span class="sc">$</span>bpalm)</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Equity weight implied at eps*: a QALY to Q1 counts this many times a QALY to Q5</span></span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>weight_ratio <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">is.na</span>(eps_star)) <span class="cn">NA</span> <span class="cf">else</span> (h0[[<span class="st">"Q1"</span>]] <span class="sc">/</span> h0[[<span class="st">"Q5"</span>]])<span class="sc">^</span>(<span class="sc">-</span>eps_star)</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Does targeted support beat support for everyone at every eps of the grid?</span></span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>target_beats_all <span class="ot">&lt;-</span> <span class="fu">all</span>(summ<span class="sc">$</span>bpalm_target<span class="sc">$</span>d_ede_total <span class="sc">&gt;=</span> summ<span class="sc">$</span>bpalm_all<span class="sc">$</span>d_ede_total)</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">eps_star =</span> eps_star, <span class="at">weight_q1_vs_q5 =</span> weight_ratio, <span class="at">target_beats_all =</span> target_beats_all), <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        eps_star  weight_q1_vs_q5 target_beats_all 
+            0.20             1.03             1.00 </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>ede_df<span class="sc">$</span>strategy <span class="ot">&lt;-</span> <span class="fu">factor</span>(ede_df<span class="sc">$</span>strategy, <span class="at">levels =</span> STRATEGY_LABELS[strat])</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>fig_ede <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(ede_df, <span class="fu">aes</span>(eps, d_ede, <span class="at">colour =</span> strategy)) <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> pal_course[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">3</span>, <span class="dv">2</span>)], <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Mức ác cảm bất bình đẳng ε (Atkinson)"</span>,</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Tăng sức khỏe tương đương</span><span class="sc">\n</span><span class="st">phân bố đều (QALY)"</span>,</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Khi nào thêm hỗ trợ tiền mặt cho nhóm nghèo được ưu tiên?"</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Đường đứt: ε* tại đó BPaLM + hỗ trợ nhóm nghèo ngang BPaLM đơn thuần"</span>) <span class="sc">+</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">colour =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.na</span>(eps_star)) fig_ede <span class="ot">&lt;-</span> fig_ede <span class="sc">+</span> <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> eps_star, <span class="at">linetype =</span> <span class="st">"22"</span>, <span class="at">colour =</span> <span class="st">"grey40"</span>)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_ede, <span class="st">"l02-ede-epsilon.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l02-ede-epsilon.png" class="img-fluid figure-img"></p>
+<figcaption>Mức tăng sức khỏe tương đương phân bố đều theo ε</figcaption>
+</figure>
+</div>
+<p>Hỗ trợ nhóm nghèo được ưu tiên hơn BPaLM đơn thuần khi ε vượt 0.20, tức khi người ra quyết định coi một QALY đến Q1 đáng giá hơn 1.03 QALY đến Q5. Đó là một mức quan tâm công bằng rất nhẹ: vì hỗ trợ gần như hòa vốn về sức khỏe, chỉ cần nghiêng một chút về người nghèo là đủ. Ở mọi ε đã xét, hỗ trợ có mục tiêu đều hơn hỗ trợ mọi người: đưa tiền cho nhóm khá giả tạo ra ít sức khỏe hơn so với dùng khoản tiền đó cho dịch vụ khác, và cũng thu hẹp khoảng cách sức khỏe ít hơn.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Mẹo thực hành">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mẹo thực hành
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Báo cáo kết quả theo từng nhóm trước, chỉ số tổng hợp sau. Người ra quyết định hiểu “Q1 được thêm X QALY” nhanh hơn “Atkinson giảm Y”.</li>
+<li>Trình bày một dải ε và ε*, không chọn hộ người ra quyết định một giá trị ε.</li>
+<li>Tách hai nguồn khác biệt: số người bệnh ở mỗi nhóm (nhu cầu) và lợi ích mỗi người bệnh (tiếp cận, tuân thủ). Chỉ nguồn thứ hai mới đổi được bằng chính sách nhắm mục tiêu.</li>
+<li>Khi đưa chi phí cơ hội vào, luôn nói rõ giả định về ai gánh nó (bài tập 1), và ngân sách nào chi tiền hỗ trợ.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Lỗi thường gặp">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lỗi thường gặp
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Bỏ qua chi phí cơ hội.</strong> Chỉ đếm QALY tăng thêm theo nhóm làm mọi chương trình trông có lợi cho mọi nhóm; tiền phải lấy từ đâu đó.</li>
+<li><strong>Dùng khoảng cách Q5 − Q1 làm chỉ số duy nhất.</strong> Nó bỏ qua ba nhóm giữa; một chiến lược chỉ giúp Q2 sẽ trông như không có tác dụng.</li>
+<li><strong>Nhầm bất bình đẳng với bất công.</strong> Q1 nhận nhiều QALY hơn vì có nhiều người bệnh hơn chưa có nghĩa là chính sách “vì người nghèo”.</li>
+<li><strong>Trình bày giá trị minh họa như số liệu thật.</strong> Phân bố người bệnh, QALE và chi phí cơ hội theo nhóm ở đây đều là giá trị minh họa; một DCEA thật cần dữ liệu khảo sát hoặc hồ sơ bệnh án theo nhóm kinh tế-xã hội.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="bài-tập" class="level2">
+<h2 class="anchored" data-anchor-id="bài-tập">Bài tập</h2>
+<ol type="1">
+<li><strong>(Dễ)</strong> Giả sử chi phí cơ hội rơi đều vào năm nhóm. Tổng NHB và mức giảm SII của ba chiến lược thay đổi thế nào?</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 1: opportunity costs shared equally by all quintiles</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>pe_eq <span class="ot">&lt;-</span> pe</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (q <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) pe_eq[[<span class="fu">paste0</span>(<span class="st">"share_oc_q"</span>, q)]] <span class="ot">&lt;-</span> <span class="fl">0.2</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>plane_eq <span class="ot">&lt;-</span> <span class="fu">sapply</span>(strat, <span class="cf">function</span>(s) {</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  sm <span class="ot">&lt;-</span> <span class="fu">dcea_summary</span>(<span class="fu">dcea_distribution</span>(pp, pe_eq, n_patients, s, k), h0, pop, <span class="dv">0</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">total_nhb =</span> sm<span class="sc">$</span>total_nhb, <span class="at">sii_reduction_days =</span> <span class="sc">-</span>sm<span class="sc">$</span>d_sii <span class="sc">*</span> <span class="dv">365</span>)</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(plane_eq, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       bpalm bpalm_target bpalm_all
+total_nhb          1896.0805    1894.7843 1893.6802
+sii_reduction_days    0.0061       0.0082    0.0073</code></pre>
+</div>
+</div>
+<p>Tổng NHB không đổi, vì chi phí cơ hội tổng không đổi. Mức giảm SII của BPaLM đổi từ 0.0068 thành 0.0061 ngày QALE. BPaLM tiết kiệm tiền. Khi chi phí cơ hội rơi nhiều hơn vào người nghèo (giả định cơ sở), khoản tiền tiết kiệm được dùng lại ở những dịch vụ có lợi nhiều hơn cho họ; chia đều thì phần lợi thêm này mất đi, nên BPaLM bớt vì người nghèo. Giả định về <span class="math inline">\(s_g\)</span> có thể đổi kết luận công bằng mà không đổi kết luận hiệu quả.</p>
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li><strong>(Vừa)</strong> Tính chỉ số Atkinson của phân bố nền với ε = 0, 1, 2, 5, 10, 20. Vì sao nó tăng theo ε, và vì sao ở ε = 0 nó bằng 0?</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 2: the Atkinson index of the baseline distribution rises with eps</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">sapply</span>(<span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">20</span>), <span class="cf">function</span>(e) <span class="fu">atkinson_index</span>(h0, e)), <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.00000 0.00091 0.00182 0.00457 0.00916 0.01791</code></pre>
+</div>
+</div>
+<p>Ở ε = 0, EDE bằng trung bình nên <span class="math inline">\(A_0 = 0\)</span>: xã hội không quan tâm phân bố. Khi ε tăng, EDE tiến về sức khỏe của Q1 (61.0), nên khoảng cách giữa trung bình và EDE, tức chỉ số Atkinson, tăng dần.</p>
+</div>
+</div>
+</div>
+<ol start="3" type="1">
+<li><strong>(Khó)</strong> Nhân đôi mức hỗ trợ tiền mặt (giữ nguyên hiệu quả). BPaLM kèm hỗ trợ nhóm nghèo còn bắt kịp BPaLM đơn thuần không, và ở ε* nào?</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 3: cash support twice as large (and twice as expensive). Does BPaLM + targeted</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># support still beat BPaLM alone at eps = 0, and where is eps* now?</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>pe_2x <span class="ot">&lt;-</span> pe</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>pe_2x<span class="sc">$</span>c_cash_month <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> pe<span class="sc">$</span>c_cash_month</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>pp_2x <span class="ot">&lt;-</span> <span class="fu">patient_outcomes</span>(p02, pe_2x, mix)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>d_t <span class="ot">&lt;-</span> <span class="fu">dcea_distribution</span>(pp_2x, pe_2x, n_patients, <span class="st">"bpalm_target"</span>, k)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>d_b <span class="ot">&lt;-</span> <span class="fu">dcea_distribution</span>(pp_2x, pe_2x, n_patients, <span class="st">"bpalm"</span>, k)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>eps_star_2x <span class="ot">&lt;-</span> <span class="fu">eps_star_of</span>(d_t, d_b)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">nhb_target =</span> <span class="fu">sum</span>(d_t<span class="sc">$</span>nhb), <span class="at">nhb_bpalm =</span> <span class="fu">sum</span>(d_b<span class="sc">$</span>nhb), <span class="at">eps_star =</span> eps_star, <span class="at">eps_star_2x =</span> eps_star_2x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  nhb_target    nhb_bpalm     eps_star  eps_star_2x 
+1742.8546749 1896.0805112    0.2048572           NA </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The text says a dearer support needs more inequality aversion (eps* rises or disappears)</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">is.na</span>(eps_star_2x) <span class="sc">||</span> (<span class="sc">!</span><span class="fu">is.na</span>(eps_star) <span class="sc">&amp;&amp;</span> eps_star_2x <span class="sc">&gt;=</span> eps_star))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Với hỗ trợ gấp đôi, ở ε = 0 tổng NHB của hỗ trợ nhóm nghèo là 1,743 QALY so với 1,896 của BPaLM đơn thuần. Trong khoảng ε từ 0 đến 30, hỗ trợ không còn bắt kịp: trả gấp đôi cho cùng một hiệu quả làm chi phí cơ hội vượt xa lợi ích, kể cả khi rất coi trọng người nghèo. Bài học: thiết kế hỗ trợ (bao nhiêu, cho ai) quan trọng không kém việc có hỗ trợ hay không.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="tài-liệu-tham-khảo" class="level2">
+<h2 class="anchored" data-anchor-id="tài-liệu-tham-khảo">Tài liệu tham khảo</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-asaria2016distributional" class="csl-entry" role="listitem">
+Asaria, Miqdad, Susan Griffin, và Richard Cookson. 2016. <span>“Distributional cost-effectiveness analysis: a tutorial”</span>. <em>Medical Decision Making</em> 36 (1): 8–19. <a href="https://doi.org/10.1177/0272989X15583266">https://doi.org/10.1177/0272989X15583266</a>.
+</div>
+<div id="ref-atkinson1970measurement" class="csl-entry" role="listitem">
+Atkinson, Anthony B. 1970. <span>“On the measurement of inequality”</span>. <em>Journal of Economic Theory</em> 2 (3): 244–63. <a href="https://doi.org/10.1016/0022-0531(70)90039-6">https://doi.org/10.1016/0022-0531(70)90039-6</a>.
+</div>
+<div id="ref-scdi2024supports" class="csl-entry" role="listitem">
+Center for Supporting Community Development Initiatives (SCDI). 2024. <span>“The current supports for tuberculosis patients”</span>. 11 Tháng Chạp 2024. <a href="https://www.scdi.org.vn/en/news/the-current-supports-for-tuberculosis-patients.html">https://www.scdi.org.vn/en/news/the-current-supports-for-tuberculosis-patients.html</a>.
+</div>
+<div id="ref-chinhphu2025nd293" class="csl-entry" role="listitem">
+Chính phủ. 2025. <span>“Nghị định 293/2025/<span>NĐ-CP</span> quy định mức lương tối thiểu đối với người lao động làm việc theo hợp đồng lao động (hiệu lực từ 1/1/2026)”</span>. 2025. <a href="https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026">https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026</a>.
+</div>
+<div id="ref-cookson2021distributional" class="csl-entry" role="listitem">
+Cookson, Richard, Susan Griffin, Ole F. Norheim, Anthony J. Culyer, và Kalipso Chalkidou. 2021. <span>“Distributional cost-effectiveness analysis comes of age”</span>. <em>Value in Health</em> 24 (1): 118–20. <a href="https://doi.org/10.1016/j.jval.2020.10.001">https://doi.org/10.1016/j.jval.2020.10.001</a>.
+</div>
+<div id="ref-cookson2017using" class="csl-entry" role="listitem">
+Cookson, Richard, Andrew J. Mirelman, Susan Griffin, Miqdad Asaria, Bryony Dawkins, Ole Frithjof Norheim, Stéphane Verguet, và Anthony J. Culyer. 2017. <span>“Using cost-effectiveness analysis to address health equity concerns”</span>. <em>Value in Health</em> 20 (2): 206–12. <a href="https://doi.org/10.1016/j.jval.2016.11.027">https://doi.org/10.1016/j.jval.2016.11.027</a>.
+</div>
+<div id="ref-gso2026gdp2025" class="csl-entry" role="listitem">
+Cục Thống kê (Bộ Tài chính). 2026a. <span>“Họp báo công bố tình hình kinh tế – xã hội quý <span>IV</span> và năm 2025”</span>. 5 Tháng Giêng 2026. <a href="https://www.nso.gov.vn/?p=59699">https://www.nso.gov.vn/?p=59699</a>.
+</div>
+<div id="ref-gso2026population2025" class="csl-entry" role="listitem">
+———. 2026b. <span>“Thông cáo báo chí về tình hình dân số, lao động, việc làm quý <span>IV</span> và năm 2025”</span>. 5 Tháng Giêng 2026. <a href="https://www.nso.gov.vn/?p=59530">https://www.nso.gov.vn/?p=59530</a>.
+</div>
+<div id="ref-dawkins2018distributional" class="csl-entry" role="listitem">
+Dawkins, Bryony R., Andrew J. Mirelman, Miqdad Asaria, Kjell Arne Johansson, và Richard A. Cookson. 2018. <span>“Distributional cost-effectiveness analysis in low- and middle-income countries: illustrative example of rotavirus vaccination in <span>Ethiopia</span>”</span>. <em>Health Policy and Planning</em> 33 (3): 456–63. <a href="https://doi.org/10.1093/heapol/czx175">https://doi.org/10.1093/heapol/czx175</a>.
+</div>
+<div id="ref-hoa2019national" class="csl-entry" role="listitem">
+Hoa, N. B., và N. V. Nhung. 2019. <span>“National tuberculosis patients cost survey: research findings lead to change in policy and practice, <span>Viet Nam</span>”</span>. <em>Public Health Action</em> 9 (2): 50–52. <a href="https://doi.org/10.5588/pha.18.0082">https://doi.org/10.5588/pha.18.0082</a>.
+</div>
+<div id="ref-nhadautu2025pho" class="csl-entry" role="listitem">
+Nhadautu.vn. 2025. <span>“Tô phở 30.000 đồng dần biến mất, hàng ăn lập mặt bằng giá mới”</span>. 28 Tháng Tám 2025. <a href="https://nhadautu.vn/to-pho-30000-dong-dan-bien-mat-hang-an-lap-mat-bang-gia-moi-d98663.html">https://nhadautu.vn/to-pho-30000-dong-dan-bien-mat-hang-an-lap-mat-bang-gia-moi-d98663.html</a>.
+</div>
+<div id="ref-ochalek2018estimating" class="csl-entry" role="listitem">
+Ochalek, Jessica, James Lomas, và Karl Claxton. 2018. <span>“Estimating health opportunity costs in low-income and middle-income countries: a novel approach and evidence from cross-country data”</span>. <em>BMJ Global Health</em> 3 (6): e000964. <a href="https://doi.org/10.1136/bmjgh-2018-000964">https://doi.org/10.1136/bmjgh-2018-000964</a>.
+</div>
+<div id="ref-richterman2018cash" class="csl-entry" role="listitem">
+Richterman, Aaron, Jonathan Steer-Massaro, Jana Jarolimova, Liem Binh Luong Nguyen, Jennifer Werdenberg, và Louise C. Ivers. 2018. <span>“Cash interventions to improve clinical outcomes for pulmonary tuberculosis: systematic review and meta-analysis”</span>. <em>Bulletin of the World Health Organization</em> 96 (7): 471–83. <a href="https://doi.org/10.2471/BLT.18.208959">https://doi.org/10.2471/BLT.18.208959</a>.
+</div>
+<div id="ref-woods2016country" class="csl-entry" role="listitem">
+Woods, Beth, Paul Revill, Mark Sculpher, và Karl Claxton. 2016. <span>“Country-Level Cost-Effectiveness Thresholds: Initial Estimates and the Need for Further Research”</span>. <em>Value in health : the journal of the International Society for Pharmacoeconomics and Outcomes Research</em> 19 (8): 929–35. <a href="https://doi.org/10.1016/j.jval.2016.02.017">https://doi.org/10.1016/j.jval.2016.02.017</a>.
+</div>
+<div id="ref-who2026tbnotif" class="csl-entry" role="listitem">
+World Health Organization. 2026a. <span>“Global tuberculosis programme: case notifications by country and year (variables dr_6m_tx, dr_9m_tx, dr_18mplus_tx, conf_rr_nfqr_tx, unconf_rr_nfqr_tx, conf_rr_fqr_tx)”</span>. 2026. <a href="https://extranet.who.int/tme/generateCSV.asp?ds=notifications">https://extranet.who.int/tme/generateCSV.asp?ds=notifications</a>.
+</div>
+<div id="ref-who2026tbfinance" class="csl-entry" role="listitem">
+———. 2026b. <span>“Global tuberculosis programme: <span>TB</span> budgets and expenditure and utilisation of services by country and year (variables budget_patsup, cf_patsup, exp_cpp_mdr, budget_sld, cf_sld, cf_tot_gf)”</span>. 2026. <a href="https://extranet.who.int/tme/generateCSV.asp?ds=budget">https://extranet.who.int/tme/generateCSV.asp?ds=budget</a>.
+</div>
+</div>
+<div class="video-script">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Kịch bản video (~15 phút)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Slide</th>
+<th>Lời giảng chính</th>
+<th>Hình/Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Một điểm DOT ở xã</td>
+<td>người làm thuê mất công mỗi lần đi; ngân sách hỗ trợ người bệnh gần như chưa có nguồn</td>
+<td>callout mở đầu</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>CEA cộng QALY như nhau</td>
+<td>ai nhận không quan trọng → câu hỏi công bằng</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Hai giai đoạn DCEA</td>
+<td>mô hình hóa phân bố; đánh giá phân bố</td>
+<td>công thức NHB<span class="math inline">\(_g\)</span></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Ba chiến lược</td>
+<td>so với cơ cấu 2024; BPaLM; hỗ trợ nhóm nghèo; hỗ trợ mọi người; OR từ phân tích gộp</td>
+<td>chunk <code>l02-per-patient</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Hỗ trợ có đáng tiền không</td>
+<td>ICER của riêng hỗ trợ so với ngưỡng chi phí cơ hội</td>
+<td>chunk <code>l02-per-patient</code></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Sức khỏe nền</td>
+<td>QALE theo nhóm (minh họa); SII; Atkinson</td>
+<td>chunk <code>l02-baseline</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>NHB theo nhóm</td>
+<td>Q1 nhiều nhất vì nhiều người bệnh; nhóm khá giả gánh chi phí hỗ trợ</td>
+<td><code>figs/l02-nhb-quintile.png</code></td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Mặt phẳng tác động công bằng</td>
+<td>bốn góc; vị trí ba chiến lược</td>
+<td><code>figs/l02-equity-plane.png</code></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Tìm ε*</td>
+<td>thứ hạng đổi ở ε*; tỷ số trọng số Q1:Q5</td>
+<td><code>figs/l02-ede-epsilon.png</code></td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Lỗi thường gặp</td>
+<td>bỏ chi phí cơ hội; chỉ nhìn Q5 − Q1; minh họa ≠ thật</td>
+<td>callout</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Chuyển tiếp</td>
+<td>sức khỏe xong; còn túi tiền của hộ gia đình → Bài 3</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="pagination-link" aria-label="Bài 1: Phân tích tác động ngân sách">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="pagination-link" aria-label="Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính">
+        <span class="nav-page-text"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

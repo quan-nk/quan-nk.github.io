@@ -1,0 +1,1703 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="vi" xml:lang="vi"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bài 5: Biểu đồ với ggplot2 – Mô hình Kinh tế Y tế với R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" rel="next">
+<link href="../../kb/m00-r-foundations/l04-data-frames.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-9e7f0c659d5fa2cace8548cb57964278.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c18d72663580ed8ca19ce2a2f99af51b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m00-r-foundations/index.html">M00 · R cho mô hình kinh tế y tế</a></li><li class="breadcrumb-item"><a href="../../kb/m00-r-foundations/l05-ggplot2.html"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Mô hình Kinh tế Y tế với R</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lời mở đầu</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m00-r-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M00 · R cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l01-reproducible-workflow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Quy trình làm việc tái lập với R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m01-ee-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M01 · Nền tảng đánh giá kinh tế và cây quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l01-evaluation-types.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại đánh giá kinh tế, quan điểm, khung thời gian và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l03-decision-rules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l05-decision-tree.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Xây cây quyết định từ đầu trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m02-cohort-markov/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M02 · Mô hình chuyển trạng thái đoàn hệ (Markov)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l01-state-transition.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao cần mô hình chuyển trạng thái</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l02-rates-probabilities.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tỷ suất, xác suất và độ dài chu kỳ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l03-cohort-trace.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vết đoàn hệ, giá trị gắn với trạng thái và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l04-time-dependence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Phụ thuộc thời gian: lão hóa, trạng thái đường hầm và mảng 3 chiều</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l05-results-verification.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị gắn với lần chuyển, đường biên hiệu quả và xác minh mô hình</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m03-uncertainty-voi/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M03 · Bất định, phân tích độ nhạy và giá trị thông tin</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l01-deterministic-sa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại bất định và phân tích độ nhạy tất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l02-distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Chọn phân phối cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l03-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích độ nhạy xác suất (PSA) trong R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l04-ceac-reporting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: CEAC, CEAF, tổn thất kỳ vọng và cách báo cáo bất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l05-voi.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị thông tin: EVPI, EVPPI và EVSI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m04-microsimulation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M04 · Mô phỏng vi mô (microsimulation)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l01-why-microsimulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Khi mô hình đoàn hệ không đủ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l02-microsim-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô phỏng vi mô bằng vòng lặp trong R cơ bản</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l03-vectorisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vectơ hóa theo cá thể và đo hiệu năng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l04-parallel-rcpp.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tính toán song song và Rcpp cho vòng lặp nóng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l05-mc-error-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bao nhiêu cá thể là đủ? Sai số Monte Carlo, PSA và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m05-dynamic-transmission/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M05 · Mô hình lây truyền động</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l01-static-vs-dynamic.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Mô hình tĩnh và mô hình lây truyền động</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l02-sir-seir-desolve.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình SIR và SEIR trong R với deSolve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m06-amr-economics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M06 · Kinh tế học kháng kháng sinh (AMR)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l01-amr-burden.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Kinh tế học kháng kháng sinh: ngoại ứng, gánh nặng và kịch bản phản thực</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l03-ward-transmission.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m07-survival-psm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M07 · Phân tích sống còn cho mô hình quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l03-extrapolation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l05-partitioned-survival.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m08-calibration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M08 · Hiệu chuẩn mô hình (calibration)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l01-why-calibrate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao phải hiệu chuẩn mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l02-search-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tìm kiếm tham số: ngẫu nhiên, siêu khối Latin và Nelder–Mead</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l03-bayes-sir.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hiệu chuẩn Bayes và thuật toán SIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l04-psa-validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đưa kết quả hiệu chuẩn vào PSA, thẩm định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m09-inputs-vietnam/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M09 · Dữ liệu đầu vào cho Việt Nam và LMIC</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l01-costing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ước tính chi phí cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l02-cost-adjustment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Điều chỉnh chi phí về một năm tham chiếu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l03-outcome-inputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Đầu vào về kết cục sức khỏe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l04-evidence-synthesis.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tổng hợp bằng chứng cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l05-decision-context.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bối cảnh ra quyết định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m10-policy-bia-equity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l04-communicating-hta.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Truyền đạt kết quả cho người ra quyết định và quy trình HTA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m11-software-engineering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l01-code-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Cấu trúc mã cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l02-testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Xác minh và kiểm thử mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l03-version-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l04-r-package.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/glossary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Trong bài</h2>
+   
+  <ul class="collapse">
+  <li><a href="#mục-tiêu-học-tập" id="toc-mục-tiêu-học-tập" class="nav-link active" data-scroll-target="#mục-tiêu-học-tập">Mục tiêu học tập</a></li>
+  <li><a href="#ý-chính" id="toc-ý-chính" class="nav-link" data-scroll-target="#ý-chính">Ý chính</a></li>
+  <li><a href="#nội-dung" id="toc-nội-dung" class="nav-link" data-scroll-target="#nội-dung">Nội dung</a></li>
+  <li><a href="#thực-hành" id="toc-thực-hành" class="nav-link" data-scroll-target="#thực-hành">Thực hành</a></li>
+  <li><a href="#bài-tập" id="toc-bài-tập" class="nav-link" data-scroll-target="#bài-tập">Bài tập</a></li>
+  <li><a href="#tài-liệu-tham-khảo" id="toc-tài-liệu-tham-khảo" class="nav-link" data-scroll-target="#tài-liệu-tham-khảo">Tài liệu tham khảo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m00-r-foundations/index.html">M00 · R cho mô hình kinh tế y tế</a></li><li class="breadcrumb-item"><a href="../../kb/m00-r-foundations/l05-ggplot2.html"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></h1>
+<p class="subtitle lead">Vẽ bản tổng kết mức độ nhạy cảm kháng sinh, xu hướng đề kháng có khoảng tin cậy, và dùng giao diện chung của khóa học</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-important callout-titled" title="Vì sao bạn nên quan tâm?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Vì sao bạn nên quan tâm?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Mỗi năm, bản tổng kết mức độ nhạy cảm kháng sinh của bệnh viện được dán ở phòng trực ICU, và bác sĩ trực nhìn vào đó để chọn kháng sinh trong những giờ đầu cho người bệnh nhiễm khuẩn huyết. Theo khảo sát toàn quốc, khoảng 37% chủng <em>K. pneumoniae</em> đã kháng carbapenem <span class="citation" data-cites="larsson2025burden">(<a href="index.html#ref-larsson2025burden" role="doc-biblioref">Larsson và c.s. 2025</a>)</span>; một bệnh viện tỉnh chỉ có vài chục chủng mỗi năm có thể thấy tỷ lệ năm nay “tăng vọt” chỉ do ngẫu nhiên. Nếu biểu đồ không ghi số chủng và khoảng tin cậy, hội đồng có thể chuyển cả ICU sang colistin, mỗi ngày đắt gấp 23 lần meropenem generic theo giá trúng thầu quy về năm 2025 <span class="citation" data-cites="thainguyen2023thau cuchi2024thau">(<a href="index.html#ref-thainguyen2023thau" role="doc-biblioref">Bệnh viện Trung ương Thái Nguyên 2023</a>; <a href="index.html#ref-cuchi2024thau" role="doc-biblioref">Bệnh viện Đa khoa khu vực Củ Chi 2024</a>)</span>. Bài này dạy vẽ antibiogram và xu hướng kèm <code>n</code> và KTC, để người đọc phân biệt tín hiệu thật với nhiễu.</p>
+</div>
+</div>
+<section id="mục-tiêu-học-tập" class="level2">
+<h2 class="anchored" data-anchor-id="mục-tiêu-học-tập">Mục tiêu học tập</h2>
+<p>Sau bài này, bạn có thể:</p>
+<ol type="1">
+<li>Giải thích các lớp của một biểu đồ <code>ggplot2</code>: dữ liệu, ánh xạ thẩm mỹ, hình học, thang đo, chia ô và giao diện.</li>
+<li>Vẽ bản tổng kết mức độ nhạy cảm kháng sinh (antibiogram) dạng bản đồ nhiệt, đánh dấu ô không thử nghiệm và ô có quá ít chủng.</li>
+<li>Vẽ xu hướng tỷ lệ đề kháng theo năm kèm khoảng tin cậy, tách theo bệnh viện và theo loài.</li>
+<li>Áp dụng <code>theme_course()</code> và bảng màu <code>pal_course</code>, rồi lưu hình bằng <code>save_fig()</code>.</li>
+</ol>
+</section>
+<section id="ý-chính" class="level2">
+<h2 class="anchored" data-anchor-id="ý-chính">Ý chính</h2>
+<ul>
+<li><code>ggplot2</code> xây biểu đồ theo <strong>lớp</strong>: <code>ggplot(dữ liệu, aes(...)) + geom_...() + scale_...() + facet_...() + theme_...()</code> <span class="citation" data-cites="wickham2010layered">(<a href="index.html#ref-wickham2010layered" role="doc-biblioref">Wickham 2010</a>)</span>.</li>
+<li><strong>Ánh xạ</strong> (<code>aes(colour = hospital)</code>) nối một cột dữ liệu với một thuộc tính hình ảnh. <strong>Đặt cố định</strong> (<code>colour = "red"</code> bên ngoài <code>aes()</code>) áp một giá trị cho mọi điểm. Nhầm hai cách này là lỗi phổ biến nhất.</li>
+<li><code>ggplot2</code> cần dữ liệu <strong>dạng dài</strong>: mỗi dòng là một điểm hoặc một ô cần vẽ. Đó là lý do Bài 4 chuyển dạng dữ liệu.</li>
+<li>Một tỷ lệ không kèm cỡ mẫu và khoảng tin cậy dễ bị hiểu sai. Hãy hiển thị <code>n</code> và KTC.</li>
+<li>Theo khuyến cáo của Clinical and Laboratory Standards Institute (CLSI), được Tran và cộng sự trích dẫn, bản tổng kết tích lũy chỉ nên báo cáo nhóm có ít nhất 30 chủng <span class="citation" data-cites="tran2023estimated">(<a href="index.html#ref-tran2023estimated" role="doc-biblioref">Tran và c.s. 2023</a>)</span>.</li>
+<li>Bảng màu phải phân biệt được với người mù màu. <code>pal_course</code> dùng các màu Okabe-Ito <span class="citation" data-cites="okabe2008color">(<a href="index.html#ref-okabe2008color" role="doc-biblioref">Okabe và Ito 2008</a>)</span>.</li>
+<li>Mọi hình được tạo bằng mã và lưu bằng <code>save_fig()</code>. Không chỉnh hình bằng tay.</li>
+</ul>
+</section>
+<section id="nội-dung" class="level2">
+<h2 class="anchored" data-anchor-id="nội-dung">Nội dung</h2>
+<section id="ngữ-pháp-đồ-họa" class="level3">
+<h3 class="anchored" data-anchor-id="ngữ-pháp-đồ-họa">Ngữ pháp đồ họa</h3>
+<p><code>ggplot2</code> hiện thực hóa “ngữ pháp đồ họa theo lớp” <span class="citation" data-cites="wickham2010layered">(<a href="index.html#ref-wickham2010layered" role="doc-biblioref">Wickham 2010</a>)</span>. Một biểu đồ gồm: <strong>dữ liệu</strong>; <strong>ánh xạ thẩm mỹ</strong> (<code>aes</code>) từ cột sang vị trí x, y, màu, kích thước; <strong>hình học</strong> (<code>geom_point</code>, <code>geom_line</code>, <code>geom_tile</code>, <code>geom_bar</code>) quyết định vẽ gì; <strong>thang đo</strong> (<code>scale_*</code>) quyết định giá trị biến thành màu hay nhãn trục ra sao; <strong>chia ô</strong> (<code>facet_wrap</code>) lặp lại biểu đồ cho từng nhóm; và <strong>giao diện</strong> (<code>theme</code>) cho các phần không phải dữ liệu như phông chữ, lưới, vị trí chú giải. Sách <em>ggplot2: Elegant Graphics for Data Analysis</em> trình bày đầy đủ cách tiếp cận này <span class="citation" data-cites="wickham_ggplot2">(<a href="index.html#ref-wickham_ggplot2" role="doc-biblioref">Wickham, Navarro, và Pedersen không ngày</a>)</span>.</p>
+<p>Đọc một lệnh <code>ggplot()</code> từ trái sang phải như đọc một câu: “lấy bảng <code>first</code>, đặt bệnh viện lên trục x, tô màu theo loài, vẽ cột đếm số dòng, dùng bảng màu của khóa học, đặt nhãn tiếng Việt, áp giao diện của khóa học”.</p>
+</section>
+<section id="bản-tổng-kết-mức-độ-nhạy-cảm-kháng-sinh" class="level3">
+<h3 class="anchored" data-anchor-id="bản-tổng-kết-mức-độ-nhạy-cảm-kháng-sinh">Bản tổng kết mức độ nhạy cảm kháng sinh</h3>
+<p>Bản tổng kết mức độ nhạy cảm kháng sinh tích lũy (cumulative antibiogram) là bản tóm tắt thường niên tỷ lệ nhạy cảm theo loài × kháng sinh tại một cơ sở y tế, dùng để theo dõi xu hướng đề kháng tại chỗ và hỗ trợ quyết định lâm sàng và kiểm soát nhiễm khuẩn <span class="citation" data-cites="hindler2007analysis">(<a href="index.html#ref-hindler2007analysis" role="doc-biblioref">Hindler và Stelling 2007</a>)</span>. Theo CLSI, bản tổng kết báo cáo tỷ lệ <strong>nhạy cảm</strong> (%S). Khóa học này vẽ tỷ lệ <strong>đề kháng</strong> (%R), vì dữ liệu giám sát và đầu vào của mô hình dùng đề kháng; khi có kết quả I, %R không bằng 100% − %S. Bản đồ nhiệt (<code>geom_tile</code>) đọc nhanh hơn bảng số: màu đậm là tỷ lệ đề kháng cao. Ba quy tắc trình bày: (1) mỗi ô ghi cả tỷ lệ lẫn <code>n</code>; (2) ô không thử nghiệm để trống, không tô màu như tỷ lệ 0%; (3) ô có ít hơn 30 chủng được đánh dấu thay vì báo cáo như bình thường, vì tỷ lệ tính trên ít chủng dao động rất mạnh <span class="citation" data-cites="tran2023estimated">(<a href="index.html#ref-tran2023estimated" role="doc-biblioref">Tran và c.s. 2023</a>)</span>.</p>
+</section>
+<section id="xu-hướng-có-khoảng-tin-cậy" class="level3">
+<h3 class="anchored" data-anchor-id="xu-hướng-có-khoảng-tin-cậy">Xu hướng có khoảng tin cậy</h3>
+<p>Khi so sánh tỷ lệ đề kháng giữa các năm và các bệnh viện, mỗi điểm cần kèm KTC. Nếu không, một bệnh viện nhỏ với vài chục chủng có thể trông như có “đợt tăng vọt” chỉ do ngẫu nhiên. <code>geom_pointrange()</code> vẽ điểm cùng KTC; <code>position_dodge()</code> dịch nhẹ các bệnh viện để thanh KTC không đè lên nhau; <code>facet_wrap(~organism)</code> tách mỗi loài thành một ô.</p>
+</section>
+<section id="giao-diện-chung-của-khóa-học" class="level3">
+<h3 class="anchored" data-anchor-id="giao-diện-chung-của-khóa-học">Giao diện chung của khóa học</h3>
+<p><code>theme_course()</code> trong <code>_shared/R/helpers.R</code> là một hàm bình thường: nó lấy <code>theme_minimal()</code> rồi bỏ lưới phụ, đặt chú giải ở dưới và in đậm tiêu đề. <code>pal_course</code> là bảng tám màu Okabe-Ito. Dùng chung hai thứ này giúp mọi hình trong khóa học trông thống nhất. Bạn vẫn chỉnh được cho từng hình bằng cách cộng thêm <code>theme(...)</code>.</p>
+</section>
+</section>
+<section id="thực-hành" class="level2">
+<h2 class="anchored" data-anchor-id="thực-hành">Thực hành</h2>
+<p>Nạp dữ liệu sạch, giữ chủng đầu tiên và chuyển sang dạng dài, đúng như Bài 4.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">isTRUE</span>(<span class="fu">l10n_info</span>()[[<span class="st">"UTF-8"</span>]])) <span class="fu">invisible</span>(<span class="fu">Sys.setlocale</span>(<span class="st">"LC_CTYPE"</span>, <span class="st">"en_US.UTF-8"</span>))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/helpers.R"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/vn_data.R"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">warnPartialMatchDollar =</span> <span class="cn">TRUE</span>)   <span class="co"># `$` that silently matches a shortened name now warns</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>p_sim <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/amr_sim.csv"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>ref <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/reference_data.csv"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>iso <span class="ot">&lt;-</span> <span class="fu">simulate_isolates</span>(p_sim, <span class="at">seed =</span> <span class="dv">2025</span>)   <span class="co"># clean data (Lesson 4 shows the cleaning)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>first <span class="ot">&lt;-</span> <span class="fu">first_isolates</span>(iso)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>long <span class="ot">&lt;-</span> <span class="fu">to_long</span>(first)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>abx_levels <span class="ot">&lt;-</span> <span class="fu">names</span>(ANTIBIOTICS)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>org_levels <span class="ot">&lt;-</span> <span class="fu">unname</span>(ORGANISMS)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Biểu đồ đầu tiên, xây từng lớp: dữ liệu và ánh xạ, hình học cột, thang màu, nhãn và giao diện. Kiểm tra: <code>stopifnot()</code> đọc chiều cao các cột từ chính đối tượng biểu đồ và xác nhận tổng bằng số chủng đầu tiên.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># data + aesthetic mapping + geometry; then scales, labels and theme as extra layers</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>fig_bar <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(first, <span class="fu">aes</span>(<span class="at">x =</span> hospital, <span class="at">fill =</span> organism)) <span class="sc">+</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>() <span class="sc">+</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> pal_course[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>], <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Bệnh viện"</span>, <span class="at">y =</span> <span class="st">"Số người bệnh (chủng đầu tiên)"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"Số chủng đầu tiên theo bệnh viện và vi khuẩn, cả "</span>, p_sim<span class="sc">$</span>n_years,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                      <span class="st">" năm (dữ liệu mô phỏng)"</span>)) <span class="sc">+</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_bar, <span class="st">"l05-bar.png"</span>, <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="dv">4</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Sanity check on the PLOT itself: the bar heights drawn by ggplot2 add up to the first isolates</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">sum</span>(ggplot2<span class="sc">::</span><span class="fu">ggplot_build</span>(fig_bar)<span class="sc">$</span>data[[<span class="dv">1</span>]]<span class="sc">$</span>count) <span class="sc">==</span> <span class="fu">nrow</span>(first))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l05-bar.png" class="img-fluid figure-img"></p>
+<figcaption>Số chủng đầu tiên theo bệnh viện và loài vi khuẩn (dữ liệu mô phỏng)</figcaption>
+</figure>
+</div>
+<p>Chuẩn bị dữ liệu cho bản tổng kết năm cuối: tóm tắt theo bệnh viện × loài × kháng sinh, ghép với lưới đầy đủ để các tổ hợp không thử nghiệm vẫn có một ô, rồi tạo nhãn. Kiểm tra: bảng chéo cho thấy bao nhiêu ô được báo cáo, bao nhiêu ô quá ít chủng, bao nhiêu ô không thử nghiệm.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>last_year <span class="ot">&lt;-</span> <span class="fu">max</span>(first<span class="sc">$</span>year)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>abg <span class="ot">&lt;-</span> <span class="fu">resistance_summary</span>(long[long<span class="sc">$</span>year <span class="sc">==</span> last_year, ],</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"hospital"</span>, <span class="st">"organism"</span>, <span class="st">"antibiotic"</span>))</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Complete grid so that "not tested" combinations appear as empty cells</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">hospital =</span> HOSPITALS, <span class="at">organism =</span> org_levels, <span class="at">antibiotic =</span> abx_levels,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                    <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>abg <span class="ot">&lt;-</span> <span class="fu">merge</span>(grid, abg, <span class="at">all.x =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>min_n <span class="ot">&lt;-</span> ref<span class="sc">$</span>min_isolates_report</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>abg<span class="sc">$</span>reportable <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">is.na</span>(abg<span class="sc">$</span>n) <span class="sc">&amp;</span> abg<span class="sc">$</span>n <span class="sc">&gt;=</span> min_n</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>abg<span class="sc">$</span>label <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(abg<span class="sc">$</span>n), <span class="st">"không</span><span class="sc">\n</span><span class="st">thử"</span>,</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">ifelse</span>(abg<span class="sc">$</span>reportable, <span class="fu">paste0</span>(<span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> abg<span class="sc">$</span>est), <span class="st">"%</span><span class="sc">\n</span><span class="st">n="</span>, abg<span class="sc">$</span>n),</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">paste0</span>(<span class="st">"n="</span>, abg<span class="sc">$</span>n, <span class="st">"</span><span class="sc">\n</span><span class="st">&lt;"</span>, min_n)))</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>abg<span class="sc">$</span>fill <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(abg<span class="sc">$</span>reportable, abg<span class="sc">$</span>est, <span class="cn">NA</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>abg<span class="sc">$</span>antibiotic <span class="ot">&lt;-</span> <span class="fu">factor</span>(abg<span class="sc">$</span>antibiotic, <span class="at">levels =</span> abx_levels)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>abg<span class="sc">$</span>organism <span class="ot">&lt;-</span> <span class="fu">factor</span>(abg<span class="sc">$</span>organism, <span class="at">levels =</span> <span class="fu">rev</span>(org_levels))</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>abg<span class="sc">$</span>hospital <span class="ot">&lt;-</span> <span class="fu">factor</span>(<span class="fu">paste0</span>(<span class="st">"Bệnh viện "</span>, abg<span class="sc">$</span>hospital, <span class="st">" ("</span>, HOSPITAL_TYPES[abg<span class="sc">$</span>hospital], <span class="st">")"</span>))</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(<span class="at">reportable =</span> abg<span class="sc">$</span>reportable, <span class="at">tested =</span> <span class="sc">!</span><span class="fu">is.na</span>(abg<span class="sc">$</span>n))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          tested
+reportable FALSE TRUE
+     FALSE     3    9
+     TRUE      0   33</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>n_small_cells <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="sc">!</span>abg<span class="sc">$</span>reportable <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">is.na</span>(abg<span class="sc">$</span>n))</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The lesson says the only untested cells are A. baumannii x CRO, in all three hospitals</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>untested <span class="ot">&lt;-</span> abg[<span class="fu">is.na</span>(abg<span class="sc">$</span>n), ]</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(untested) <span class="sc">==</span> <span class="fu">length</span>(HOSPITALS), <span class="fu">all</span>(untested<span class="sc">$</span>organism <span class="sc">==</span> <span class="st">"A. baumannii"</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>          <span class="fu">all</span>(untested<span class="sc">$</span>antibiotic <span class="sc">==</span> <span class="st">"CRO"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Năm 2025 có 9 ô có ít hơn 30 chủng; các ô đó tô xám và chỉ ghi <code>n</code>.</p>
+<p>Vẽ bản đồ nhiệt: <code>geom_tile()</code> cho các ô, <code>geom_text()</code> cho nhãn, <code>scale_fill_gradient()</code> với <code>na.value</code> màu xám cho ô không báo cáo. Kiểm tra: ô <em>A. baumannii</em> × CRO ghi “không thử” ở cả ba bệnh viện.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fig_abg <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(abg, <span class="fu">aes</span>(<span class="at">x =</span> antibiotic, <span class="at">y =</span> organism, <span class="at">fill =</span> fill)) <span class="sc">+</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> label), <span class="at">size =</span> <span class="fl">2.6</span>, <span class="at">lineheight =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>hospital) <span class="sc">+</span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"#FFF5EB"</span>, <span class="at">high =</span> pal_course[<span class="dv">2</span>], <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(<span class="dv">100</span> <span class="sc">*</span> x, <span class="st">"%"</span>),</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">na.value =</span> <span class="st">"grey90"</span>, <span class="at">name =</span> <span class="st">"Tỷ lệ đề kháng (R)"</span>) <span class="sc">+</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="fu">paste0</span>(<span class="st">"Tỷ lệ đề kháng (R) năm "</span>, last_year),</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"Chủng đầu tiên, dữ liệu mô phỏng. Ô xám: không thử nghiệm hoặc ít hơn "</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>                         min_n, <span class="st">" chủng"</span>)) <span class="sc">+</span></span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>() <span class="sc">+</span></span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid =</span> <span class="fu">element_blank</span>(), <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_abg, <span class="st">"l05-antibiogram.png"</span>, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="fl">4.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l05-antibiogram.png" class="img-fluid figure-img"></p>
+<figcaption>Bản tổng kết mức độ nhạy cảm kháng sinh năm cuối, theo bệnh viện: tỷ lệ đề kháng và số chủng (dữ liệu mô phỏng)</figcaption>
+</figure>
+</div>
+<p>Dữ liệu cho biểu đồ xu hướng: tỷ lệ đề kháng meropenem theo bệnh viện × loài × năm, kèm KTC Wilson. Kiểm tra: ước lượng luôn nằm giữa hai cận.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>trend <span class="ot">&lt;-</span> <span class="fu">resistance_summary</span>(long[long<span class="sc">$</span>antibiotic <span class="sc">==</span> <span class="st">"MEM"</span>, ],</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"hospital"</span>, <span class="st">"organism"</span>, <span class="st">"year"</span>))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>trend<span class="sc">$</span>organism <span class="ot">&lt;-</span> <span class="fu">factor</span>(trend<span class="sc">$</span>organism, <span class="at">levels =</span> org_levels)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(trend[, <span class="fu">c</span>(<span class="st">"hospital"</span>, <span class="st">"organism"</span>, <span class="st">"year"</span>, <span class="st">"n_r"</span>, <span class="st">"n"</span>, <span class="st">"est"</span>)], <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  hospital     organism year n_r   n       est
+1        A A. baumannii 2021  50  77 0.6493506
+2        B A. baumannii 2021  21  44 0.4772727
+3        C A. baumannii 2021  18  33 0.5454545
+4        A      E. coli 2021  26 160 0.1625000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(trend<span class="sc">$</span>lo <span class="sc">&lt;=</span> trend<span class="sc">$</span>est), <span class="fu">all</span>(trend<span class="sc">$</span>est <span class="sc">&lt;=</span> trend<span class="sc">$</span>hi))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>widest <span class="ot">&lt;-</span> trend[<span class="fu">which.max</span>(trend<span class="sc">$</span>hi <span class="sc">-</span> trend<span class="sc">$</span>lo), ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>KTC rộng nhất thuộc về A. baumannii ở bệnh viện C năm 2023: 19 chủng, KTC rộng 37.0 điểm phần trăm.</p>
+<p>Vẽ xu hướng: đường nối các năm, điểm kèm KTC, mỗi loài một ô. Kiểm tra: trục y cố định từ 0% đến 100% ở mọi ô để so sánh được giữa các loài.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>dodge <span class="ot">&lt;-</span> <span class="fu">position_dodge</span>(<span class="at">width =</span> <span class="fl">0.4</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fig_trend <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(trend, <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> est, <span class="at">colour =</span> hospital)) <span class="sc">+</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">position =</span> dodge) <span class="sc">+</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lo, <span class="at">ymax =</span> hi), <span class="at">position =</span> dodge, <span class="at">size =</span> <span class="fl">0.25</span>) <span class="sc">+</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>organism) <span class="sc">+</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> pal_course[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">3</span>)], <span class="at">name =</span> <span class="st">"Bệnh viện"</span>) <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>), <span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(<span class="dv">100</span> <span class="sc">*</span> x, <span class="st">"%"</span>)) <span class="sc">+</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Năm"</span>, <span class="at">y =</span> <span class="st">"Tỷ lệ đề kháng meropenem (KTC 95% Wilson)"</span>,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Xu hướng đề kháng meropenem theo bệnh viện (chủng đầu tiên, dữ liệu mô phỏng)"</span>) <span class="sc">+</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_trend, <span class="st">"l05-trend.png"</span>, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="fl">4.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l05-trend.png" class="img-fluid figure-img"></p>
+<figcaption>Xu hướng đề kháng meropenem theo bệnh viện và loài, kèm KTC 95% Wilson (dữ liệu mô phỏng)</figcaption>
+</figure>
+</div>
+<p>Biểu đồ “quả tạ” (dumbbell) so sánh tỷ lệ đề kháng tính trên mọi chủng với tỷ lệ tính trên chủng đầu tiên, cho từng loài × kháng sinh. Kiểm tra: <code>stopifnot()</code> xác nhận số cặp trên biểu đồ bằng số cặp loài × kháng sinh có thử nghiệm.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># All isolates versus first isolates: a "dumbbell" chart shows the bias from repeats</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>all_iso <span class="ot">&lt;-</span> <span class="fu">resistance_summary</span>(<span class="fu">to_long</span>(iso))</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>dd <span class="ot">&lt;-</span> <span class="fu">merge</span>(all_iso[, <span class="fu">c</span>(<span class="st">"organism"</span>, <span class="st">"antibiotic"</span>, <span class="st">"est"</span>)],</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>            <span class="fu">resistance_summary</span>(long)[, <span class="fu">c</span>(<span class="st">"organism"</span>, <span class="st">"antibiotic"</span>, <span class="st">"est"</span>)],</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"organism"</span>, <span class="st">"antibiotic"</span>), <span class="at">suffixes =</span> <span class="fu">c</span>(<span class="st">"_all"</span>, <span class="st">"_first"</span>))</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>dd<span class="sc">$</span>antibiotic <span class="ot">&lt;-</span> <span class="fu">factor</span>(dd<span class="sc">$</span>antibiotic, <span class="at">levels =</span> <span class="fu">rev</span>(abx_levels))</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>dd<span class="sc">$</span>organism <span class="ot">&lt;-</span> <span class="fu">factor</span>(dd<span class="sc">$</span>organism, <span class="at">levels =</span> org_levels)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>n_pairs <span class="ot">&lt;-</span> <span class="fu">nrow</span>(<span class="fu">unique</span>(long[, <span class="fu">c</span>(<span class="st">"organism"</span>, <span class="st">"antibiotic"</span>)]))   <span class="co"># organism x antibiotic pairs tested</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(dd) <span class="sc">==</span> n_pairs)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>fig_dedup <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(dd, <span class="fu">aes</span>(<span class="at">y =</span> antibiotic)) <span class="sc">+</span></span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="fu">aes</span>(<span class="at">x =</span> est_first, <span class="at">xend =</span> est_all, <span class="at">yend =</span> antibiotic), <span class="at">colour =</span> <span class="st">"grey60"</span>) <span class="sc">+</span></span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> est_first, <span class="at">colour =</span> <span class="st">"Chủng đầu tiên"</span>), <span class="at">size =</span> <span class="fl">2.4</span>) <span class="sc">+</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> est_all, <span class="at">colour =</span> <span class="st">"Mọi chủng"</span>), <span class="at">size =</span> <span class="fl">2.4</span>) <span class="sc">+</span></span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>organism) <span class="sc">+</span></span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Chủng đầu tiên"</span> <span class="ot">=</span> pal_course[<span class="dv">1</span>], <span class="st">"Mọi chủng"</span> <span class="ot">=</span> pal_course[<span class="dv">2</span>]),</span>
+<span id="cb11-16"><a href="#cb11-16" aria-hidden="true" tabindex="-1"></a>                      <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb11-17"><a href="#cb11-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(<span class="dv">100</span> <span class="sc">*</span> x, <span class="st">"%"</span>)) <span class="sc">+</span></span>
+<span id="cb11-18"><a href="#cb11-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Tỷ lệ đề kháng (R)"</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb11-19"><a href="#cb11-19" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Tỷ lệ đề kháng: mọi chủng so với chỉ chủng đầu tiên (dữ liệu mô phỏng)"</span>) <span class="sc">+</span></span>
+<span id="cb11-20"><a href="#cb11-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb11-21"><a href="#cb11-21" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_dedup, <span class="st">"l05-dedup.png"</span>, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">4</span>)</span>
+<span id="cb11-22"><a href="#cb11-22" aria-hidden="true" tabindex="-1"></a>gap <span class="ot">&lt;-</span> dd<span class="sc">$</span>est_all <span class="sc">-</span> dd<span class="sc">$</span>est_first</span>
+<span id="cb11-23"><a href="#cb11-23" aria-hidden="true" tabindex="-1"></a>max_gap <span class="ot">&lt;-</span> <span class="fu">max</span>(gap)</span>
+<span id="cb11-24"><a href="#cb11-24" aria-hidden="true" tabindex="-1"></a>top_gap <span class="ot">&lt;-</span> dd[<span class="fu">which.max</span>(gap), <span class="fu">c</span>(<span class="st">"organism"</span>, <span class="st">"antibiotic"</span>)]</span>
+<span id="cb11-25"><a href="#cb11-25" aria-hidden="true" tabindex="-1"></a>top_gap</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        organism antibiotic
+13 K. pneumoniae        MEM</code></pre>
+</div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l05-dedup.png" class="img-fluid figure-img"></p>
+<figcaption>Tỷ lệ đề kháng tính trên mọi chủng so với chủng đầu tiên (dữ liệu mô phỏng)</figcaption>
+</figure>
+</div>
+<p>Biểu đồ có đủ 14 cặp (3 loài × 5 kháng sinh, trừ <em>A. baumannii</em> × CRO). Chênh lệch lớn nhất giữa hai cách tính là 8.3 điểm phần trăm, ở cặp <em>K. pneumoniae</em> × MEM. Điều này khớp với cách dữ liệu được mô phỏng: việc cấy lại phụ thuộc vào kết quả meropenem (xác suất cấy lại là giá trị minh họa).</p>
+<p>Giao diện của khóa học chỉ là một hàm. In hàm ra để xem nó làm gì, rồi điều chỉnh cho một slide: chữ lớn hơn, chú giải bên phải. Kiểm tra: kết quả vẫn là một đối tượng <code>ggplot</code>, nên có thể lưu bằng <code>save_fig()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The course theme is an ordinary function that returns ggplot2 theme settings</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>theme_course</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>function (base_size = 11) 
+{
+    ggplot2::theme_minimal(base_size = base_size) + ggplot2::theme(panel.grid.minor = ggplot2::element_blank(), 
+        legend.position = "bottom", plot.title.position = "plot", 
+        plot.title = ggplot2::element_text(face = "bold"))
+}
+&lt;bytecode: 0x107f59118&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Adjust it for a slide: larger text, legend on the right</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>fig_slide <span class="ot">&lt;-</span> fig_trend <span class="sc">+</span> <span class="fu">theme_course</span>(<span class="at">base_size =</span> <span class="dv">14</span>) <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"right"</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(fig_slide)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "ggplot2::ggplot" "ggplot"          "ggplot2::gg"     "S7_object"      
+[5] "gg"             </code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Mẹo thực hành">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mẹo thực hành
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Lưu biểu đồ vào một đối tượng (<code>fig_x &lt;- ggplot(...)</code>) rồi mới <code>save_fig()</code>. Như vậy script chạy bằng <code>Rscript</code> không tạo tệp <code>Rplots.pdf</code> thừa, và bạn có thể thêm lớp sau này.</li>
+<li>Đặt thứ tự hiển thị bằng <code>factor(x, levels = ...)</code> thay vì để R xếp theo bảng chữ cái.</li>
+<li>Nhãn tiếng Việt cần locale UTF-8. Dòng <code>Sys.setlocale("LC_CTYPE", "en_US.UTF-8")</code> ở đầu mỗi script lo việc này.</li>
+<li>Nếu bạn vẽ bản đồ Việt Nam (ví dụ bằng <code>geom_sf()</code>), phải thể hiện quần đảo Hoàng Sa thuộc thành phố Đà Nẵng và quần đảo Trường Sa thuộc tỉnh Khánh Hòa. Đây là quy định bắt buộc của khóa học.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Lỗi thường gặp">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lỗi thường gặp
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Đặt màu bên trong <code>aes()</code>.</strong> <code>aes(colour = "blue")</code> tạo một nhóm tên “blue” với màu mặc định và một chú giải thừa. Màu cố định đặt bên ngoài: <code>geom_line(colour = pal_course[1])</code>.</li>
+<li><strong>Tô ô không thử nghiệm như 0%.</strong> Nếu không ghép với lưới đầy đủ, ô thiếu biến mất; nếu điền 0, người đọc tưởng không có đề kháng. Hãy để <code>NA</code> và tô xám.</li>
+<li><strong>Mỗi ô một thang trục y khác nhau.</strong> <code>facet_wrap(scales = "free_y")</code> làm mắt người so sánh sai giữa các ô. Với tỷ lệ, cố định thang 0–100%.</li>
+<li><strong>Bỏ cỡ mẫu.</strong> Cùng một tỷ lệ, tính trên vài chục chủng hay trên vài trăm chủng, chứa lượng thông tin rất khác nhau.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="bài-tập" class="level2">
+<h2 class="anchored" data-anchor-id="bài-tập">Bài tập</h2>
+<p><strong>Bài tập 1 (dễ).</strong> Vẽ lại biểu đồ xu hướng cho ciprofloxacin thay vì meropenem.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Chỉ đổi điều kiện lọc kháng sinh; mọi lớp khác giữ nguyên.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 1: the trend chart for ciprofloxacin instead of meropenem</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>trend_cip <span class="ot">&lt;-</span> <span class="fu">resistance_summary</span>(long[long<span class="sc">$</span>antibiotic <span class="sc">==</span> <span class="st">"CIP"</span>, ], <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"hospital"</span>, <span class="st">"organism"</span>, <span class="st">"year"</span>))</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>fig_ex1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(trend_cip, <span class="fu">aes</span>(year, est, <span class="at">colour =</span> hospital)) <span class="sc">+</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>() <span class="sc">+</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_pointrange</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lo, <span class="at">ymax =</span> hi), <span class="at">size =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>organism) <span class="sc">+</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> pal_course[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>]) <span class="sc">+</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_ex1, <span class="st">"l05-ex1-cip.png"</span>, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l05-ex1-cip.png" class="img-fluid figure-img"></p>
+<figcaption>Lời giải bài tập 1</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Bài tập 2 (vừa).</strong> Vẽ số chủng đầu tiên theo năm, mỗi bệnh viện một ô, các loài đứng cạnh nhau. Bệnh viện nào có ít chủng <em>A. baumannii</em> nhất mỗi năm, và điều đó ảnh hưởng gì đến độ rộng KTC trong biểu đồ xu hướng?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><code>position = "dodge"</code> đặt các cột cạnh nhau thay vì chồng lên nhau. Bảng đếm in ra trước hình cho số chủng <em>A. baumannii</em> theo bệnh viện và năm.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 2: first isolates per year, one panel per hospital</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>n_aba <span class="ot">&lt;-</span> <span class="fu">table</span>(<span class="at">hospital =</span> first<span class="sc">$</span>hospital[first<span class="sc">$</span>organism <span class="sc">==</span> <span class="st">"A. baumannii"</span>],</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>               <span class="at">year =</span> first<span class="sc">$</span>year[first<span class="sc">$</span>organism <span class="sc">==</span> <span class="st">"A. baumannii"</span>])</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>n_aba</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        year
+hospital 2021 2022 2023 2024 2025
+       A   79   69   64   63   77
+       B   44   41   45   36   50
+       C   33   27   19   27   27</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>fewest_aba <span class="ot">&lt;-</span> <span class="fu">names</span>(<span class="fu">which.min</span>(<span class="fu">rowSums</span>(n_aba)))                 <span class="co"># hospital with fewest A. baumannii</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>fewest_every_year <span class="ot">&lt;-</span> <span class="fu">all</span>(<span class="fu">apply</span>(n_aba, <span class="dv">2</span>, <span class="cf">function</span>(x) <span class="fu">names</span>(x)[<span class="fu">which.min</span>(x)]) <span class="sc">==</span> fewest_aba)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean width of the meropenem trend CIs for A. baumannii, by hospital (percentage points)</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>tr_aba <span class="ot">&lt;-</span> trend[trend<span class="sc">$</span>organism <span class="sc">==</span> <span class="st">"A. baumannii"</span>, ]</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>ci_width_aba <span class="ot">&lt;-</span> <span class="fu">tapply</span>(tr_aba<span class="sc">$</span>hi <span class="sc">-</span> tr_aba<span class="sc">$</span>lo, tr_aba<span class="sc">$</span>hospital, mean)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> ci_width_aba, <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   A    B    C 
+20.6 28.1 34.2 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The lesson says: the hospital with the fewest isolates has the widest CIs</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(ci_width_aba[[fewest_aba]] <span class="sc">==</span> <span class="fu">max</span>(ci_width_aba))</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>fig_ex2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(first, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(year), <span class="at">fill =</span> organism)) <span class="sc">+</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">position =</span> <span class="st">"dodge"</span>) <span class="sc">+</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>hospital) <span class="sc">+</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> pal_course[<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>], <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Năm"</span>, <span class="at">y =</span> <span class="st">"Số chủng đầu tiên"</span>) <span class="sc">+</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_ex2, <span class="st">"l05-ex2-counts.png"</span>, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Bệnh viện C (tuyến tỉnh) có ít chủng <em>A. baumannii</em> nhất ở mọi năm. Trong biểu đồ xu hướng meropenem, độ rộng trung bình của KTC cho <em>A. baumannii</em> là 34.2 điểm phần trăm ở bệnh viện C, so với 20.6 điểm phần trăm ở bệnh viện A. Ít chủng hơn thì KTC rộng hơn, nên đừng vội đọc một “đợt tăng” ở bệnh viện nhỏ như tín hiệu thật.</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l05-ex2-counts.png" class="img-fluid figure-img"></p>
+<figcaption>Lời giải bài tập 2</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Bài tập 3 (khó hơn).</strong> Sửa bản đồ nhiệt để tô màu theo tỷ lệ <strong>không nhạy cảm</strong> (I + R), và thêm một ô cho năm đầu tiên bên cạnh năm cuối (gợi ý: <code>resistance_summary(..., nonsusceptible = TRUE)</code> và <code>facet_grid(year ~ hospital)</code>). Những ô nào thay đổi nhiều nhất khi chuyển từ R sang I + R?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Lọc bảng dài theo năm đầu và năm cuối, tóm tắt với <code>nonsusceptible = TRUE</code>, ghép với lưới đầy đủ có thêm cột <code>year</code>, rồi dùng <code>facet_grid(year ~ hospital)</code>. Đoạn cuối ghép bảng R với bảng I + R để tìm các ô thay đổi nhiều nhất.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 3: non-susceptible (I + R) heatmap, first and last year side by side</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>yrs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">min</span>(long<span class="sc">$</span>year), <span class="fu">max</span>(long<span class="sc">$</span>year))</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>ns_tab <span class="ot">&lt;-</span> <span class="fu">resistance_summary</span>(long[long<span class="sc">$</span>year <span class="sc">%in%</span> yrs, ],</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>                             <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"hospital"</span>, <span class="st">"organism"</span>, <span class="st">"antibiotic"</span>, <span class="st">"year"</span>),</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>                             <span class="at">nonsusceptible =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>r_tab <span class="ot">&lt;-</span> <span class="fu">resistance_summary</span>(long[long<span class="sc">$</span>year <span class="sc">%in%</span> yrs, ],</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>                            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"hospital"</span>, <span class="st">"organism"</span>, <span class="st">"antibiotic"</span>, <span class="st">"year"</span>))</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>grid2 <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(<span class="at">hospital =</span> HOSPITALS, <span class="at">organism =</span> org_levels, <span class="at">antibiotic =</span> abx_levels,</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>                     <span class="at">year =</span> yrs, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>ns_tab <span class="ot">&lt;-</span> <span class="fu">merge</span>(grid2, ns_tab, <span class="at">all.x =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>ns_tab<span class="sc">$</span>small <span class="ot">&lt;-</span> <span class="sc">!</span><span class="fu">is.na</span>(ns_tab<span class="sc">$</span>n) <span class="sc">&amp;</span> ns_tab<span class="sc">$</span>n <span class="sc">&lt;</span> min_n               <span class="co"># tested, but too few isolates</span></span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>ns_tab<span class="sc">$</span>fill <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="sc">!</span><span class="fu">is.na</span>(ns_tab<span class="sc">$</span>n) <span class="sc">&amp;</span> ns_tab<span class="sc">$</span>n <span class="sc">&gt;=</span> min_n, ns_tab<span class="sc">$</span>est, <span class="cn">NA</span>)</span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>ns_tab<span class="sc">$</span>label <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(ns_tab<span class="sc">$</span>n), <span class="st">""</span>,</span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>                       <span class="fu">ifelse</span>(ns_tab<span class="sc">$</span>small, <span class="fu">paste0</span>(<span class="st">"&lt;"</span>, min_n, <span class="st">"</span><span class="sc">\n</span><span class="st">n="</span>, ns_tab<span class="sc">$</span>n),</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>                              <span class="fu">paste0</span>(<span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> ns_tab<span class="sc">$</span>est), <span class="st">"%</span><span class="sc">\n</span><span class="st">n="</span>, ns_tab<span class="sc">$</span>n)))</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>ns_tab<span class="sc">$</span>antibiotic <span class="ot">&lt;-</span> <span class="fu">factor</span>(ns_tab<span class="sc">$</span>antibiotic, <span class="at">levels =</span> abx_levels)</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>ns_tab<span class="sc">$</span>organism <span class="ot">&lt;-</span> <span class="fu">factor</span>(ns_tab<span class="sc">$</span>organism, <span class="at">levels =</span> <span class="fu">rev</span>(org_levels))</span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>fig_ex3 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(ns_tab, <span class="fu">aes</span>(antibiotic, organism, <span class="at">fill =</span> fill)) <span class="sc">+</span></span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">colour =</span> <span class="st">"white"</span>) <span class="sc">+</span></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>(<span class="at">data =</span> ns_tab[ns_tab<span class="sc">$</span>small, ], <span class="at">fill =</span> <span class="st">"grey65"</span>, <span class="at">colour =</span> <span class="st">"white"</span>) <span class="sc">+</span>   <span class="co"># darker grey: too few isolates</span></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> label), <span class="at">size =</span> <span class="fl">2.4</span>, <span class="at">lineheight =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(year <span class="sc">~</span> hospital) <span class="sc">+</span></span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"#FFF5EB"</span>, <span class="at">high =</span> pal_course[<span class="dv">2</span>], <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>),</span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>                      <span class="at">na.value =</span> <span class="st">"grey93"</span>, <span class="at">name =</span> <span class="st">"Không nhạy cảm (I + R)"</span>) <span class="sc">+</span></span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"Xám nhạt: không thử nghiệm. Xám đậm: ít hơn "</span>, min_n, <span class="st">" chủng"</span>)) <span class="sc">+</span></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>() <span class="sc">+</span></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">panel.grid =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_ex3, <span class="st">"l05-ex3-ns.png"</span>, <span class="at">width =</span> <span class="dv">9</span>, <span class="at">height =</span> <span class="dv">5</span>)</span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a><span class="co"># Which cells change most from R to I + R? (same isolates, so the same n in both tables)</span></span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>by4 <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"hospital"</span>, <span class="st">"organism"</span>, <span class="st">"antibiotic"</span>, <span class="st">"year"</span>)</span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>both <span class="ot">&lt;-</span> <span class="fu">merge</span>(r_tab[, <span class="fu">c</span>(by4, <span class="st">"est"</span>, <span class="st">"n"</span>)], ns_tab[, <span class="fu">c</span>(by4, <span class="st">"est"</span>)], <span class="at">by =</span> by4,</span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>              <span class="at">suffixes =</span> <span class="fu">c</span>(<span class="st">"_r"</span>, <span class="st">"_ns"</span>))</span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>both<span class="sc">$</span>diff <span class="ot">&lt;-</span> both<span class="sc">$</span>est_ns <span class="sc">-</span> both<span class="sc">$</span>est_r</span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(both<span class="sc">$</span>diff <span class="sc">&gt;=</span> <span class="dv">0</span>))</span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Expected increase = P(I) = p_intermediate * (1 - proportion R): I is only recorded among non-R isolates</span></span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>both<span class="sc">$</span>expected <span class="ot">&lt;-</span> p_sim<span class="sc">$</span>p_intermediate <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> both<span class="sc">$</span>est_r)</span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>top3 <span class="ot">&lt;-</span> <span class="fu">head</span>(both[<span class="fu">order</span>(<span class="sc">-</span>both<span class="sc">$</span>diff), <span class="fu">c</span>(by4, <span class="st">"n"</span>, <span class="st">"diff"</span>, <span class="st">"expected"</span>)], <span class="dv">3</span>)</span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>top3<span class="sc">$</span>times_expected <span class="ot">&lt;-</span> top3<span class="sc">$</span>diff <span class="sc">/</span> top3<span class="sc">$</span>expected</span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>top3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   hospital      organism antibiotic year  n      diff   expected
+75        C K. pneumoniae        CIP 2021 28 0.1071429 0.03214286
+82        C K. pneumoniae        MEM 2025 29 0.1034483 0.03275862
+71        C       E. coli        MEM 2021 63 0.0952381 0.04603175
+   times_expected
+75       3.333333
+82       3.157895
+71       2.068966</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>n_median <span class="ot">&lt;-</span> <span class="fu">median</span>(both<span class="sc">$</span>n)                 <span class="co"># typical number of isolates per cell</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>n_top_small <span class="ot">&lt;-</span> <span class="fu">sum</span>(top3<span class="sc">$</span>n <span class="sc">&lt;</span> n_median)      <span class="co"># how many of the top three are smaller than typical</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">cor</span>(both<span class="sc">$</span>est_r, both<span class="sc">$</span>diff), <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] -0.54</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">cor</span>(both<span class="sc">$</span>est_r, both<span class="sc">$</span>diff) <span class="sc">&lt;</span> <span class="dv">0</span>)   <span class="co"># larger increases where R is low, as expected</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l05-ex3-ns.png" class="img-fluid figure-img"></p>
+<figcaption>Lời giải bài tập 3</figcaption>
+</figure>
+</div>
+<p>Trong dữ liệu mô phỏng, xác suất một chủng không đề kháng được ghi là I là như nhau cho mọi tổ hợp (<code>p_intermediate</code> = 0.05, giá trị minh họa). Vì vậy phần tăng thêm kỳ vọng khi chuyển từ R sang I + R là <span class="math inline">\(p_I \times (1 - \text{tỷ lệ R})\)</span>, tối đa 0.05, và lớn nhất ở các ô có tỷ lệ R thấp. Hệ số tương quan giữa tỷ lệ R và phần tăng thêm là -0.54.</p>
+<p>Ba ô tăng nhiều nhất tăng gấp 2.1 đến 3.3 lần mức kỳ vọng. Chúng dựa trên 28 đến 63 chủng mỗi ô, và 2 trong ba ô có ít chủng hơn trung vị 62 chủng của mọi ô. Ô càng nhỏ, dao động lấy mẫu càng dễ đẩy chênh lệch quan sát vượt xa kỳ vọng, nên đừng đọc các ô này như khác biệt thật. Đây là lý do bản đồ nhiệt ghi <code>n</code> trong từng ô và tô riêng các ô dưới 30 chủng.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="tài-liệu-tham-khảo" class="level2">
+<h2 class="anchored" data-anchor-id="tài-liệu-tham-khảo">Tài liệu tham khảo</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-cuchi2024thau" class="csl-entry" role="listitem">
+Bệnh viện Đa khoa khu vực Củ Chi. 2024. <span>“Danh mục giá thầu thuốc bệnh viện 2024 (Lần 2)”</span>. 2024. <a href="https://bvdkkvcuchi.vn/wp-content/uploads/2024/12/DANH-MUC-THUOC-DANG-WEBSITE-BV-nam-2024-lan-2.pdf">https://bvdkkvcuchi.vn/wp-content/uploads/2024/12/DANH-MUC-THUOC-DANG-WEBSITE-BV-nam-2024-lan-2.pdf</a>.
+</div>
+<div id="ref-thainguyen2023thau" class="csl-entry" role="listitem">
+Bệnh viện Trung ương Thái Nguyên. 2023. <span>“Danh mục thuốc trúng thầu tại Bệnh viện Trung ương Thái Nguyên (áp dụng từ ngày 17/10/2023 theo Quyết định số 1580/<span>QĐ-BVTWTN</span>)”</span>. 17 Tháng Mười 2023. <a href="https://bvdktuthainguyen.gov.vn/uploads/media/tai%20lieu/danh%20muc%20thuoc/thuoc%202022-2023/DM%20thu%E1%BB%91c%20tr%C3%BAng%20th%E1%BA%A7u%202023%20BVTW%20TN%20(1).xlsx">https://bvdktuthainguyen.gov.vn/uploads/media/tai%20lieu/danh%20muc%20thuoc/thuoc%202022-2023/DM%20thu%E1%BB%91c%20tr%C3%BAng%20th%E1%BA%A7u%202023%20BVTW%20TN%20(1).xlsx</a>.
+</div>
+<div id="ref-hindler2007analysis" class="csl-entry" role="listitem">
+Hindler, Janet F., và John Stelling. 2007. <span>“Analysis and presentation of cumulative antibiograms: a new consensus guideline from the <span>Clinical and Laboratory Standards Institute</span>”</span>. <em>Clinical Infectious Diseases</em> 44 (6): 867–73. <a href="https://doi.org/10.1086/511864">https://doi.org/10.1086/511864</a>.
+</div>
+<div id="ref-larsson2025burden" class="csl-entry" role="listitem">
+Larsson, M., L. V. N. Truong, T. D. Nguyen, T. N. Do, và c.s. 2025. <span>“Burden of carbapenem-resistant <span>Gram</span>-negative bacterial infections in <span>Vietnam</span>: a national hospital survey”</span>. <em>Journal of Hospital Infection</em> 165: 189–98. <a href="https://doi.org/10.1016/j.jhin.2025.03.019">https://doi.org/10.1016/j.jhin.2025.03.019</a>.
+</div>
+<div id="ref-okabe2008color" class="csl-entry" role="listitem">
+Okabe, Masataka, và Kei Ito. 2008. <span>“Color Universal Design (<span>CUD</span>): how to make figures and presentations that are friendly to colorblind people”</span>. <a href="https://jfly.uni-koeln.de/color/">https://jfly.uni-koeln.de/color/</a>.
+</div>
+<div id="ref-tran2023estimated" class="csl-entry" role="listitem">
+Tran, Christian, John Hargy, Bryan Hess, và Matthew A. Pettengill. 2023. <span>“Estimated impact of low isolate numbers on the reliability of cumulative antibiogram data”</span>. <em>Microbiology Spectrum</em> 11 (1): e0393922. <a href="https://doi.org/10.1128/spectrum.03939-22">https://doi.org/10.1128/spectrum.03939-22</a>.
+</div>
+<div id="ref-wickham2010layered" class="csl-entry" role="listitem">
+Wickham, Hadley. 2010. <span>“A layered grammar of graphics”</span>. <em>Journal of Computational and Graphical Statistics</em> 19 (1): 3–28. <a href="https://doi.org/10.1198/jcgs.2009.07098">https://doi.org/10.1198/jcgs.2009.07098</a>.
+</div>
+<div id="ref-wickham_ggplot2" class="csl-entry" role="listitem">
+Wickham, Hadley, Danielle Navarro, và Thomas Lin Pedersen. không ngày. <em>ggplot2: Elegant Graphics for Data Analysis</em>. 3rd ab. Truy cập 8 Tháng Mười 2026. <a href="https://ggplot2-book.org/">https://ggplot2-book.org/</a>.
+</div>
+</div>
+<div class="video-script">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Kịch bản video (~13 phút)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Slide</th>
+<th>Lời giảng chính</th>
+<th>Hình/Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Ngữ pháp đồ họa</td>
+<td>Dữ liệu, aes, geom, scale, facet, theme</td>
+<td>Sơ đồ các lớp</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Biểu đồ đầu tiên</td>
+<td>Đọc lệnh như một câu; cộng từng lớp</td>
+<td><code>l05-grammar</code>, <code>figs/l05-bar.png</code></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Ánh xạ và đặt cố định</td>
+<td><code>aes(colour = hospital)</code> khác <code>colour = "blue"</code></td>
+<td>Ví dụ lỗi</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Antibiogram là gì</td>
+<td>Tóm tắt thường niên theo loài × kháng sinh; CLSI báo cáo %S, khóa học vẽ %R</td>
+<td>Trích Hindler 2007</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Chuẩn bị dữ liệu ô</td>
+<td>Lưới đầy đủ; nhãn; ngưỡng số chủng tối thiểu</td>
+<td><code>l05-antibiogram-data</code></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Bản đồ nhiệt</td>
+<td><code>geom_tile</code>, <code>geom_text</code>, ô xám</td>
+<td><code>figs/l05-antibiogram.png</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Xu hướng có KTC</td>
+<td><code>geom_pointrange</code>, <code>position_dodge</code>, <code>facet_wrap</code></td>
+<td><code>figs/l05-trend.png</code></td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Bài học từ hình</td>
+<td>KTC rộng ở bệnh viện nhỏ; đừng đọc nhiễu thành xu hướng</td>
+<td>KTC rộng nhất</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Biểu đồ quả tạ</td>
+<td>Tác động của loại chủng lặp lại</td>
+<td><code>figs/l05-dedup.png</code></td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Giao diện khóa học</td>
+<td><code>theme_course()</code>, <code>pal_course</code>, <code>save_fig()</code></td>
+<td><code>l05-theme</code></td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Lỗi thường gặp</td>
+<td>Màu trong <code>aes</code>; ô thiếu; thang tự do; bỏ <code>n</code></td>
+<td>Callout cảnh báo</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="pagination-link" aria-label="Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="pagination-link" aria-label="Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo">
+        <span class="nav-page-text"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="vi" xml:lang="vi"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bài 4: Đóng gói mô hình thành gói R – Mô hình Kinh tế Y tế với R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../kb/m11-software-engineering/l05-shiny-living.html" rel="next">
+<link href="../../kb/m11-software-engineering/l03-version-control.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-9e7f0c659d5fa2cace8548cb57964278.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c18d72663580ed8ca19ce2a2f99af51b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<meta name="mermaid-theme" content="neutral">
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m11-software-engineering/index.html">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</a></li><li class="breadcrumb-item"><a href="../../kb/m11-software-engineering/l04-r-package.html"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Mô hình Kinh tế Y tế với R</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lời mở đầu</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m00-r-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M00 · R cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l01-reproducible-workflow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Quy trình làm việc tái lập với R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m01-ee-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M01 · Nền tảng đánh giá kinh tế và cây quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l01-evaluation-types.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại đánh giá kinh tế, quan điểm, khung thời gian và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l03-decision-rules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l05-decision-tree.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Xây cây quyết định từ đầu trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m02-cohort-markov/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M02 · Mô hình chuyển trạng thái đoàn hệ (Markov)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l01-state-transition.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao cần mô hình chuyển trạng thái</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l02-rates-probabilities.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tỷ suất, xác suất và độ dài chu kỳ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l03-cohort-trace.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vết đoàn hệ, giá trị gắn với trạng thái và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l04-time-dependence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Phụ thuộc thời gian: lão hóa, trạng thái đường hầm và mảng 3 chiều</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l05-results-verification.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị gắn với lần chuyển, đường biên hiệu quả và xác minh mô hình</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m03-uncertainty-voi/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M03 · Bất định, phân tích độ nhạy và giá trị thông tin</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l01-deterministic-sa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại bất định và phân tích độ nhạy tất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l02-distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Chọn phân phối cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l03-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích độ nhạy xác suất (PSA) trong R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l04-ceac-reporting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: CEAC, CEAF, tổn thất kỳ vọng và cách báo cáo bất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l05-voi.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị thông tin: EVPI, EVPPI và EVSI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m04-microsimulation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M04 · Mô phỏng vi mô (microsimulation)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l01-why-microsimulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Khi mô hình đoàn hệ không đủ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l02-microsim-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô phỏng vi mô bằng vòng lặp trong R cơ bản</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l03-vectorisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vectơ hóa theo cá thể và đo hiệu năng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l04-parallel-rcpp.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tính toán song song và Rcpp cho vòng lặp nóng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l05-mc-error-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bao nhiêu cá thể là đủ? Sai số Monte Carlo, PSA và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m05-dynamic-transmission/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M05 · Mô hình lây truyền động</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l01-static-vs-dynamic.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Mô hình tĩnh và mô hình lây truyền động</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l02-sir-seir-desolve.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình SIR và SEIR trong R với deSolve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m06-amr-economics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M06 · Kinh tế học kháng kháng sinh (AMR)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l01-amr-burden.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Kinh tế học kháng kháng sinh: ngoại ứng, gánh nặng và kịch bản phản thực</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l03-ward-transmission.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m07-survival-psm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M07 · Phân tích sống còn cho mô hình quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l03-extrapolation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l05-partitioned-survival.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m08-calibration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M08 · Hiệu chuẩn mô hình (calibration)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l01-why-calibrate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao phải hiệu chuẩn mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l02-search-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tìm kiếm tham số: ngẫu nhiên, siêu khối Latin và Nelder–Mead</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l03-bayes-sir.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hiệu chuẩn Bayes và thuật toán SIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l04-psa-validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đưa kết quả hiệu chuẩn vào PSA, thẩm định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m09-inputs-vietnam/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M09 · Dữ liệu đầu vào cho Việt Nam và LMIC</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l01-costing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ước tính chi phí cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l02-cost-adjustment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Điều chỉnh chi phí về một năm tham chiếu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l03-outcome-inputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Đầu vào về kết cục sức khỏe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l04-evidence-synthesis.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tổng hợp bằng chứng cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l05-decision-context.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bối cảnh ra quyết định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m10-policy-bia-equity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l04-communicating-hta.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Truyền đạt kết quả cho người ra quyết định và quy trình HTA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m11-software-engineering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l01-code-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Cấu trúc mã cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l02-testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Xác minh và kiểm thử mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l03-version-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l04-r-package.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/glossary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Trong bài</h2>
+   
+  <ul class="collapse">
+  <li><a href="#mục-tiêu-học-tập" id="toc-mục-tiêu-học-tập" class="nav-link active" data-scroll-target="#mục-tiêu-học-tập">Mục tiêu học tập</a></li>
+  <li><a href="#ý-chính" id="toc-ý-chính" class="nav-link" data-scroll-target="#ý-chính">Ý chính</a></li>
+  <li><a href="#nội-dung" id="toc-nội-dung" class="nav-link" data-scroll-target="#nội-dung">Nội dung</a></li>
+  <li><a href="#thực-hành" id="toc-thực-hành" class="nav-link" data-scroll-target="#thực-hành">Thực hành</a></li>
+  <li><a href="#bài-tập" id="toc-bài-tập" class="nav-link" data-scroll-target="#bài-tập">Bài tập</a></li>
+  <li><a href="#tài-liệu-tham-khảo" id="toc-tài-liệu-tham-khảo" class="nav-link" data-scroll-target="#tài-liệu-tham-khảo">Tài liệu tham khảo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m11-software-engineering/index.html">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</a></li><li class="breadcrumb-item"><a href="../../kb/m11-software-engineering/l04-r-package.html"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></h1>
+<p class="subtitle lead">Từ một thư mục script đến gói mdrtbvn cài được, có tài liệu và vượt qua R CMD check</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-important callout-titled" title="Vì sao bạn nên quan tâm?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Vì sao bạn nên quan tâm?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Một nhóm ở bệnh viện phổi tỉnh muốn chạy lại mô hình với giá khám của bệnh viện mình, thay cho mức 50,600 VNĐ một lượt khám theo bảng giá BHYT năm 2025 của bệnh viện hạng đặc biệt <span class="citation" data-cites="byt2024qd3220">(<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">Bộ Y tế 2024</a>)</span>, tức khoảng 1.3 bát phở <span class="citation" data-cites="nhadautu2025pho">(<a href="../m00-r-foundations/index.html#ref-nhadautu2025pho" role="doc-biblioref">Nhadautu.vn 2025</a>)</span>. Mô hình M02 chỉ chạy khi có đúng thư mục khóa học bên cạnh: muốn dùng, họ phải chép nhiều tệp, sửa đường dẫn, và không chắc mình đang có bản nào. Trong khi đó, cùng mô hình còn được M03 chạy hàng nghìn lần và M10 dùng để lập ngân sách cho người bệnh lao kháng rifampicin, nhóm mà WHO ước tính có khoảng 9,400 người mắc mới mỗi năm ở Việt Nam <span class="citation" data-cites="who2026rrestimates">(<a href="../m00-r-foundations/index.html#ref-who2026rrestimates" role="doc-biblioref">World Health Organization 2026</a>)</span>. Bài này giúp bạn quyết định khi nào nên đóng gói một mô hình và phải đưa những gì vào gói, để ai cài gói cũng nhận được đúng mô hình và đúng bảng tham số đã tạo ra kết quả.</p>
+</div>
+</div>
+<section id="mục-tiêu-học-tập" class="level2">
+<h2 class="anchored" data-anchor-id="mục-tiêu-học-tập">Mục tiêu học tập</h2>
+<p>Sau bài này, bạn có thể:</p>
+<ol type="1">
+<li>Giải thích lợi ích của việc đóng gói mô hình thành một gói R (package) so với một thư mục script.</li>
+<li>Mô tả cấu trúc tối thiểu của một gói: <code>DESCRIPTION</code>, <code>NAMESPACE</code>, <code>R/</code>, <code>man/</code>, <code>tests/</code>, <code>inst/</code>.</li>
+<li>Viết tài liệu bằng chú thích roxygen2, và phân biệt hàm công khai (exported) với hàm nội bộ.</li>
+<li>Dựng, kiểm tra bằng <code>R CMD check</code>, cài và dùng gói; tăng số phiên bản đúng quy ước.</li>
+</ol>
+</section>
+<section id="ý-chính" class="level2">
+<h2 class="anchored" data-anchor-id="ý-chính">Ý chính</h2>
+<ul>
+<li>Một gói là một đơn vị cài được: có tên, phiên bản, phụ thuộc được khai báo, tài liệu và kiểm thử đi kèm. Ai cũng cài và gọi được nó theo cùng một cách.</li>
+<li><code>R CMD check</code> chạy hàng chục kiểm tra tự động, gồm cả bộ kiểm thử <code>testthat</code>. “Status: OK” là ngưỡng tối thiểu trước khi chia sẻ một mô hình.</li>
+<li><code>NAMESPACE</code> tách hàm công khai khỏi hàm nội bộ. Người dùng gọi <code>run_model()</code>; <code>build_P()</code> là chi tiết bên trong, đổi được mà không làm hỏng mã của người khác.</li>
+<li>Chú thích <code>#'</code> ngay trên mỗi hàm công khai được roxygen2 biến thành trang trợ giúp và dòng <code>export()</code> trong <code>NAMESPACE</code>.</li>
+<li>Mã trong gói không dựa vào môi trường làm việc: không <code>source()</code>, không <code>library()</code>, không đường dẫn tương đối, không phụ thuộc ẩn; hàm của gói khác gọi bằng <code>pkg::fun()</code> và khai báo trong trường <code>Imports</code>.</li>
+<li>Dữ liệu đi kèm nằm trong <code>inst/extdata/</code> và được đọc bằng <code>system.file()</code>. Gói đã cài không với tới <code>kb/_shared</code>, nên nó mang theo một ảnh chụp của bảng tham số đầy đủ (Bài 1).</li>
+<li>Một nguồn sự thật: gói được dựng tự động từ <code>code/model.R</code> và <code>tests/testthat/</code>; số phiên bản lấy từ <code>MODEL_VERSION</code>.</li>
+</ul>
+</section>
+<section id="nội-dung" class="level2">
+<h2 class="anchored" data-anchor-id="nội-dung">Nội dung</h2>
+<section id="vì-sao-đóng-gói-một-mô-hình" class="level3">
+<h3 class="anchored" data-anchor-id="vì-sao-đóng-gói-một-mô-hình">Vì sao đóng gói một mô hình</h3>
+<p>Ở M02, muốn dùng mô hình thì phải <code>source()</code> đúng tệp, theo đúng thứ tự, từ đúng thư mục, và thư mục dữ liệu chung <code>kb/_shared</code> phải nằm ngay bên cạnh. Mỗi module dùng lại mô hình (M03, M10) lặp lại các đường dẫn đó. Gói R thay tất cả bằng một dòng <code>library(mdrtbvn)</code>. Marwick và cộng sự đề xuất dùng chính cấu trúc gói R để tổ chức một công trình phân tích tái lập được, vì cấu trúc này đã quen thuộc với cộng đồng R và đi kèm sẵn công cụ kiểm tra tự động <span class="citation" data-cites="marwick2018packaging">(<a href="../m00-r-foundations/index.html#ref-marwick2018packaging" role="doc-biblioref">Marwick, Boettiger, và Mullen 2018</a>)</span>. Với mô hình kinh tế y tế còn thêm hai lợi ích: số phiên bản của gói chính là phiên bản của mô hình (Bài 3), và người duyệt có thể chạy <code>R CMD check</code> để biết mô hình ít nhất cài được, có tài liệu và vượt qua kiểm thử của chính nó.</p>
+</section>
+<section id="cấu-trúc-tối-thiểu" class="level3">
+<h3 class="anchored" data-anchor-id="cấu-trúc-tối-thiểu">Cấu trúc tối thiểu</h3>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>flowchart TB</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  P["mdrtbvn/"] --&gt; D["DESCRIPTION&lt;br/&gt;tên, phiên bản, tác giả,&lt;br/&gt;giấy phép, phụ thuộc"]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  P --&gt; N["NAMESPACE&lt;br/&gt;hàm công khai&lt;br/&gt;(roxygen2 viết)"]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  P --&gt; R["R/model.R&lt;br/&gt;= code/model.R"]</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  P --&gt; M["man/*.Rd&lt;br/&gt;trang trợ giúp&lt;br/&gt;(roxygen2 viết)"]</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  P --&gt; T["tests/testthat/&lt;br/&gt;= tests/testthat/ của module"]</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  P --&gt; I["inst/extdata/mdrtbvn-params.csv&lt;br/&gt;ảnh chụp bảng tham số đầy đủ"]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  P --&gt; L["LICENSE, NEWS.md"]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TB
+  P["mdrtbvn/"] --&gt; D["DESCRIPTION&lt;br/&gt;tên, phiên bản, tác giả,&lt;br/&gt;giấy phép, phụ thuộc"]
+  P --&gt; N["NAMESPACE&lt;br/&gt;hàm công khai&lt;br/&gt;(roxygen2 viết)"]
+  P --&gt; R["R/model.R&lt;br/&gt;= code/model.R"]
+  P --&gt; M["man/*.Rd&lt;br/&gt;trang trợ giúp&lt;br/&gt;(roxygen2 viết)"]
+  P --&gt; T["tests/testthat/&lt;br/&gt;= tests/testthat/ của module"]
+  P --&gt; I["inst/extdata/mdrtbvn-params.csv&lt;br/&gt;ảnh chụp bảng tham số đầy đủ"]
+  P --&gt; L["LICENSE, NEWS.md"]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p><code>DESCRIPTION</code> là tệp duy nhất bắt buộc phải tự viết: tên gói, tiêu đề, phiên bản, tác giả và người duy trì, mô tả, giấy phép, và các gói phụ thuộc (<code>Imports</code> cho gói bắt buộc, <code>Suggests</code> cho gói chỉ dùng khi kiểm thử). Chi tiết đầy đủ của mọi tệp nằm trong tài liệu chính thức <em>Writing R Extensions</em> <span class="citation" data-cites="rcore2026writing">(<a href="../m00-r-foundations/index.html#ref-rcore2026writing" role="doc-biblioref">R Core Team 2026</a>)</span>; sách <em>R Packages</em> trình bày cùng nội dung theo lối thực hành <span class="citation" data-cites="wickham2023rpackages">(<a href="../m00-r-foundations/index.html#ref-wickham2023rpackages" role="doc-biblioref">Wickham và Bryan 2023</a>)</span>.</p>
+</section>
+<section id="tài-liệu-bằng-roxygen2" class="level3">
+<h3 class="anchored" data-anchor-id="tài-liệu-bằng-roxygen2">Tài liệu bằng roxygen2</h3>
+<p>roxygen2 đọc các dòng chú thích bắt đầu bằng <code>#'</code> ngay trên một hàm: dòng đầu là tiêu đề, <code>@param</code> mô tả đối số, <code>@return</code> mô tả giá trị trả về, <code>@export</code> đưa hàm vào <code>NAMESPACE</code> <span class="citation" data-cites="wickham2025roxygen2">(<a href="../m00-r-foundations/index.html#ref-wickham2025roxygen2" role="doc-biblioref">Wickham và c.s. 2025</a>)</span>. Tài liệu nằm cạnh mã nên dễ sửa cùng lúc; <code>R CMD check</code> báo lỗi nếu một đối số có trong hàm mà không có trong tài liệu, hoặc ngược lại. Chỉ các hàm công khai cần khối roxygen; hàm nội bộ dùng chú thích <code>#</code> thường.</p>
+</section>
+<section id="những-gì-phải-đổi-khi-đưa-mô-hình-vào-gói" class="level3">
+<h3 class="anchored" data-anchor-id="những-gì-phải-đổi-khi-đưa-mô-hình-vào-gói">Những gì phải đổi khi đưa mô hình vào gói</h3>
+<p>Phần lớn đã làm ở Bài 1: mô hình chỉ dùng base R, không có phụ thuộc ẩn, mã chỉ có ký tự ASCII. Hai điểm còn lại là dữ liệu và phiên bản. Gói đã cài nằm trong thư viện R của người dùng, không biết thư mục khóa học ở đâu, nên các giá trị chung (ngưỡng, giá, bảng sống) phải đi theo gói. Ta ghi bảng tham số đầy đủ do <code>assemble_params()</code> ghép vào <code>inst/extdata/mdrtbvn-params.csv</code>; khi cài, nội dung <code>inst/</code> được chép vào thư mục gốc của gói, và <code>default_params()</code> tìm tệp bằng <code>system.file()</code>. Đây là một <strong>ảnh chụp có chủ đích</strong>: kết quả của gói không đổi khi <code>kb/_shared</code> đổi; muốn dùng giá mới, người dùng gọi <code>assemble_params()</code> trên tệp mới hoặc chờ phiên bản gói mới, và mã tham số cho biết họ đang dùng bảng nào. Trong module (chưa cài gói), tùy chọn <code>mdrtbvn.params</code> trỏ tới bảng ghép ở thư mục tạm. Số phiên bản trong <code>DESCRIPTION</code> được lấy từ hằng <code>MODEL_VERSION</code> trong <code>code/model.R</code>, để không bao giờ có hai số phiên bản mâu thuẫn.</p>
+<p>Trong thực tế, người ta thường dùng <code>usethis</code> và <code>devtools</code> để làm các bước này trong một phiên R tương tác:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">create_package</span>(<span class="st">"mdrtbvn"</span>)   <span class="co"># skeleton: DESCRIPTION, R/, NAMESPACE</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_mit_license</span>()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>usethis<span class="sc">::</span><span class="fu">use_testthat</span>()               <span class="co"># tests/testthat/ and the testthat edition</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">document</span>()                  <span class="co"># roxygen2: man/ and NAMESPACE</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">check</span>()                     <span class="co"># R CMD build + R CMD check</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Bài này làm từng bước bằng base R và dòng lệnh <code>R CMD</code> để bạn thấy rõ mỗi lệnh trên làm gì; kết quả giống nhau.</p>
+</section>
+</section>
+<section id="thực-hành" class="level2">
+<h2 class="anchored" data-anchor-id="thực-hành">Thực hành</h2>
+<p>Chuẩn bị thư mục dựng gói (trong thư mục tạm) và hai hàm trợ giúp: <code>r_cmd()</code> chạy <code>R CMD ...</code>; <code>document()</code> chạy roxygen2 trong một tiến trình R riêng để phiên làm việc hiện tại không bị nạp bản phát triển của gói. Kiểm tra: không có lỗi.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Vietnamese text in tables needs a UTF-8 locale (Rscript may start in "C")</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">isTRUE</span>(<span class="fu">l10n_info</span>()[[<span class="st">"UTF-8"</span>]])) <span class="fu">invisible</span>(<span class="fu">Sys.setlocale</span>(<span class="st">"LC_CTYPE"</span>, <span class="st">"en_US.UTF-8"</span>))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/helpers.R"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The complete parameter table, written once; the module and the package read the same file</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>param_file <span class="ot">&lt;-</span> <span class="fu">write_param_table</span>(<span class="fu">assemble_params</span>(<span class="st">"../m02-cohort-markov/params/mdrtb.csv"</span>, <span class="st">"../_shared"</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"mdrtbvn-params.csv"</span>))</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>pkg_name <span class="ot">&lt;-</span> <span class="st">"mdrtbvn"</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>work <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"pkg-build"</span>)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="fu">unlink</span>(work, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(work)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>pkg <span class="ot">&lt;-</span> <span class="fu">file.path</span>(work, pkg_name)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>R_bin <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">R.home</span>(<span class="st">"bin"</span>), <span class="st">"R"</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Run `R CMD &lt;args&gt;` inside the build folder and return its output lines</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>r_cmd <span class="ot">&lt;-</span> <span class="cf">function</span>(args) {</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>  old <span class="ot">&lt;-</span> <span class="fu">setwd</span>(work)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">on.exit</span>(<span class="fu">setwd</span>(old))</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">system2</span>(R_bin, <span class="fu">c</span>(<span class="st">"CMD"</span>, args), <span class="at">stdout =</span> <span class="cn">TRUE</span>, <span class="at">stderr =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Run roxygen2 in a separate R process, so this session stays clean (roxygen2 loads a</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="co"># development copy of the package while it reads the code)</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>document <span class="ot">&lt;-</span> <span class="cf">function</span>(path) {</span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>  rscript <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">R.home</span>(<span class="st">"bin"</span>), <span class="st">"Rscript"</span>)</span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">system2</span>(rscript, <span class="fu">c</span>(<span class="st">"-e"</span>, <span class="fu">shQuote</span>(<span class="fu">paste0</span>(<span class="st">"roxygen2::roxygenise('"</span>, path, <span class="st">"')"</span>))),</span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>          <span class="at">stdout =</span> <span class="cn">TRUE</span>, <span class="at">stderr =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Dựng khung gói từ các tệp nguồn của module: mã, kiểm thử, ảnh chụp bảng tham số, <code>DESCRIPTION</code>, <code>LICENSE</code>, <code>NEWS.md</code> (ghi cả mã bảng tham số). Tác giả trong <code>DESCRIPTION</code> là tên giữ chỗ, không phải người thật. Kiểm tra: cây thư mục khớp với sơ đồ ở trên.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The minimal anatomy: DESCRIPTION, R/, tests/, inst/extdata/ (+ LICENSE, NEWS.md)</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (d <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"R"</span>, <span class="st">"tests/testthat"</span>, <span class="st">"inst/extdata"</span>)) <span class="fu">dir.create</span>(<span class="fu">file.path</span>(pkg, d), <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">file.copy</span>(<span class="st">"code/model.R"</span>, <span class="fu">file.path</span>(pkg, <span class="st">"R"</span>, <span class="st">"model.R"</span>)))</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">file.copy</span>(<span class="fu">list.files</span>(<span class="st">"tests/testthat"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>), <span class="fu">file.path</span>(pkg, <span class="st">"tests"</span>, <span class="st">"testthat"</span>)))</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The shared inputs travel WITH the package as a frozen snapshot: an installed package cannot</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># reach kb/_shared, and its results must not change when that folder changes</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">file.copy</span>(param_file, <span class="fu">file.path</span>(pkg, <span class="st">"inst"</span>, <span class="st">"extdata"</span>, <span class="st">"mdrtbvn-params.csv"</span>)))</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">c</span>(<span class="st">"library(testthat)"</span>, <span class="st">"library(mdrtbvn)"</span>, <span class="st">""</span>, <span class="st">"test_check(</span><span class="sc">\"</span><span class="st">mdrtbvn</span><span class="sc">\"</span><span class="st">)"</span>),</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>           <span class="fu">file.path</span>(pkg, <span class="st">"tests"</span>, <span class="st">"testthat.R"</span>))</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>desc <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">Package =</span> pkg_name,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Title =</span> <span class="st">"Cohort Model of MDR/RR-TB Treatment Regimens in Viet Nam"</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">Version =</span> MODEL_VERSION,                        <span class="co"># single source of truth: code/model.R</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Authors@R</span><span class="st">`</span> <span class="ot">=</span> <span class="st">'person("HEM", "Course", email = "hem-course@example.org", role = c("aut", "cre"))'</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">Description =</span> <span class="fu">paste</span>(<span class="st">"A cohort state-transition (Markov) model comparing the longer regimen,"</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"the 9-month short regimen and the 6-month BPaLM regimen for MDR/RR-TB"</span>,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"in Viet Nam, with retreatment after failure or loss to follow-up."</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"Ships a snapshot of its complete parameter table (model parameters and"</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                      <span class="st">"shared Vietnamese course inputs). Teaching package of course module M11."</span>),</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">License =</span> <span class="st">"MIT + file LICENSE"</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">Encoding =</span> <span class="st">"UTF-8"</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">Imports =</span> <span class="st">"stats, tools, utils"</span>,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">Suggests =</span> <span class="st">"testthat (&gt;= 3.0.0)"</span>,</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">`</span><span class="at">Config/testthat/edition</span><span class="st">`</span> <span class="ot">=</span> <span class="st">"3"</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>  <span class="at">Roxygen =</span> <span class="st">"list(markdown = TRUE)"</span>,</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>  <span class="at">RoxygenNote =</span> <span class="fu">as.character</span>(utils<span class="sc">::</span><span class="fu">packageVersion</span>(<span class="st">"roxygen2"</span>))</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a><span class="fu">write.dcf</span>(<span class="fu">t</span>(desc), <span class="fu">file.path</span>(pkg, <span class="st">"DESCRIPTION"</span>), <span class="at">keep.white =</span> <span class="fu">names</span>(desc))</span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">c</span>(<span class="st">"YEAR: 2026"</span>, <span class="st">"COPYRIGHT HOLDER: mdrtbvn authors"</span>), <span class="fu">file.path</span>(pkg, <span class="st">"LICENSE"</span>))</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>n_tests <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">vapply</span>(<span class="fu">list.files</span>(<span class="st">"tests/testthat"</span>, <span class="st">"^test-"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>                      <span class="cf">function</span>(f) <span class="fu">sum</span>(<span class="fu">grepl</span>(<span class="st">"^test_that</span><span class="sc">\\</span><span class="st">("</span>, <span class="fu">readLines</span>(f))), <span class="fu">numeric</span>(<span class="dv">1</span>)))</span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">read_param_file</span>(param_file)</span>
+<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">c</span>(<span class="fu">paste</span>(<span class="st">"# mdrtbvn"</span>, MODEL_VERSION), <span class="st">""</span>,</span>
+<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>             <span class="fu">paste0</span>(<span class="st">"* First release: the M02 model refactored into inputs, model and outputs, "</span>,</span>
+<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>                    <span class="st">"with "</span>, n_tests, <span class="st">" automated tests."</span>),</span>
+<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a>             <span class="fu">paste0</span>(<span class="st">"* Parameter table "</span>, <span class="fu">param_fingerprint</span>(p), <span class="st">" (inst/extdata/mdrtbvn-params.csv)."</span>)),</span>
+<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>           <span class="fu">file.path</span>(pkg, <span class="st">"NEWS.md"</span>))</span>
+<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">paste0</span>(pkg_name, <span class="st">"/"</span>, <span class="fu">sort</span>(<span class="fu">list.files</span>(pkg, <span class="at">recursive =</span> <span class="cn">TRUE</span>))), <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>mdrtbvn/DESCRIPTION
+mdrtbvn/inst/extdata/mdrtbvn-params.csv
+mdrtbvn/LICENSE
+mdrtbvn/NEWS.md
+mdrtbvn/R/model.R
+mdrtbvn/tests/testthat.R
+mdrtbvn/tests/testthat/golden-m02.rds
+mdrtbvn/tests/testthat/helper-model.R
+mdrtbvn/tests/testthat/test-golden-master.R
+mdrtbvn/tests/testthat/test-inputs.R
+mdrtbvn/tests/testthat/test-results.R
+mdrtbvn/tests/testthat/test-scenarios.R
+mdrtbvn/tests/testthat/test-trace.R</code></pre>
+</div>
+</div>
+<p>Nội dung <code>DESCRIPTION</code>. Kiểm tra: <code>Version</code> trùng <code>MODEL_VERSION</code>; chỉ <code>stats</code>, <code>tools</code> và <code>utils</code> (đều đi kèm R) nằm trong <code>Imports</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">"DESCRIPTION"</span>)), <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Package: mdrtbvn
+Title: Cohort Model of MDR/RR-TB Treatment Regimens in Viet Nam
+Version: 1.0.0
+Authors@R: person("HEM", "Course", email = "hem-course@example.org", role = c("aut", "cre"))
+Description: A cohort state-transition (Markov) model comparing the longer regimen, the 9-month short regimen and the 6-month BPaLM regimen for MDR/RR-TB in Viet Nam, with retreatment after failure or loss to follow-up. Ships a snapshot of its complete parameter table (model parameters and shared Vietnamese course inputs). Teaching package of course module M11.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Imports: stats, tools, utils
+Suggests: testthat (&gt;= 3.0.0)
+Config/testthat/edition: 3
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3</code></pre>
+</div>
+</div>
+<p>Một khối roxygen2 trong <code>code/model.R</code>, ngay trên <code>run_model()</code>. Kiểm tra: có tiêu đề, <code>@param</code> cho mọi đối số, <code>@return</code> và <code>@export</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A roxygen2 block: #' comments right above the function they document</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>src <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>fun_line <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"^run_model &lt;- function"</span>, src)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>doc_start <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">grep</span>(<span class="st">"^#' Run the whole model"</span>, src))</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(src[doc_start<span class="sc">:</span>(fun_line <span class="sc">+</span> <span class="dv">1</span>)], <span class="st">"  ..."</span>, <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>#' Run the whole model: validate inputs, simulate, summarise, compare
+#'
+#' @param p Named list of parameter values (see `default_params()`).
+#' @param new,ref Regimens of the pairwise comparison; by default BPaLM versus the 9-month
+#'   short regimen, the regimen it would replace in Viet Nam.
+#' @return List with `version` (model version), `param_id` (identifier of the parameter
+#'   set, see `param_fingerprint()`), `results` (see `run_cea()`), `frontier` (see
+#'   `cea_frontier()`) and `comparison` (see `compare_regimens()`), all at `p$wtp`.
+#' @export
+run_model &lt;- function(p, new = "bpalm", ref = "short") {
+  results &lt;- run_cea(p)
+  ...</code></pre>
+</div>
+</div>
+<p>Chạy roxygen2 để viết <code>NAMESPACE</code> và các trang trợ giúp. Kiểm tra: mỗi hàm công khai có đúng một tệp <code>.Rd</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># roxygen2 turns the #' comments in R/model.R into help pages (man/*.Rd) and NAMESPACE</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>doc_out <span class="ot">&lt;-</span> <span class="fu">document</span>(pkg)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">"NAMESPACE"</span>)), <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Generated by roxygen2: do not edit by hand
+
+export(apply_updates)
+export(assemble_params)
+export(cea_frontier)
+export(compare_regimens)
+export(default_params)
+export(nmb_by_wtp)
+export(param_fingerprint)
+export(params_from_table)
+export(read_param_file)
+export(run_cea)
+export(run_model)
+export(validate_params)
+export(write_param_table)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>man_files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(<span class="fu">file.path</span>(pkg, <span class="st">"man"</span>))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>exports <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"^export</span><span class="sc">\\</span><span class="st">((.*)</span><span class="sc">\\</span><span class="st">)$"</span>, <span class="st">"</span><span class="sc">\\</span><span class="st">1"</span>, <span class="fu">grep</span>(<span class="st">"^export"</span>, <span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">"NAMESPACE"</span>)), <span class="at">value =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">length</span>(man_files) <span class="sc">==</span> <span class="fu">length</span>(exports))  <span class="co"># every exported function is documented</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Gói công khai 13 hàm. Các hàm còn lại của <code>model.R</code> (dựng ma trận, chạy vết, tóm tắt) là hàm nội bộ: kiểm thử vẫn gọi được chúng, người dùng gói thì không cần biết đến.</p>
+<p>Dựng tệp nguồn <code>.tar.gz</code> và chạy <code>R CMD check</code>. Kiểm tra: dòng cuối là “Status: OK”.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># R CMD build makes the source tarball; R CMD check runs dozens of automatic checks,</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># including our tests, exactly as a reviewer or CRAN would</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>build_out <span class="ot">&lt;-</span> <span class="fu">r_cmd</span>(<span class="fu">c</span>(<span class="st">"build"</span>, <span class="st">"--no-build-vignettes"</span>, <span class="st">"--no-manual"</span>, pkg_name))</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>tarball <span class="ot">&lt;-</span> <span class="fu">list.files</span>(work, <span class="at">pattern =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">.tar</span><span class="sc">\\</span><span class="st">.gz$"</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="st">"_R_CHECK_SYSTEM_CLOCK_"</span> <span class="ot">=</span> <span class="st">"0"</span>)        <span class="co"># do not ask an internet time server</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>t_check <span class="ot">&lt;-</span> <span class="fu">system.time</span>(check_out <span class="ot">&lt;-</span> <span class="fu">r_cmd</span>(<span class="fu">c</span>(<span class="st">"check"</span>, <span class="st">"--no-manual"</span>, tarball)))[[<span class="st">"elapsed"</span>]]</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>n_checks <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">grepl</span>(<span class="st">"^</span><span class="sc">\\</span><span class="st">* checking"</span>, check_out))</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>check_status <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"^Status: "</span>, <span class="st">""</span>, check_out[<span class="fu">grepl</span>(<span class="st">"^Status:"</span>, check_out)])</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>show <span class="ot">&lt;-</span> <span class="fu">grepl</span>(<span class="st">"R code for possible problems|missing documentation|code/documentation mismatches|for non-ASCII|Running .testthat|^Status"</span>, check_out)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(check_out[show], <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>* checking code files for non-ASCII characters ... OK
+* checking R code for possible problems ... OK
+* checking for missing documentation entries ... OK
+* checking for code/documentation mismatches ... OK
+  Running ‘testthat.R’
+Status: OK</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">length</span>(tarball) <span class="sc">==</span> <span class="dv">1</span>, check_status <span class="sc">==</span> <span class="st">"OK"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>R CMD check</code> chạy 41 nhóm kiểm tra trong khoảng 11 giây, gồm cả 54 kiểm thử của Bài 2, và kết luận “OK”. Kiểm tra “R code for possible problems” chính là phép tìm phụ thuộc ẩn bằng <code>codetools</code> ở Bài 1: <code>codetools::checkUsageEnv(env)</code> duyệt mọi hàm trong môi trường <code>env</code> và in các lời gọi tới hàm không nhìn thấy được từ đó (bài tập 3 dùng nó). Kiểm tra “non-ASCII characters” là lý do mã mô hình chỉ dùng ký tự ASCII.</p>
+<p>Cài gói vào một thư viện tạm và dùng như mọi gói khác. Kiểm tra: kết quả của gói đúng bằng kết quả của module, và cùng mã bảng tham số.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Install into a temporary library and use the package like any other</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>lib <span class="ot">&lt;-</span> <span class="fu">file.path</span>(work, <span class="st">"lib"</span>)</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(lib)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>install_out <span class="ot">&lt;-</span> <span class="fu">r_cmd</span>(<span class="fu">c</span>(<span class="st">"INSTALL"</span>, <span class="st">"-l"</span>, <span class="fu">shQuote</span>(lib), tarball))</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">loadNamespace</span>(pkg_name, <span class="at">lib.loc =</span> lib))</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">getNamespaceExports</span>(pkg_name))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "apply_updates"     "assemble_params"   "cea_frontier"     
+ [4] "compare_regimens"  "default_params"    "nmb_by_wtp"       
+ [7] "param_fingerprint" "params_from_table" "read_param_file"  
+[10] "run_cea"           "run_model"         "validate_params"  
+[13] "write_param_table"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>out_pkg <span class="ot">&lt;-</span> mdrtbvn<span class="sc">::</span><span class="fu">run_model</span>(mdrtbvn<span class="sc">::</span><span class="fu">default_params</span>())    <span class="co"># reads inst/extdata/mdrtbvn-params.csv</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>out_mod <span class="ot">&lt;-</span> <span class="fu">run_model</span>(p)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">package_d_nmb_million =</span> out_pkg<span class="sc">$</span>comparison<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">module_d_nmb_million =</span> out_mod<span class="sc">$</span>comparison<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>package_d_nmb_million  module_d_nmb_million 
+             66.80761              66.80761 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">identical</span>(out_pkg<span class="sc">$</span>results, out_mod<span class="sc">$</span>results), out_pkg<span class="sc">$</span>version <span class="sc">==</span> MODEL_VERSION,</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>          out_pkg<span class="sc">$</span>param_id <span class="sc">==</span> out_mod<span class="sc">$</span>param_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Trang trợ giúp mà roxygen2 viết cho <code>run_model()</code>, giống như khi gõ <code>?run_model</code>. Kiểm tra: phần Arguments và Value lấy đúng từ khối <code>#'</code> ở trên.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The help page that roxygen2 wrote from the #' comments above run_model()</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>help_txt <span class="ot">&lt;-</span> <span class="fu">capture.output</span>(tools<span class="sc">::</span><span class="fu">Rd2txt</span>(<span class="fu">file.path</span>(pkg, <span class="st">"man"</span>, <span class="st">"run_model.Rd"</span>),</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">options =</span> <span class="fu">list</span>(<span class="at">underline_titles =</span> <span class="cn">FALSE</span>)))</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(help_txt[<span class="fu">nzchar</span>(<span class="fu">trimws</span>(help_txt))], <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Run the whole model: validate inputs, simulate, summarise, compare
+Description:
+     Run the whole model: validate inputs, simulate, summarise, compare
+Usage:
+     run_model(p, new = "bpalm", ref = "short")
+Arguments:
+       p: Named list of parameter values (see 'default_params()').
+new, ref: Regimens of the pairwise comparison; by default BPaLM versus
+          the 9-month short regimen, the regimen it would replace in
+          Viet Nam.
+Value:
+     List with 'version' (model version), 'param_id' (identifier of the
+     parameter set, see 'param_fingerprint()'), 'results' (see
+     'run_cea()'), 'frontier' (see 'cea_frontier()') and 'comparison'
+     (see 'compare_regimens()'), all at 'p$wtp'.</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Mẹo thực hành">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mẹo thực hành
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Chạy <code>R CMD check</code> (hoặc <code>devtools::check()</code>) trước mỗi lần gắn nhãn phiên bản. Một gói “Status: OK” trên máy bạn là điều kiện cần, chưa phải điều kiện đủ.</li>
+<li>Giữ ít hàm công khai. Mỗi hàm công khai là một lời hứa với người dùng; đổi đối số của nó là một thay đổi MAJOR.</li>
+<li>Viết <code>NEWS.md</code> mỗi lần đổi phiên bản: một dòng cho mỗi thay đổi người dùng cần biết, đặc biệt là thay đổi làm kết quả khác đi.</li>
+<li>Một gói mô hình không cần lên CRAN. Cài trực tiếp từ GitHub (ví dụ bằng <code>remotes::install_github()</code>) là đủ cho một nhóm nghiên cứu.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Lỗi thường gặp">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lỗi thường gặp
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Gọi <code>library()</code> hay <code>source()</code> trong <code>R/</code></strong>: gói phải khai báo phụ thuộc trong <code>DESCRIPTION</code> và gọi <code>pkg::fun()</code>. Dấu hiệu: <code>R CMD check</code> báo NOTE hoặc WARNING ở phần mã.</li>
+<li><strong>Đường dẫn tương đối tới dữ liệu</strong> như <code>"../params/mdrtb.csv"</code>: chạy được trong thư mục của bạn, hỏng khi gói đã cài. Dùng <code>system.file()</code>.</li>
+<li><strong>Sửa tay <code>NAMESPACE</code> hay <code>man/</code></strong> khi đã dùng roxygen2: lần chạy roxygen2 sau sẽ ghi đè. Sửa khối <code>#'</code> rồi chạy lại.</li>
+<li><strong>Quên tăng phiên bản</strong> khi thay đổi mô hình: hai bản khác nhau mang cùng số phiên bản, và không ai biết kết quả nào do bản nào tạo ra.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="bài-tập" class="level2">
+<h2 class="anchored" data-anchor-id="bài-tập">Bài tập</h2>
+<ol type="1">
+<li><strong>(Dễ)</strong> Bạn sửa một lỗi nhỏ không đổi thiết kế mô hình. Phiên bản mới là gì? Viết hàm tăng số phiên bản theo quy ước MAJOR.MINOR.PATCH, sửa <code>MODEL_VERSION</code> trong <code>R/model.R</code> của gói và ghi lại <code>Version</code> của <code>DESCRIPTION</code> từ đó.</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 1: semantic versioning. A bug fix bumps PATCH, a new function MINOR,</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="co"># a change that breaks existing code MAJOR (and resets the parts to its right)</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>bump_version <span class="ot">&lt;-</span> <span class="cf">function</span>(v, <span class="at">part =</span> <span class="fu">c</span>(<span class="st">"patch"</span>, <span class="st">"minor"</span>, <span class="st">"major"</span>)) {</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  part <span class="ot">&lt;-</span> <span class="fu">match.arg</span>(part)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">strsplit</span>(v, <span class="st">"."</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>)[[<span class="dv">1</span>]])</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (part <span class="sc">==</span> <span class="st">"major"</span>) x <span class="ot">&lt;-</span> <span class="fu">c</span>(x[<span class="dv">1</span>] <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">0</span>, <span class="dv">0</span>)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (part <span class="sc">==</span> <span class="st">"minor"</span>) x <span class="ot">&lt;-</span> <span class="fu">c</span>(x[<span class="dv">1</span>], x[<span class="dv">2</span>] <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">0</span>)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (part <span class="sc">==</span> <span class="st">"patch"</span>) x <span class="ot">&lt;-</span> <span class="fu">c</span>(x[<span class="dv">1</span>], x[<span class="dv">2</span>], x[<span class="dv">3</span>] <span class="sc">+</span> <span class="dv">1</span>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(x, <span class="at">collapse =</span> <span class="st">"."</span>)</span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">bug_fix =</span> <span class="fu">bump_version</span>(<span class="st">"1.0.0"</span>, <span class="st">"patch"</span>), <span class="at">new_function =</span> <span class="fu">bump_version</span>(<span class="st">"1.0.0"</span>, <span class="st">"minor"</span>),</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">breaking =</span> <span class="fu">bump_version</span>(<span class="st">"1.2.3"</span>, <span class="st">"major"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     bug_fix new_function     breaking 
+     "1.0.1"      "1.1.0"      "2.0.0" </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The number lives in ONE place, MODEL_VERSION in the package's R/model.R; DESCRIPTION</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># is regenerated from it, so the two can never disagree</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>model_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(pkg, <span class="st">"R"</span>, <span class="st">"model.R"</span>)</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>model_lines <span class="ot">&lt;-</span> <span class="fu">readLines</span>(model_file)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>i_ver <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"^MODEL_VERSION &lt;- "</span>, model_lines)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>old_version <span class="ot">&lt;-</span> <span class="fu">gsub</span>(<span class="st">"^MODEL_VERSION &lt;- </span><span class="sc">\"</span><span class="st">|</span><span class="sc">\"</span><span class="st">$"</span>, <span class="st">""</span>, model_lines[i_ver])</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>new_version <span class="ot">&lt;-</span> <span class="fu">bump_version</span>(old_version, <span class="st">"patch"</span>)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>model_lines[i_ver] <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"MODEL_VERSION &lt;- </span><span class="sc">\"</span><span class="st">%s</span><span class="sc">\"</span><span class="st">"</span>, new_version)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(model_lines, model_file)</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read.dcf</span>(<span class="fu">file.path</span>(pkg, <span class="st">"DESCRIPTION"</span>))</span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>d[, <span class="st">"Version"</span>] <span class="ot">&lt;-</span> new_version</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="fu">write.dcf</span>(d, <span class="fu">file.path</span>(pkg, <span class="st">"DESCRIPTION"</span>), <span class="at">keep.white =</span> <span class="fu">colnames</span>(d))</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>env_ver <span class="ot">&lt;-</span> <span class="fu">new.env</span>()</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="fu">sys.source</span>(model_file, <span class="at">envir =</span> env_ver)</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">model =</span> env_ver<span class="sc">$</span>MODEL_VERSION, <span class="at">description =</span> <span class="fu">read.dcf</span>(<span class="fu">file.path</span>(pkg, <span class="st">"DESCRIPTION"</span>), <span class="at">fields =</span> <span class="st">"Version"</span>)[<span class="dv">1</span>, <span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              model description.Version 
+            "1.0.1"             "1.0.1" </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(env_ver<span class="sc">$</span>MODEL_VERSION <span class="sc">==</span> new_version,</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>          <span class="fu">read.dcf</span>(<span class="fu">file.path</span>(pkg, <span class="st">"DESCRIPTION"</span>), <span class="at">fields =</span> <span class="st">"Version"</span>)[<span class="dv">1</span>, <span class="dv">1</span>] <span class="sc">==</span> new_version)</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Restore the original number, so that the exercises below build on the version of Lesson 4</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>model_lines[i_ver] <span class="ot">&lt;-</span> <span class="fu">sprintf</span>(<span class="st">"MODEL_VERSION &lt;- </span><span class="sc">\"</span><span class="st">%s</span><span class="sc">\"</span><span class="st">"</span>, old_version)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(model_lines, model_file)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>d[, <span class="st">"Version"</span>] <span class="ot">&lt;-</span> old_version</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="fu">write.dcf</span>(d, <span class="fu">file.path</span>(pkg, <span class="st">"DESCRIPTION"</span>), <span class="at">keep.white =</span> <span class="fu">colnames</span>(d))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Sửa lỗi tăng PATCH (<code>1.0.0</code> → <code>1.0.1</code>); thêm hàm mới tăng MINOR; thay đổi làm mã cũ không chạy được tăng MAJOR và đưa hai số sau về 0 <span class="citation" data-cites="prestonwerner2013semver">(<a href="../m00-r-foundations/index.html#ref-prestonwerner2013semver" role="doc-biblioref">Preston-Werner 2013</a>)</span>. Con số chỉ có một nơi gốc, <code>MODEL_VERSION</code>; <code>DESCRIPTION</code> được ghi từ đó nên hai nơi không thể lệch nhau (script trả gói về <code>1.0.0</code> sau bài tập).</p>
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li><strong>(Vừa)</strong> Thêm vào gói một hàm công khai <code>threshold_price(p)</code> tìm giá thuốc BPaLM mỗi tháng tại đó lợi ích ròng quy ra tiền gia tăng (ΔNMB) so với phác đồ ngắn bằng 0. Đặt nó trong một tệp riêng ở <code>R/</code>, có khối roxygen, chạy lại roxygen2 và kiểm tra <code>NAMESPACE</code>.</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 2: add and export a new function. Write it with a roxygen block in its own</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># file under R/, run roxygen again, and check that NAMESPACE now exports it.</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">c</span>(</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#' Monthly BPaLM drug price at which BPaLM stops paying off against the short regimen"</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#'"</span>,</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#' @param p Named list of parameter values (see `default_params()`)."</span>,</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#' @param upper Upper end of the search interval, in VND per month."</span>,</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#' @return Threshold price in VND per month (incremental NMB = 0)."</span>,</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#' @export"</span>,</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"threshold_price &lt;- function(p, upper = 100 * p$c_drug_bpalm) {"</span>,</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"  gap &lt;- function(price) {"</span>,</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"    p$c_drug_bpalm &lt;- price"</span>,</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"    run_model(p)$comparison$d_nmb"</span>,</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"  }"</span>,</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"  stats::uniroot(gap, lower = 0, upper = upper)$root"</span>,</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"}"</span>), <span class="fu">file.path</span>(pkg, <span class="st">"R"</span>, <span class="st">"threshold.R"</span>))</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>doc_out <span class="ot">&lt;-</span> <span class="fu">document</span>(pkg)</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="st">"export(threshold_price)"</span> <span class="sc">%in%</span> <span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">"NAMESPACE"</span>)))</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="fu">file.path</span>(pkg, <span class="st">"R"</span>, <span class="st">"threshold.R"</span>))</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>price_zero <span class="ot">&lt;-</span> <span class="fu">threshold_price</span>(p)</span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a>q <span class="ot">&lt;-</span> p</span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>q<span class="sc">$</span>c_drug_bpalm <span class="ot">&lt;-</span> price_zero</span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a><span class="co"># At the threshold price the incremental NMB is (numerically) zero, and above the base price</span></span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">d_nmb_at_threshold =</span> <span class="fu">run_model</span>(q)<span class="sc">$</span>comparison<span class="sc">$</span>d_nmb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>d_nmb_at_threshold 
+      2.235174e-08 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(<span class="fu">run_model</span>(q)<span class="sc">$</span>comparison<span class="sc">$</span>d_nmb) <span class="sc">&lt;</span> <span class="fl">1e3</span>, price_zero <span class="sc">&gt;</span> p<span class="sc">$</span>c_drug_bpalm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Giá ngưỡng là 12.87 triệu VNĐ mỗi tháng, gấp 10.9 lần giá GDF hiện tại; tại giá đó ΔNMB bằng 0 đến sai số làm tròn. Đồ thị đầy đủ nằm ở Bài 5. Hàm mới chỉ gọi <code>run_model()</code>, một hàm công khai, nên không phụ thuộc vào chi tiết bên trong mô hình. Thêm một hàm công khai là thay đổi MINOR.</p>
+</div>
+</div>
+</div>
+<ol start="3" type="1">
+<li><strong>(Khó)</strong> Cho <code>summarise_regimen()</code> gọi <code>discount_weights()</code> của tệp tiện ích khóa học thay vì <code>discount_factor()</code>. Trong phiên của bạn mô hình vẫn chạy (tệp tiện ích đã nạp). Hãy cho thấy <code>R CMD check</code> sẽ báo lỗi này: nạp mã vào một môi trường chỉ thấy base R (<code>new.env(parent = baseenv())</code>) rồi chạy <code>codetools::checkUsageEnv()</code> trên môi trường đó.</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 3: why R CMD check catches hidden dependencies. Make summarise_regimen() call</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co"># the course helper discount_weights(), then check the code the way R CMD check does:</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co"># against base R only, not against whatever happens to be in your workspace.</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>src <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>target <span class="ot">&lt;-</span> <span class="st">"disc &lt;- discount_factor((0:n) / 12, p$disc_rate)"</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">sum</span>(<span class="fu">grepl</span>(target, src, <span class="at">fixed =</span> <span class="cn">TRUE</span>)) <span class="sc">==</span> <span class="dv">1</span>)</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>src_bad <span class="ot">&lt;-</span> <span class="fu">sub</span>(target, <span class="st">"disc &lt;- discount_weights((0:n) / 12, p$disc_rate)"</span>, src, <span class="at">fixed =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>check_usage <span class="ot">&lt;-</span> <span class="cf">function</span>(lines) {</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  env <span class="ot">&lt;-</span> <span class="fu">new.env</span>(<span class="at">parent =</span> <span class="fu">baseenv</span>())                 <span class="co"># sees base R, not the workspace</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">eval</span>(<span class="fu">parse</span>(<span class="at">text =</span> lines), <span class="at">envir =</span> env)</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">capture.output</span>(codetools<span class="sc">::</span><span class="fu">checkUsageEnv</span>(env))</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a><span class="fu">check_usage</span>(src)        <span class="co"># the real model: no complaints</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>character(0)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">check_usage</span>(src_bad)    <span class="co"># the hidden dependency is reported</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "summarise_regimen: no visible global function definition for 'discount_weights'"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">length</span>(<span class="fu">check_usage</span>(src)) <span class="sc">==</span> <span class="dv">0</span>, <span class="fu">any</span>(<span class="fu">grepl</span>(<span class="st">"discount_weights"</span>, <span class="fu">check_usage</span>(src_bad))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>codetools::checkUsageEnv()</code> kiểm tra mỗi hàm so với những gì nhìn thấy được từ môi trường của nó. Đặt mã vào một môi trường chỉ thấy base R, ta có đúng thông báo “no visible global function definition” mà <code>R CMD check</code> sẽ in ra. Đây là phụ thuộc ẩn của Bài 1, được phát hiện tự động.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="tài-liệu-tham-khảo" class="level2">
+<h2 class="anchored" data-anchor-id="tài-liệu-tham-khảo">Tài liệu tham khảo</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-byt2024qd3220" class="csl-entry" role="listitem">
+Bộ Y tế. 2024. <span>“Quyết định số 3220/<span>QĐ-BYT</span> ngày 01/11/2024 về giá dịch vụ khám bệnh, chữa bệnh áp dụng tại Bệnh viện Bạch Mai”</span>. 1 Tháng Mười-Một 2024. <a href="https://apicms.bachmai.gov.vn/documents/37204/1543632/8_Nov_2024_022948_GMTupload_00004592.pdf/b3ab6717-2151-db08-9913-3cfbfd7e0738">https://apicms.bachmai.gov.vn/documents/37204/1543632/8_Nov_2024_022948_GMTupload_00004592.pdf/b3ab6717-2151-db08-9913-3cfbfd7e0738</a>.
+</div>
+<div id="ref-marwick2018packaging" class="csl-entry" role="listitem">
+Marwick, Ben, Carl Boettiger, và Lincoln Mullen. 2018. <span>“Packaging data analytical work reproducibly using <span>R</span> (and friends)”</span>. <em>The American Statistician</em> 72 (1): 80–88. <a href="https://doi.org/10.1080/00031305.2017.1375986">https://doi.org/10.1080/00031305.2017.1375986</a>.
+</div>
+<div id="ref-nhadautu2025pho" class="csl-entry" role="listitem">
+Nhadautu.vn. 2025. <span>“Tô phở 30.000 đồng dần biến mất, hàng ăn lập mặt bằng giá mới”</span>. 28 Tháng Tám 2025. <a href="https://nhadautu.vn/to-pho-30000-dong-dan-bien-mat-hang-an-lap-mat-bang-gia-moi-d98663.html">https://nhadautu.vn/to-pho-30000-dong-dan-bien-mat-hang-an-lap-mat-bang-gia-moi-d98663.html</a>.
+</div>
+<div id="ref-prestonwerner2013semver" class="csl-entry" role="listitem">
+Preston-Werner, Tom. 2013. <span>“Semantic Versioning 2.0.0”</span>. <a href="https://semver.org/spec/v2.0.0.html">https://semver.org/spec/v2.0.0.html</a>.
+</div>
+<div id="ref-rcore2026writing" class="csl-entry" role="listitem">
+R Core Team. 2026. <em>Writing <span>R</span> Extensions</em>. <a href="https://cran.r-project.org/doc/manuals/r-release/R-exts.html">https://cran.r-project.org/doc/manuals/r-release/R-exts.html</a>.
+</div>
+<div id="ref-wickham2023rpackages" class="csl-entry" role="listitem">
+Wickham, Hadley, và Jennifer Bryan. 2023. <em>R Packages: Organize, Test, Document, and Share Your Code</em>. 2nd ab. O’Reilly Media. <a href="https://r-pkgs.org/">https://r-pkgs.org/</a>.
+</div>
+<div id="ref-wickham2025roxygen2" class="csl-entry" role="listitem">
+Wickham, Hadley, Peter Danenberg, Gábor Csárdi, và Manuel Eugster. 2025. <em>roxygen2: In-Line Documentation for <span>R</span></em>. <a href="https://doi.org/10.32614/CRAN.package.roxygen2">https://doi.org/10.32614/CRAN.package.roxygen2</a>.
+</div>
+<div id="ref-who2026rrestimates" class="csl-entry" role="listitem">
+World Health Organization. 2026. <span>“Global tuberculosis programme: <span>MDR/RR-TB</span> burden estimates by country and year (variable e_inc_rr_num)”</span>. 2026. <a href="https://extranet.who.int/tme/generateCSV.asp?ds=mdr_rr_estimates">https://extranet.who.int/tme/generateCSV.asp?ds=mdr_rr_estimates</a>.
+</div>
+</div>
+<div class="video-script">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Kịch bản video (~12 phút)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Slide</th>
+<th>Lời giảng chính</th>
+<th>Hình/Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Vì sao đóng gói</td>
+<td>một dòng <code>library()</code> thay cho các <code>source()</code>; phiên bản của gói là phiên bản mô hình</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Cấu trúc tối thiểu</td>
+<td>DESCRIPTION, NAMESPACE, R/, man/, tests/, inst/</td>
+<td>sơ đồ Mermaid</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Dựng từ nguồn của module</td>
+<td>một nguồn sự thật; ảnh chụp bảng tham số đầy đủ</td>
+<td>chunk <code>l04-skeleton</code></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>DESCRIPTION</td>
+<td>phiên bản, giấy phép, Imports, Suggests</td>
+<td>chunk <code>l04-description</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>roxygen2</td>
+<td><code>#'</code> → trang trợ giúp và <code>export()</code></td>
+<td>chunk <code>l04-roxygen-block</code></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Công khai và nội bộ</td>
+<td>ít hàm công khai; nội bộ đổi tự do</td>
+<td>chunk <code>l04-document</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>R CMD check</td>
+<td>hàng chục kiểm tra, gồm testthat; “Status: OK”</td>
+<td>chunk <code>l04-build-check</code></td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Cài và dùng</td>
+<td>kết quả của gói = kết quả của module</td>
+<td>chunk <code>l04-install</code></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Phiên bản</td>
+<td>PATCH, MINOR, MAJOR; NEWS.md</td>
+<td>chunk <code>l04-ex1</code></td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>usethis/devtools</td>
+<td>cùng các bước, tự động hơn</td>
+<td>khối lệnh</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Chuyển tiếp</td>
+<td>gói cho người viết mã; ứng dụng cho người ra quyết định → Bài 5</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../kb/m11-software-engineering/l03-version-control.html" class="pagination-link" aria-label="Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="pagination-link" aria-label="Bài 5: Ứng dụng Shiny và mô hình &quot;sống&quot;">
+        <span class="nav-page-text"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

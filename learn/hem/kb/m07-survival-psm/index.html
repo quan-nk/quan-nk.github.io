@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="vi" xml:lang="vi"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>M07 · Phân tích sống còn cho mô hình quyết định – Mô hình Kinh tế Y tế với R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../kb/m07-survival-psm/l01-survival-basics.html" rel="next">
+<link href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-9e7f0c659d5fa2cace8548cb57964278.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c18d72663580ed8ca19ce2a2f99af51b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<meta name="mermaid-theme" content="neutral">
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m07-survival-psm/index.html">M07 · Phân tích sống còn cho mô hình quyết định</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Mô hình Kinh tế Y tế với R</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lời mở đầu</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m00-r-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M00 · R cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l01-reproducible-workflow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Quy trình làm việc tái lập với R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m01-ee-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M01 · Nền tảng đánh giá kinh tế và cây quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l01-evaluation-types.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại đánh giá kinh tế, quan điểm, khung thời gian và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l03-decision-rules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l05-decision-tree.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Xây cây quyết định từ đầu trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m02-cohort-markov/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M02 · Mô hình chuyển trạng thái đoàn hệ (Markov)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l01-state-transition.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao cần mô hình chuyển trạng thái</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l02-rates-probabilities.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tỷ suất, xác suất và độ dài chu kỳ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l03-cohort-trace.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vết đoàn hệ, giá trị gắn với trạng thái và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l04-time-dependence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Phụ thuộc thời gian: lão hóa, trạng thái đường hầm và mảng 3 chiều</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l05-results-verification.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị gắn với lần chuyển, đường biên hiệu quả và xác minh mô hình</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m03-uncertainty-voi/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M03 · Bất định, phân tích độ nhạy và giá trị thông tin</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l01-deterministic-sa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại bất định và phân tích độ nhạy tất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l02-distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Chọn phân phối cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l03-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích độ nhạy xác suất (PSA) trong R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l04-ceac-reporting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: CEAC, CEAF, tổn thất kỳ vọng và cách báo cáo bất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l05-voi.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị thông tin: EVPI, EVPPI và EVSI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m04-microsimulation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M04 · Mô phỏng vi mô (microsimulation)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l01-why-microsimulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Khi mô hình đoàn hệ không đủ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l02-microsim-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô phỏng vi mô bằng vòng lặp trong R cơ bản</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l03-vectorisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vectơ hóa theo cá thể và đo hiệu năng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l04-parallel-rcpp.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tính toán song song và Rcpp cho vòng lặp nóng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l05-mc-error-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bao nhiêu cá thể là đủ? Sai số Monte Carlo, PSA và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m05-dynamic-transmission/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M05 · Mô hình lây truyền động</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l01-static-vs-dynamic.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Mô hình tĩnh và mô hình lây truyền động</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l02-sir-seir-desolve.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình SIR và SEIR trong R với deSolve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m06-amr-economics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M06 · Kinh tế học kháng kháng sinh (AMR)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l01-amr-burden.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Kinh tế học kháng kháng sinh: ngoại ứng, gánh nặng và kịch bản phản thực</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l03-ward-transmission.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m07-survival-psm/index.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">M07 · Phân tích sống còn cho mô hình quyết định</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l03-extrapolation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l05-partitioned-survival.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m08-calibration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M08 · Hiệu chuẩn mô hình (calibration)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l01-why-calibrate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao phải hiệu chuẩn mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l02-search-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tìm kiếm tham số: ngẫu nhiên, siêu khối Latin và Nelder–Mead</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l03-bayes-sir.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hiệu chuẩn Bayes và thuật toán SIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l04-psa-validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đưa kết quả hiệu chuẩn vào PSA, thẩm định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m09-inputs-vietnam/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M09 · Dữ liệu đầu vào cho Việt Nam và LMIC</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l01-costing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ước tính chi phí cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l02-cost-adjustment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Điều chỉnh chi phí về một năm tham chiếu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l03-outcome-inputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Đầu vào về kết cục sức khỏe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l04-evidence-synthesis.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tổng hợp bằng chứng cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l05-decision-context.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bối cảnh ra quyết định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m10-policy-bia-equity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l04-communicating-hta.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Truyền đạt kết quả cho người ra quyết định và quy trình HTA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m11-software-engineering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l01-code-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Cấu trúc mã cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l02-testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Xác minh và kiểm thử mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l03-version-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l04-r-package.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/glossary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Trong bài</h2>
+   
+  <ul class="collapse">
+  <li><a href="#tổng-quan" id="toc-tổng-quan" class="nav-link active" data-scroll-target="#tổng-quan">Tổng quan</a></li>
+  <li><a href="#mục-tiêu-học-tập" id="toc-mục-tiêu-học-tập" class="nav-link" data-scroll-target="#mục-tiêu-học-tập">Mục tiêu học tập</a></li>
+  <li><a href="#kiến-thức-cần-có" id="toc-kiến-thức-cần-có" class="nav-link" data-scroll-target="#kiến-thức-cần-có">Kiến thức cần có</a></li>
+  <li><a href="#ví-dụ-xuyên-suốt" id="toc-ví-dụ-xuyên-suốt" class="nav-link" data-scroll-target="#ví-dụ-xuyên-suốt">Ví dụ xuyên suốt</a></li>
+  <li><a href="#bản-đồ-bài-học" id="toc-bản-đồ-bài-học" class="nav-link" data-scroll-target="#bản-đồ-bài-học">Bản đồ bài học</a></li>
+  <li><a href="#bảng-tham-số" id="toc-bảng-tham-số" class="nav-link" data-scroll-target="#bảng-tham-số">Bảng tham số</a></li>
+  <li><a href="#gói-r-sử-dụng" id="toc-gói-r-sử-dụng" class="nav-link" data-scroll-target="#gói-r-sử-dụng">Gói R sử dụng</a></li>
+  <li><a href="#tài-liệu-tham-khảo" id="toc-tài-liệu-tham-khảo" class="nav-link" data-scroll-target="#tài-liệu-tham-khảo">Tài liệu tham khảo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">M07 · Phân tích sống còn cho mô hình quyết định</h1>
+<p class="subtitle lead">Từ đường Kaplan–Meier tới mô hình sống còn phân vùng, với ví dụ lao/HIV</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-important callout-titled" title="Vì sao bạn nên quan tâm?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Vì sao bạn nên quan tâm?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Theo ước tính của WHO, mỗi năm Việt Nam có khoảng 5,200 người mắc lao có HIV và khoảng 2,000 người lao có HIV tử vong <span class="citation" data-cites="who2026tbestimates">(<a href="../m00-r-foundations/index.html#ref-who2026tbestimates" role="doc-biblioref">World Health Organization 2026c</a>)</span>. Gói theo dõi sát 6 tháng trong module này tốn khoảng 2,300,000 VNĐ mỗi người theo giá dịch vụ BHYT, gần 10 ngày lương tối thiểu vùng I <span class="citation" data-cites="byt2024qd3220 chinhphu2025nd293">(<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">Bộ Y tế 2024</a>; <a href="../m00-r-foundations/index.html#ref-chinhphu2025nd293" role="doc-biblioref">Chính phủ 2025</a>)</span>. BHYT hay Chương trình Chống lao Quốc gia có nên chi khoản này không phụ thuộc vào số năm sống trọn đời, trong khi một thử nghiệm thường chỉ theo dõi vài năm (ở đây tối đa 3 năm): phần còn lại là ngoại suy, chủ đề của module.</p>
+</div>
+</div>
+<section id="tổng-quan" class="level2">
+<h2 class="anchored" data-anchor-id="tổng-quan">Tổng quan</h2>
+<p>Phần lớn mô hình kinh tế y tế cho bệnh nặng lấy hiệu quả từ dữ liệu sống còn: đường Kaplan–Meier của một thử nghiệm, một tỷ số nguy cơ tức thời (HR), hay một bảng sống. Thử nghiệm chỉ theo dõi vài năm, trong khi mô hình cần dự báo trọn đời. Phần nằm ngoài thời gian theo dõi thường chiếm phần lớn số năm sống, nên cách ngoại suy (extrapolation) có thể quyết định kết luận chi phí-hiệu quả.</p>
+<p>Module này đi từ dữ liệu cấp cá thể (IPD) tới mô hình. Bạn sẽ ôn lại các khái niệm sống còn, khớp mô hình tham số bằng <code>flexsurv</code>, ngoại suy có tử vong nền, dùng spline và mô hình khỏi bệnh, tái tạo dữ liệu từ đường cong đã công bố, rồi dựng mô hình sống còn phân vùng (PSM) và so sánh với mô hình chuyển trạng thái. Dữ liệu là dữ liệu mô phỏng, nên ta biết giá trị thật và đo được mỗi phương pháp sai bao nhiêu, kể cả việc tách sai số mẫu khỏi sai số của phương pháp bằng cách lặp lại nhiều thử nghiệm.</p>
+</section>
+<section id="mục-tiêu-học-tập" class="level2">
+<h2 class="anchored" data-anchor-id="mục-tiêu-học-tập">Mục tiêu học tập</h2>
+<p>Sau module này, bạn có thể:</p>
+<ol type="1">
+<li>Ước lượng và đọc đường Kaplan–Meier, nguy cơ tức thời (hazard) và thời gian sống trung bình giới hạn (RMST) bằng R.</li>
+<li>Khớp và so sánh sáu phân phối sống còn tham số, chọn mô hình bằng tiêu chí thống kê, đồ thị và tính hợp lý lâm sàng.</li>
+<li>Ngoại suy sống còn có tử vong nền, bằng spline Royston–Parmar và mô hình khỏi bệnh.</li>
+<li>Tái tạo IPD từ đường Kaplan–Meier đã công bố và dùng HR đã công bố đúng cách.</li>
+<li>Dựng mô hình sống còn phân vùng ba trạng thái, tính chi phí và QALY, và nêu giới hạn cấu trúc của nó so với mô hình chuyển trạng thái.</li>
+</ol>
+</section>
+<section id="kiến-thức-cần-có" class="level2">
+<h2 class="anchored" data-anchor-id="kiến-thức-cần-có">Kiến thức cần có</h2>
+<ul>
+<li>M00: R cơ bản, data frame, <code>ggplot2</code>.</li>
+<li>M01: ICER, NMB, chiết khấu.</li>
+<li>M02 Bài 1–3: trạng thái, chu kỳ, đổi tỷ suất sang xác suất, vết đoàn hệ (Markov trace), hiệu chỉnh trong chu kỳ.</li>
+<li>Thống kê cơ bản: phân phối xác suất, hàm hợp lý (likelihood) ở mức khái niệm.</li>
+</ul>
+</section>
+<section id="ví-dụ-xuyên-suốt" class="level2">
+<h2 class="anchored" data-anchor-id="ví-dụ-xuyên-suốt">Ví dụ xuyên suốt</h2>
+<p>Người trưởng thành mắc lao có nhiễm HIV có nguy cơ tử vong cao. Trong đoàn hệ điều trị năm 2023 của Việt Nam, 177 trong số 2,310 người bệnh lao có HIV (7.7%) tử vong khi đang điều trị lao <span class="citation" data-cites="who2026tboutcomes">(<a href="../m00-r-foundations/index.html#ref-who2026tboutcomes" role="doc-biblioref">World Health Organization 2026b</a>)</span>. Con số này thấp hơn nhiều so với tỷ lệ 38% suy từ ước tính của WHO (2,000 tử vong trên 5,200 ca mắc). Hai nguồn đo hai thứ khác nhau: đoàn hệ chỉ gồm người đã được chẩn đoán và điều trị, tính trong thời gian điều trị lao, còn ước tính của WHO gồm cả người chưa được chẩn đoán và mọi ca tử vong trong năm. Ở An Giang giai đoạn 2001–2004, tỷ lệ tử vong khi điều trị lao là 26% <span class="citation" data-cites="thuy2007hivassociated">(<a href="../m00-r-foundations/index.html#ref-thuy2007hivassociated" role="doc-biblioref">Thuy và c.s. 2007</a>)</span>. Ở nhóm nặng nhất (CD4 ≤200), thử nghiệm CAMELIA tại Campuchia ghi nhận 27% người ở nhánh khởi động điều trị ARV (ART) muộn tử vong sau khoảng hai năm theo dõi, và khởi động ART sớm giảm nguy cơ tử vong với HR 0.62 (KTC 95%: 0.44–0.86) <span class="citation" data-cites="blanc2011earlier">(<a href="../m00-r-foundations/index.html#ref-blanc2011earlier" role="doc-biblioref">Blanc và c.s. 2011</a>)</span>.</p>
+<p>Ta dùng một <strong>thử nghiệm mô phỏng</strong> dựng theo hình mẫu CAMELIA: 300 người mỗi nhánh, tuổi trung bình 35, theo dõi tối đa 36 tháng. Dữ liệu do máy sinh ra, nhưng tỷ lệ tử vong của hai nhánh được neo vào hai nhánh của CAMELIA (Bài 1 kiểm tra), tử vong nền lấy từ bảng sống WHO 2023 của Việt Nam <span class="citation" data-cites="who2026lifetables">(<a href="../m00-r-foundations/index.html#ref-who2026lifetables" role="doc-biblioref">World Health Organization 2026a</a>)</span>, và chi phí tính từ bảng giá dịch vụ BHYT. Hai chiến lược là <strong>chăm sóc chuẩn</strong> (điều trị lao theo Chương trình Chống lao Quốc gia, điều trị ARV tại phòng khám ngoại trú) và <strong>chăm sóc tăng cường</strong> (khám hằng tuần, thêm xét nghiệm CD4 và tải lượng HIV trong 6 tháng đầu; một gói giả định, có cỡ hiệu quả đặt bằng cỡ hiệu quả của ART sớm trong CAMELIA: một giả định chuyển giao). Mỗi người có thể gặp một <strong>biến cố</strong> (thất bại hoặc tái phát lao, hay bệnh chỉ điểm AIDS mới) rồi tử vong, hoặc tử vong khi chưa có biến cố. Từ đó có hai kết cục: sống còn không biến cố (event-free survival, EFS) và sống còn toàn bộ (overall survival, OS).</p>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  EF["Sống, chưa biến cố&lt;br/&gt;(EF)"] --&gt;|biến cố| PP["Sống sau biến cố&lt;br/&gt;(PP)"]
+  EF --&gt;|tử vong| D["Tử vong&lt;br/&gt;(D)"]
+  PP --&gt;|tử vong| D
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>Mô hình chuyển trạng thái (STM) ước lượng từng mũi tên. Mô hình sống còn phân vùng (PSM) không dùng mũi tên: tỷ lệ ở EF lấy thẳng từ đường EFS, tỷ lệ còn sống từ đường OS, phần chênh lệch là PP (Bài 5).</p>
+</section>
+<section id="bản-đồ-bài-học" class="level2">
+<h2 class="anchored" data-anchor-id="bản-đồ-bài-học">Bản đồ bài học</h2>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Bài</th>
+<th>Tiêu đề</th>
+<th>Nội dung chính</th>
+<th>Mã</th>
+<th>Video</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><a href="../../kb/m07-survival-psm/l01-survival-basics.html">Ôn tập sống còn cho người làm mô hình</a></td>
+<td>KM tự viết, kiểm duyệt, nguy cơ tức thời, RMST, mô hình cần gì</td>
+<td><code>code/l01-survival-basics.R</code></td>
+<td>~12 phút</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><a href="../../kb/m07-survival-psm/l02-parametric-models.html">Mô hình tham số với flexsurv</a></td>
+<td>Sáu phân phối, AIC/BIC, đồ thị nguy cơ, ngoại suy khác nhau</td>
+<td><code>code/l02-parametric-models.R</code></td>
+<td>~14 phút</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td><a href="../../kb/m07-survival-psm/l03-extrapolation.html">Ngoại suy</a></td>
+<td>Bảng sống Việt Nam và SMR, spline Royston–Parmar, mô hình khỏi bệnh, so với đường cong thật, sai số mẫu</td>
+<td><code>code/l03-extrapolation.R</code></td>
+<td>~15 phút</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td><a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html">Tái tạo IPD và dùng HR</a></td>
+<td>Nguyên lý thuật toán Guyot, kiểm tra tái tạo, áp HR đúng thứ tự, HR giảm dần, sai số chuẩn từ KTC</td>
+<td><code>code/l04-reconstruct-ipd.R</code></td>
+<td>~13 phút</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td><a href="../../kb/m07-survival-psm/l05-partitioned-survival.html">Mô hình sống còn phân vùng</a></td>
+<td>PSM ba trạng thái, chi phí-hiệu quả theo giá BHYT, so sánh với STM, khớp riêng hay chung, giới hạn cấu trúc</td>
+<td><code>code/l05-partitioned-survival.R</code></td>
+<td>~15 phút</td>
+</tr>
+</tbody>
+</table>
+<p>Mọi hàm nằm trong <code>code/model.R</code>. Mỗi tệp bài học chạy độc lập từ thư mục module: <code>Rscript code/l01-survival-basics.R</code>.</p>
+</section>
+<section id="bảng-tham-số" class="level2">
+<h2 class="anchored" data-anchor-id="bảng-tham-số">Bảng tham số</h2>
+<p>Ba tệp tham số tách “thế giới thật” của mô phỏng, đầu vào của mô hình quyết định và thiết lập của bài học. Trong thực tế bạn không bao giờ thấy tệp thứ nhất; ở đây nó cho phép đo sai số của từng phương pháp. Với các dòng có phân phối (beta, log-chuẩn), <code>dist_p1</code> và <code>dist_p2</code> là tham số tính bằng phương pháp moment, coi khoảng thấp-cao là KTC 95%: (α, β) cho beta, (meanlog, sdlog) cho log-chuẩn; M03 dùng chúng cho PSA. Cột ghi chú đầy đủ (cách suy ra từng giá trị, dấu “≈” cho số liệu công bố gần đúng) nằm trong các tệp CSV.</p>
+<p><strong>Thử nghiệm mô phỏng</strong> (<code>params/sim_truth.csv</code>). Thiết kế thử nghiệm và cơ chế ẩn là giá trị minh họa; tuổi, mất dấu theo dõi và SMR lấy từ số liệu công bố:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 63%">
+<col style="width: 4%">
+<col style="width: 7%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Tên</th>
+<th style="text-align: left;">Mô tả</th>
+<th style="text-align: left;">Giá trị</th>
+<th style="text-align: left;">Đơn vị</th>
+<th style="text-align: left;">Nguồn</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>n_per_arm</code></td>
+<td style="text-align: left;">Số người mỗi nhánh trong thử nghiệm mô phỏng</td>
+<td style="text-align: left;">300</td>
+<td style="text-align: left;">người</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>accrual_months</code></td>
+<td style="text-align: left;">Thời gian tuyển người bệnh</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;">tháng</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>study_months</code></td>
+<td style="text-align: left;">Thời điểm đóng cơ sở dữ liệu, tính từ khi bắt đầu tuyển</td>
+<td style="text-align: left;">36</td>
+<td style="text-align: left;">tháng</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ltfu_rate</code></td>
+<td style="text-align: left;">Tỷ suất mất dấu ngẫu nhiên (tạo kiểm duyệt)</td>
+<td style="text-align: left;">0.0018</td>
+<td style="text-align: left;">mỗi tháng</td>
+<td style="text-align: left;"><span class="citation" data-cites="blanc2011earlier">Blanc và c.s. (<a href="../m00-r-foundations/index.html#ref-blanc2011earlier" role="doc-biblioref">2011</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>age_mean</code></td>
+<td style="text-align: left;">Tuổi trung bình khi vào nghiên cứu</td>
+<td style="text-align: left;">35</td>
+<td style="text-align: left;">năm</td>
+<td style="text-align: left;"><span class="citation" data-cites="blanc2011earlier">Blanc và c.s. (<a href="../m00-r-foundations/index.html#ref-blanc2011earlier" role="doc-biblioref">2011</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>age_sd</code></td>
+<td style="text-align: left;">Độ lệch chuẩn của tuổi khi vào nghiên cứu</td>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">năm</td>
+<td style="text-align: left;"><span class="citation" data-cites="tran2012quality">Tran, Ohinmaa, và Nguyen (<a href="../m00-r-foundations/index.html#ref-tran2012quality" role="doc-biblioref">2012</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>age_min</code></td>
+<td style="text-align: left;">Tuổi nhỏ nhất được tuyển</td>
+<td style="text-align: left;">18</td>
+<td style="text-align: left;">năm</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>age_max</code></td>
+<td style="text-align: left;">Tuổi lớn nhất được tuyển</td>
+<td style="text-align: left;">75</td>
+<td style="text-align: left;">năm</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>frac_highrisk</code></td>
+<td style="text-align: left;">Tỷ lệ người bệnh thuộc nhóm nguy cơ tử vong sớm cao (chăm sóc chuẩn)</td>
+<td style="text-align: left;">0.28</td>
+<td style="text-align: left;">tỷ lệ</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>p_death12_hr</code></td>
+<td style="text-align: left;">Xác suất tử vong do lao/HIV trong 12 tháng ở nhóm nguy cơ cao (nếu không có rủi ro cạnh tranh)</td>
+<td style="text-align: left;">0.75</td>
+<td style="text-align: left;">xác suất</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>shape_death</code></td>
+<td style="text-align: left;">Tham số hình dạng Weibull của tử vong do lao/HIV (nhóm nguy cơ cao)</td>
+<td style="text-align: left;">0.6</td>
+<td style="text-align: left;">không đơn vị</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>p_prog12</code></td>
+<td style="text-align: left;">Xác suất gặp biến cố (thất bại/tái phát lao hoặc bệnh chỉ điểm AIDS mới) trong 12 tháng, chăm sóc chuẩn</td>
+<td style="text-align: left;">0.06</td>
+<td style="text-align: left;">xác suất</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>shape_prog</code></td>
+<td style="text-align: left;">Tham số hình dạng Weibull của thời gian tới biến cố</td>
+<td style="text-align: left;">0.4</td>
+<td style="text-align: left;">không đơn vị</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>rate_post</code></td>
+<td style="text-align: left;">Tỷ suất tử vong do bệnh sau biến cố</td>
+<td style="text-align: left;">0.03</td>
+<td style="text-align: left;">mỗi tháng</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>rr_highrisk_enh</code></td>
+<td style="text-align: left;">Tỷ số tỷ lệ người thuộc nhóm nguy cơ cao, chăm sóc tăng cường so với chuẩn</td>
+<td style="text-align: left;">0.6</td>
+<td style="text-align: left;">tỷ số</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>hr_prog_enh</code></td>
+<td style="text-align: left;">HR của biến cố, chăm sóc tăng cường so với chuẩn</td>
+<td style="text-align: left;">0.8</td>
+<td style="text-align: left;">tỷ số</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>smr_true</code></td>
+<td style="text-align: left;">Tỷ số tử vong chuẩn hóa (SMR) thật của tử vong nền so với dân số chung</td>
+<td style="text-align: left;">2.2</td>
+<td style="text-align: left;">tỷ số</td>
+<td style="text-align: left;"><span class="citation" data-cites="bijker2020survival">Bijker và c.s. (<a href="../m00-r-foundations/index.html#ref-bijker2020survival" role="doc-biblioref">2020</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>n_truth</code></td>
+<td style="text-align: left;">Số người mỗi nhánh dùng để tính đường cong thật (không kiểm duyệt)</td>
+<td style="text-align: left;">100,000</td>
+<td style="text-align: left;">người</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Đầu vào mô hình quyết định</strong> (<code>params/model_inputs.csv</code>). Các dòng “giá trị minh họa” phần lớn là lượng chăm sóc (số lượt khám, số ngày nằm viện) của một gói giả định:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 54%">
+<col style="width: 5%">
+<col style="width: 10%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Tên</th>
+<th style="text-align: left;">Mô tả</th>
+<th style="text-align: left;">Giá trị</th>
+<th style="text-align: left;">Đơn vị</th>
+<th style="text-align: left;">Nguồn</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>age_cohort</code></td>
+<td style="text-align: left;">Tuổi khởi đầu của đoàn hệ trong mô hình quyết định</td>
+<td style="text-align: left;">35</td>
+<td style="text-align: left;">năm</td>
+<td style="text-align: left;"><span class="citation" data-cites="blanc2011earlier">Blanc và c.s. (<a href="../m00-r-foundations/index.html#ref-blanc2011earlier" role="doc-biblioref">2011</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>horizon_years</code></td>
+<td style="text-align: left;">Khung thời gian (gần trọn đời)</td>
+<td style="text-align: left;">60</td>
+<td style="text-align: left;">năm</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>smr_bg</code></td>
+<td style="text-align: left;">SMR của tử vong nền dài hạn ở người điều trị ARV, so với dân số chung</td>
+<td style="text-align: left;">2.2</td>
+<td style="text-align: left;">tỷ số</td>
+<td style="text-align: left;"><span class="citation" data-cites="bijker2020survival">Bijker và c.s. (<a href="../m00-r-foundations/index.html#ref-bijker2020survival" role="doc-biblioref">2020</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>mort_lt_art</code></td>
+<td style="text-align: left;">Tỷ suất tử vong ở người đã điều trị ARV trên 5 năm, đoàn hệ châu Á</td>
+<td style="text-align: left;">0.0056</td>
+<td style="text-align: left;">mỗi năm</td>
+<td style="text-align: left;"><span class="citation" data-cites="bijker2020survival">Bijker và c.s. (<a href="../m00-r-foundations/index.html#ref-bijker2020survival" role="doc-biblioref">2020</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>smr_ref_years</code></td>
+<td style="text-align: left;">Số năm sau khi bắt đầu điều trị dùng làm tuổi tham chiếu khi tính SMR</td>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">năm</td>
+<td style="text-align: left;"><span class="citation" data-cites="bijker2020survival">Bijker và c.s. (<a href="../m00-r-foundations/index.html#ref-bijker2020survival" role="doc-biblioref">2020</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>tb_months</code></td>
+<td style="text-align: left;">Thời gian điều trị lao chuẩn</td>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">tháng</td>
+<td style="text-align: left;"><span class="citation" data-cites="blanc2011earlier">Blanc và c.s. (<a href="../m00-r-foundations/index.html#ref-blanc2011earlier" role="doc-biblioref">2011</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>tb_ds_course_usd</code></td>
+<td style="text-align: left;">Giá thuốc phác đồ lao nhạy cảm 6 tháng (6HRZE) cho một người lớn</td>
+<td style="text-align: left;">48</td>
+<td style="text-align: left;">USD/đợt điều trị</td>
+<td style="text-align: left;"><span class="citation" data-cites="mcconnell2025tbcheat">McConnell (<a href="../m00-r-foundations/index.html#ref-mcconnell2025tbcheat" role="doc-biblioref">2025</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>tb_visits_month</code></td>
+<td style="text-align: left;">Số lượt khám, lĩnh thuốc mỗi tháng khi điều trị lao</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">lượt/tháng</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>tb_smears_course</code></td>
+<td style="text-align: left;">Số lần soi đờm theo dõi trong một đợt điều trị lao</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">lần/đợt</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>tb_lft_course</code></td>
+<td style="text-align: left;">Số lần xét nghiệm chức năng gan - thận trong một đợt điều trị lao</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">lần/đợt</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>tb_xray_course</code></td>
+<td style="text-align: left;">Số lần chụp X-quang ngực trong một đợt điều trị lao</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">lần/đợt</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>ef_visits_year</code></td>
+<td style="text-align: left;">Số lượt khám, lĩnh thuốc ARV mỗi năm khi ổn định</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">lượt/năm</td>
+<td style="text-align: left;"><span class="citation" data-cites="vaac2022cv235">Cục Phòng, chống HIV/AIDS (Bộ Y tế) (<a href="../m00-r-foundations/index.html#ref-vaac2022cv235" role="doc-biblioref">2022</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>vl_tests_year</code></td>
+<td style="text-align: left;">Số xét nghiệm tải lượng HIV mỗi năm khi ổn định</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">lần/năm</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>enh_months</code></td>
+<td style="text-align: left;">Thời gian áp dụng gói chăm sóc tăng cường</td>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;">tháng</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>enh_visits_month</code></td>
+<td style="text-align: left;">Số lượt khám thêm mỗi tháng trong gói chăm sóc tăng cường</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">lượt/tháng</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>pp_bed_days_month</code></td>
+<td style="text-align: left;">Số ngày nằm viện trung bình mỗi tháng sau biến cố</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">ngày/tháng</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>death_ward_days</code></td>
+<td style="text-align: left;">Số ngày nằm khoa Truyền nhiễm trước khi tử vong</td>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">ngày</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>death_icu_days</code></td>
+<td style="text-align: left;">Số ngày nằm hồi sức tích cực trước khi tử vong</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">ngày</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>u_ef</code></td>
+<td style="text-align: left;">Thỏa dụng khi sống chưa có biến cố</td>
+<td style="text-align: left;">0.65</td>
+<td style="text-align: left;">thỏa dụng</td>
+<td style="text-align: left;"><span class="citation" data-cites="tran2012quality">Tran, Ohinmaa, và Nguyen (<a href="../m00-r-foundations/index.html#ref-tran2012quality" role="doc-biblioref">2012</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>dec_pp</code></td>
+<td style="text-align: left;">Mức giảm thỏa dụng sau biến cố</td>
+<td style="text-align: left;">0.07</td>
+<td style="text-align: left;">thỏa dụng</td>
+<td style="text-align: left;"><span class="citation" data-cites="tran2012quality">Tran, Ohinmaa, và Nguyen (<a href="../m00-r-foundations/index.html#ref-tran2012quality" role="doc-biblioref">2012</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>hr_camelia</code></td>
+<td style="text-align: left;">HR tử vong, khởi động ART sớm (2 tuần) so với muộn (8 tuần), CAMELIA</td>
+<td style="text-align: left;">0.62</td>
+<td style="text-align: left;">tỷ số</td>
+<td style="text-align: left;"><span class="citation" data-cites="blanc2011earlier">Blanc và c.s. (<a href="../m00-r-foundations/index.html#ref-blanc2011earlier" role="doc-biblioref">2011</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>p_camelia</code></td>
+<td style="text-align: left;">Giá trị p của so sánh sống còn, CAMELIA</td>
+<td style="text-align: left;">0.006</td>
+<td style="text-align: left;">xác suất</td>
+<td style="text-align: left;"><span class="citation" data-cites="blanc2011earlier">Blanc và c.s. (<a href="../m00-r-foundations/index.html#ref-blanc2011earlier" role="doc-biblioref">2011</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>deaths_camelia_late</code></td>
+<td style="text-align: left;">Số tử vong ở nhánh ART muộn, CAMELIA</td>
+<td style="text-align: left;">90</td>
+<td style="text-align: left;">người</td>
+<td style="text-align: left;"><span class="citation" data-cites="blanc2011earlier">Blanc và c.s. (<a href="../m00-r-foundations/index.html#ref-blanc2011earlier" role="doc-biblioref">2011</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>n_camelia_late</code></td>
+<td style="text-align: left;">Số người ở nhánh ART muộn, CAMELIA</td>
+<td style="text-align: left;">329</td>
+<td style="text-align: left;">người</td>
+<td style="text-align: left;"><span class="citation" data-cites="blanc2011earlier">Blanc và c.s. (<a href="../m00-r-foundations/index.html#ref-blanc2011earlier" role="doc-biblioref">2011</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>deaths_camelia_early</code></td>
+<td style="text-align: left;">Số tử vong ở nhánh ART sớm, CAMELIA</td>
+<td style="text-align: left;">59</td>
+<td style="text-align: left;">người</td>
+<td style="text-align: left;"><span class="citation" data-cites="blanc2011earlier">Blanc và c.s. (<a href="../m00-r-foundations/index.html#ref-blanc2011earlier" role="doc-biblioref">2011</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>n_camelia_early</code></td>
+<td style="text-align: left;">Số người ở nhánh ART sớm, CAMELIA</td>
+<td style="text-align: left;">332</td>
+<td style="text-align: left;">người</td>
+<td style="text-align: left;"><span class="citation" data-cites="blanc2011earlier">Blanc và c.s. (<a href="../m00-r-foundations/index.html#ref-blanc2011earlier" role="doc-biblioref">2011</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>fu_camelia_months</code></td>
+<td style="text-align: left;">Thời gian theo dõi trung vị của CAMELIA</td>
+<td style="text-align: left;">25</td>
+<td style="text-align: left;">tháng</td>
+<td style="text-align: left;"><span class="citation" data-cites="blanc2011earlier">Blanc và c.s. (<a href="../m00-r-foundations/index.html#ref-blanc2011earlier" role="doc-biblioref">2011</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>deaths_angiang</code></td>
+<td style="text-align: left;">Số người tử vong trong khi điều trị lao, người bệnh lao/HIV An Giang 2001-2004</td>
+<td style="text-align: left;">167</td>
+<td style="text-align: left;">người</td>
+<td style="text-align: left;"><span class="citation" data-cites="thuy2007hivassociated">Thuy và c.s. (<a href="../m00-r-foundations/index.html#ref-thuy2007hivassociated" role="doc-biblioref">2007</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>n_angiang</code></td>
+<td style="text-align: left;">Số người bệnh lao có HIV, An Giang 2001-2004</td>
+<td style="text-align: left;">637</td>
+<td style="text-align: left;">người</td>
+<td style="text-align: left;"><span class="citation" data-cites="thuy2007hivassociated">Thuy và c.s. (<a href="../m00-r-foundations/index.html#ref-thuy2007hivassociated" role="doc-biblioref">2007</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>vn_tbhiv_cohort_2023</code></td>
+<td style="text-align: left;">Số người bệnh lao có HIV được đánh giá kết quả điều trị, Việt Nam, đoàn hệ 2023</td>
+<td style="text-align: left;">2,310</td>
+<td style="text-align: left;">người</td>
+<td style="text-align: left;"><span class="citation" data-cites="who2026tboutcomes">World Health Organization (<a href="../m00-r-foundations/index.html#ref-who2026tboutcomes" role="doc-biblioref">2026b</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>vn_tbhiv_died_2023</code></td>
+<td style="text-align: left;">Số người bệnh lao có HIV tử vong trong khi điều trị, Việt Nam, đoàn hệ 2023</td>
+<td style="text-align: left;">177</td>
+<td style="text-align: left;">người</td>
+<td style="text-align: left;"><span class="citation" data-cites="who2026tboutcomes">World Health Organization (<a href="../m00-r-foundations/index.html#ref-who2026tboutcomes" role="doc-biblioref">2026b</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>vn_tbhiv_lost_2023</code></td>
+<td style="text-align: left;">Số người bệnh lao có HIV bỏ điều trị, Việt Nam, đoàn hệ 2023</td>
+<td style="text-align: left;">117</td>
+<td style="text-align: left;">người</td>
+<td style="text-align: left;"><span class="citation" data-cites="who2026tboutcomes">World Health Organization (<a href="../m00-r-foundations/index.html#ref-who2026tboutcomes" role="doc-biblioref">2026b</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>vn_tbhiv_inc_2024</code></td>
+<td style="text-align: left;">Số người mắc lao có HIV ước tính, Việt Nam, 2024</td>
+<td style="text-align: left;">5,200</td>
+<td style="text-align: left;">người/năm</td>
+<td style="text-align: left;"><span class="citation" data-cites="who2026tbestimates">World Health Organization (<a href="../m00-r-foundations/index.html#ref-who2026tbestimates" role="doc-biblioref">2026c</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>vn_tbhiv_deaths_2024</code></td>
+<td style="text-align: left;">Số người lao có HIV tử vong ước tính, Việt Nam, 2024</td>
+<td style="text-align: left;">2,000</td>
+<td style="text-align: left;">người/năm</td>
+<td style="text-align: left;"><span class="citation" data-cites="who2026tbestimates">World Health Organization (<a href="../m00-r-foundations/index.html#ref-who2026tbestimates" role="doc-biblioref">2026c</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>le35_lmic</code></td>
+<td style="text-align: left;">Số năm sống thêm kỳ vọng khi bắt đầu ART ở tuổi 35, các nước thu nhập thấp-trung bình</td>
+<td style="text-align: left;">25.6</td>
+<td style="text-align: left;">năm</td>
+<td style="text-align: left;"><span class="citation" data-cites="teeraananchai2017life">Teeraananchai và c.s. (<a href="../m00-r-foundations/index.html#ref-teeraananchai2017life" role="doc-biblioref">2017</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>u_ef_cd4low</code></td>
+<td style="text-align: left;">Thỏa dụng khi sống chưa biến cố, nhóm CD4 ≤200 (kịch bản)</td>
+<td style="text-align: left;">0.58</td>
+<td style="text-align: left;">thỏa dụng</td>
+<td style="text-align: left;"><span class="citation" data-cites="tran2012quality">Tran, Ohinmaa, và Nguyen (<a href="../m00-r-foundations/index.html#ref-tran2012quality" role="doc-biblioref">2012</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>hr_wane_start</code></td>
+<td style="text-align: left;">Kịch bản HR giảm dần: HR giữ nguyên tới năm</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">năm</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>hr_wane_end</code></td>
+<td style="text-align: left;">Kịch bản HR giảm dần: HR về 1 vào năm</td>
+<td style="text-align: left;">10</td>
+<td style="text-align: left;">năm</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Giá trị dùng chung của khóa học</strong> (<code>kb/_shared</code>, không chép vào module). Tỷ lệ chiết khấu, ngưỡng chi phí-hiệu quả và tỷ giá lấy từ <code>vn_context()</code>; đơn giá từ <code>vn_prices()</code>:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 47%">
+<col style="width: 6%">
+<col style="width: 18%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Tên</th>
+<th style="text-align: left;">Mô tả</th>
+<th style="text-align: left;">Giá trị</th>
+<th style="text-align: left;">Đơn vị</th>
+<th style="text-align: left;">Nguồn</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>fx_vnd_per_usd</code></td>
+<td style="text-align: left;">Tỷ giá chính thức bình quân năm 2025</td>
+<td style="text-align: left;">24,970</td>
+<td style="text-align: left;">VNĐ/USD</td>
+<td style="text-align: left;"><span class="citation" data-cites="gso2026gdp2025">Cục Thống kê (Bộ Tài chính) (<a href="../m00-r-foundations/index.html#ref-gso2026gdp2025" role="doc-biblioref">2026</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>wtp</code></td>
+<td style="text-align: left;">Ngưỡng chi phí-hiệu quả cơ sở = 1 × GDP bình quân đầu người</td>
+<td style="text-align: left;">125,500,000</td>
+<td style="text-align: left;">VNĐ/QALY hoặc VNĐ/DALY tránh được</td>
+<td style="text-align: left;"><span class="citation" data-cites="ong2026costutility">Ong và c.s. (<a href="../m00-r-foundations/index.html#ref-ong2026costutility" role="doc-biblioref">2026</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>disc_rate</code></td>
+<td style="text-align: left;">Tỷ lệ chiết khấu hằng năm cho chi phí và hiệu quả</td>
+<td style="text-align: left;">0.03</td>
+<td style="text-align: left;">mỗi năm</td>
+<td style="text-align: left;"><span class="citation" data-cites="ong2026costutility">Ong và c.s. (<a href="../m00-r-foundations/index.html#ref-ong2026costutility" role="doc-biblioref">2026</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>visit_outpatient</code></td>
+<td style="text-align: left;">Giá khám bệnh BHYT tại bệnh viện hạng đặc biệt (một lượt khám)</td>
+<td style="text-align: left;">50,600</td>
+<td style="text-align: left;">VNĐ/lượt khám</td>
+<td style="text-align: left;"><span class="citation" data-cites="byt2024qd3220">Bộ Y tế (<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">2024</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>bed_day_ward_infectious</code></td>
+<td style="text-align: left;">Giá ngày giường khoa Truyền nhiễm (nội khoa loại 1) tại bệnh viện hạng đặc biệt</td>
+<td style="text-align: left;">327,100</td>
+<td style="text-align: left;">VNĐ/ngày giường</td>
+<td style="text-align: left;"><span class="citation" data-cites="byt2024qd3220">Bộ Y tế (<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">2024</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>bed_day_icu</code></td>
+<td style="text-align: left;">Giá ngày điều trị hồi sức tích cực (ICU) tại bệnh viện hạng đặc biệt</td>
+<td style="text-align: left;">1,017,300</td>
+<td style="text-align: left;">VNĐ/ngày giường</td>
+<td style="text-align: left;"><span class="citation" data-cites="byt2024qd3220">Bộ Y tế (<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">2024</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>test_afb_smear</code></td>
+<td style="text-align: left;">Giá xét nghiệm soi đờm tìm AFB (nhuộm Ziehl-Neelsen)</td>
+<td style="text-align: left;">74,200</td>
+<td style="text-align: left;">VNĐ/xét nghiệm</td>
+<td style="text-align: left;"><span class="citation" data-cites="byt2024qd3220">Bộ Y tế (<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">2024</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>test_liver_renal_panel</code></td>
+<td style="text-align: left;">Giá bộ chức năng gan - thận (AST, ALT, creatinin, urê)</td>
+<td style="text-align: left;">89,600</td>
+<td style="text-align: left;">VNĐ/bộ xét nghiệm</td>
+<td style="text-align: left;"><span class="citation" data-cites="byt2024qd3220">Bộ Y tế (<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">2024</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>test_chest_xray</code></td>
+<td style="text-align: left;">Giá chụp X-quang ngực thẳng (một tư thế)</td>
+<td style="text-align: left;">73,300</td>
+<td style="text-align: left;">VNĐ/lần chụp</td>
+<td style="text-align: left;"><span class="citation" data-cites="byt2024qd3220">Bộ Y tế (<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">2024</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>test_hiv_viral_load</code></td>
+<td style="text-align: left;">Giá xét nghiệm tải lượng HIV (hệ thống tự động)</td>
+<td style="text-align: left;">979,700</td>
+<td style="text-align: left;">VNĐ/xét nghiệm</td>
+<td style="text-align: left;"><span class="citation" data-cites="byt2024qd3220">Bộ Y tế (<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">2024</a>)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>test_cd4</code></td>
+<td style="text-align: left;">Giá đếm số lượng CD3-CD4-CD8 (CD4)</td>
+<td style="text-align: left;">421,200</td>
+<td style="text-align: left;">VNĐ/xét nghiệm</td>
+<td style="text-align: left;"><span class="citation" data-cites="byt2024qd3220">Bộ Y tế (<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">2024</a>)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>art_tld_year</code></td>
+<td style="text-align: left;">Giá thuốc ARV TLD (tenofovir/lamivudin/dolutegravir) cho một người bệnh trong một năm</td>
+<td style="text-align: left;">819,016</td>
+<td style="text-align: left;">VNĐ/người bệnh-năm</td>
+<td style="text-align: left;"><span class="citation" data-cites="globalfund2026ppmarv">The Global Fund (<a href="../m00-r-foundations/index.html#ref-globalfund2026ppmarv" role="doc-biblioref">2026</a>)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Chi phí đơn vị của mô hình</strong> (VNĐ, năm giá 2025), do <code>build_inputs()</code> tính từ đơn giá dùng chung nhân với lượng chăm sóc trong <code>model_inputs.csv</code>; giá thuốc lao (US$48 mỗi đợt <span class="citation" data-cites="mcconnell2025tbcheat">(<a href="../m00-r-foundations/index.html#ref-mcconnell2025tbcheat" role="doc-biblioref">McConnell 2025</a>)</span>) đổi sang VNĐ bằng tỷ giá 24,970 VNĐ/USD:</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Hạng mục</th>
+<th style="text-align: left;">Mô tả</th>
+<th style="text-align: left;">VNĐ</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>c_ef_month</code></td>
+<td style="text-align: left;">Chăm sóc HIV mỗi tháng, chưa biến cố</td>
+<td style="text-align: left;">166,760</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>c_tb_month</code></td>
+<td style="text-align: left;">Điều trị lao mỗi tháng (6 tháng đầu)</td>
+<td style="text-align: left;">329,543</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>c_enh_month</code></td>
+<td style="text-align: left;">Gói tăng cường mỗi tháng</td>
+<td style="text-align: left;">385,283</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>c_pp_month</code></td>
+<td style="text-align: left;">Chăm sóc mỗi tháng sau biến cố</td>
+<td style="text-align: left;">1,148,060</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>c_death</code></td>
+<td style="text-align: left;">Chăm sóc cuối đời (một lần)</td>
+<td style="text-align: left;">4,324,300</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p><strong>Thiết lập của bài học</strong> (<code>params/lesson_settings.csv</code>, giá trị minh họa; không phải tham số của mô hình quyết định):</p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 52%">
+<col style="width: 6%">
+<col style="width: 8%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Tên</th>
+<th style="text-align: left;">Mô tả</th>
+<th style="text-align: left;">Giá trị</th>
+<th style="text-align: left;">Đơn vị</th>
+<th style="text-align: left;">Nguồn</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>digit_sd_time</code></td>
+<td style="text-align: left;">Sai số đọc trục thời gian khi số hóa hình KM</td>
+<td style="text-align: left;">0.15</td>
+<td style="text-align: left;">tháng</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>digit_sd_surv</code></td>
+<td style="text-align: left;">Sai số đọc trục sống còn khi số hóa cẩn thận</td>
+<td style="text-align: left;">0.004</td>
+<td style="text-align: left;">tỷ lệ</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>digit_sd_surv_sloppy</code></td>
+<td style="text-align: left;">Sai số đọc trục sống còn khi số hóa cẩu thả</td>
+<td style="text-align: left;">0.02</td>
+<td style="text-align: left;">tỷ lệ</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>digit_offset</code></td>
+<td style="text-align: left;">Sai lệch hệ thống khi đọc trục sống còn (đọc thấp hơn thật)</td>
+<td style="text-align: left;">0.01</td>
+<td style="text-align: left;">tỷ lệ</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>risk_table_step</code></td>
+<td style="text-align: left;">Khoảng cách giữa các mốc của bảng số người còn nguy cơ</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">tháng</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>haz_band_months</code></td>
+<td style="text-align: left;">Độ rộng khoảng thời gian khi tính nguy cơ tức thời thô</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">tháng</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>rmst_tau</code></td>
+<td style="text-align: left;">Mốc τ của thời gian sống trung bình giới hạn (RMST) từ KM</td>
+<td style="text-align: left;">30</td>
+<td style="text-align: left;">tháng</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>extrap_years</code></td>
+<td style="text-align: left;">Độ dài đồ thị ngoại suy</td>
+<td style="text-align: left;">40</td>
+<td style="text-align: left;">năm</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>early_stop_months</code></td>
+<td style="text-align: left;">Thời điểm dừng thử nghiệm trong bài tập ngoại suy từ dữ liệu ngắn</td>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;">tháng</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>n_rep</code></td>
+<td style="text-align: left;">Số thử nghiệm mô phỏng lặp lại để đo sai số mẫu</td>
+<td style="text-align: left;">100</td>
+<td style="text-align: left;">thử nghiệm</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>p_toy_low</code></td>
+<td style="text-align: left;">Xác suất nền ví dụ 1 để minh họa cách áp HR</td>
+<td style="text-align: left;">0.02</td>
+<td style="text-align: left;">xác suất</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>p_toy_mid</code></td>
+<td style="text-align: left;">Xác suất nền ví dụ 2 để minh họa cách áp HR</td>
+<td style="text-align: left;">0.1</td>
+<td style="text-align: left;">xác suất</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>p_toy_high</code></td>
+<td style="text-align: left;">Xác suất nền ví dụ 3 để minh họa cách áp HR</td>
+<td style="text-align: left;">0.4</td>
+<td style="text-align: left;">xác suất</td>
+<td style="text-align: left;">giá trị minh họa</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Đơn giá dịch vụ là giá áp dụng tại một bệnh viện hạng đặc biệt (Bạch Mai), có thể cao hơn giá ở bệnh viện tuyến tỉnh; giá thuốc lao lấy từ bảng tóm tắt phác đồ của Treatment Action Group (bảng không nêu nguồn giá) và giá thuốc ARV từ bảng giá tham chiếu của Global Fund, vì ta chưa tìm được giá VNĐ công khai cho đúng các phác đồ này. Quan điểm phân tích là quan điểm hệ thống y tế (phần BHYT và các chương trình y tế chi trả), không gồm tiền người bệnh tự trả hay ngày công mất đi.</p>
+</section>
+<section id="gói-r-sử-dụng" class="level2">
+<h2 class="anchored" data-anchor-id="gói-r-sử-dụng">Gói R sử dụng</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Gói</th>
+<th>Dùng để</th>
+<th>Phiên bản khi viết</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>survival</code></td>
+<td><code>Surv()</code>, <code>survfit()</code>, <code>coxph()</code>, <code>cox.zph()</code></td>
+<td>3.8.6</td>
+</tr>
+<tr class="even">
+<td><code>flexsurv</code></td>
+<td>mô hình tham số và spline Royston–Parmar <span class="citation" data-cites="jackson2016flexsurv">(<a href="../m00-r-foundations/index.html#ref-jackson2016flexsurv" role="doc-biblioref">Jackson 2016</a>)</span></td>
+<td>2.3.2</td>
+</tr>
+<tr class="odd">
+<td><code>ggplot2</code></td>
+<td>hình</td>
+<td>4.0.2</td>
+</tr>
+</tbody>
+</table>
+<p>Mô hình khỏi bệnh, thuật toán tái tạo IPD, PSM và STM được viết bằng R cơ bản trong <code>code/model.R</code> để bạn đọc được từng bước.</p>
+</section>
+<section id="tài-liệu-tham-khảo" class="level2">
+<h2 class="anchored" data-anchor-id="tài-liệu-tham-khảo">Tài liệu tham khảo</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-bijker2020survival" class="csl-entry" role="listitem">
+Bijker, Rimke, Sasisopin Kiertiburanakul, Nagalingeswaran Kumarasamy, Sanjay Pujari, Ly P. Sun, Oon T. Ng, Man P. Lee, và c.s. 2020. <span>“Survival after long-term <span>ART</span> exposure: findings from an <span>Asian</span> patient population retained in care beyond 5 years on <span>ART</span>”</span>. <em>Antiviral Therapy</em> 25 (3): 131–42. <a href="https://doi.org/10.3851/IMP3358">https://doi.org/10.3851/IMP3358</a>.
+</div>
+<div id="ref-blanc2011earlier" class="csl-entry" role="listitem">
+Blanc, François-Xavier, Thim Sok, Didier Laureillard, Laurence Borand, Claire Rekacewicz, Eric Nerrienet, Yoann Madec, và c.s. 2011. <span>“Earlier versus later start of antiretroviral therapy in <span>HIV</span>-infected adults with tuberculosis”</span>. <em>New England Journal of Medicine</em> 365 (16): 1471–81. <a href="https://doi.org/10.1056/NEJMoa1013911">https://doi.org/10.1056/NEJMoa1013911</a>.
+</div>
+<div id="ref-byt2024qd3220" class="csl-entry" role="listitem">
+Bộ Y tế. 2024. <span>“Quyết định số 3220/<span>QĐ-BYT</span> ngày 01/11/2024 về giá dịch vụ khám bệnh, chữa bệnh áp dụng tại Bệnh viện Bạch Mai”</span>. 1 Tháng Mười-Một 2024. <a href="https://apicms.bachmai.gov.vn/documents/37204/1543632/8_Nov_2024_022948_GMTupload_00004592.pdf/b3ab6717-2151-db08-9913-3cfbfd7e0738">https://apicms.bachmai.gov.vn/documents/37204/1543632/8_Nov_2024_022948_GMTupload_00004592.pdf/b3ab6717-2151-db08-9913-3cfbfd7e0738</a>.
+</div>
+<div id="ref-chinhphu2025nd293" class="csl-entry" role="listitem">
+Chính phủ. 2025. <span>“Nghị định 293/2025/<span>NĐ-CP</span> quy định mức lương tối thiểu đối với người lao động làm việc theo hợp đồng lao động (hiệu lực từ 1/1/2026)”</span>. 2025. <a href="https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026">https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026</a>.
+</div>
+<div id="ref-vaac2022cv235" class="csl-entry" role="listitem">
+Cục Phòng, chống HIV/AIDS (Bộ Y tế). 2022. <span>“Công văn 235/<span>AIDS-ĐT</span> ngày 21/4/2022 về kê đơn, cấp thuốc <span>ARV</span> tối đa 90 ngày cho người nhiễm <span>HIV</span> điều trị thuốc <span>ARV</span> ổn định”</span>. 21 Tháng Tư 2022. <a href="https://luatvietnam.vn/y-te/cong-van-235-aids-dt-cuc-phong-chong-hiv-aids-220057-d6.html">https://luatvietnam.vn/y-te/cong-van-235-aids-dt-cuc-phong-chong-hiv-aids-220057-d6.html</a>.
+</div>
+<div id="ref-gso2026gdp2025" class="csl-entry" role="listitem">
+Cục Thống kê (Bộ Tài chính). 2026. <span>“Họp báo công bố tình hình kinh tế – xã hội quý <span>IV</span> và năm 2025”</span>. 5 Tháng Giêng 2026. <a href="https://www.nso.gov.vn/?p=59699">https://www.nso.gov.vn/?p=59699</a>.
+</div>
+<div id="ref-jackson2016flexsurv" class="csl-entry" role="listitem">
+Jackson, Christopher. 2016. <span>“flexsurv: a platform for parametric survival modeling in <span>R</span>”</span>. <em>Journal of Statistical Software</em> 70 (8): 1–33. <a href="https://doi.org/10.18637/jss.v070.i08">https://doi.org/10.18637/jss.v070.i08</a>.
+</div>
+<div id="ref-mcconnell2025tbcheat" class="csl-entry" role="listitem">
+McConnell, Erin. 2025. <span>“<span>TB</span> treatment regimen cheat sheet”</span>. Treatment Action Group. Tháng Ba 2025. <a href="https://www.treatmentactiongroup.org/wp-content/uploads/2025/03/TB_TX_regimen_cheat_sheet_2025_final.pdf">https://www.treatmentactiongroup.org/wp-content/uploads/2025/03/TB_TX_regimen_cheat_sheet_2025_final.pdf</a>.
+</div>
+<div id="ref-ong2026costutility" class="csl-entry" role="listitem">
+Ong, The Due, Anh Son Dao, Quoc Trung Ly, Thi Tuyet Mai Kieu, và Hong Minh Le. 2026. <span>“Cost-effectiveness of luseogliflozin for the management of type 2 diabetes mellitus in <span>Vietnam</span>: a <span>Markov</span> model analysis from the <span>Vietnam</span> social health insurance perspective”</span>. <em>Cost Effectiveness and Resource Allocation</em> 24 (1). <a href="https://doi.org/10.1186/s12962-026-00797-y">https://doi.org/10.1186/s12962-026-00797-y</a>.
+</div>
+<div id="ref-teeraananchai2017life" class="csl-entry" role="listitem">
+Teeraananchai, S., S. J. Kerr, J. Amin, K. Ruxrungtham, và M. G. Law. 2017. <span>“Life expectancy of <span>HIV</span>-positive people after starting combination antiretroviral therapy: a meta-analysis”</span>. <em>HIV Medicine</em> 18 (4): 256–66. <a href="https://doi.org/10.1111/hiv.12421">https://doi.org/10.1111/hiv.12421</a>.
+</div>
+<div id="ref-globalfund2026ppmarv" class="csl-entry" role="listitem">
+The Global Fund. 2026. <span>“Pooled Procurement Mechanism Reference Pricing: <span>ARVs</span> (Version <span>Q1</span> 2026)”</span>. Tháng Ba 2026. <a href="https://www.theglobalfund.org/media/3x0lhsks/ppm_arvreferencepricing_table_en.pdf">https://www.theglobalfund.org/media/3x0lhsks/ppm_arvreferencepricing_table_en.pdf</a>.
+</div>
+<div id="ref-thuy2007hivassociated" class="csl-entry" role="listitem">
+Thuy, Trinh Thanh, N. Sarita Shah, Mai Hoang Anh, Do Trong Nghia, Duong Thom, Truong Linh, Dinh Ngoc Sy, và c.s. 2007. <span>“<span>HIV</span>-associated <span>TB</span> in <span>An Giang</span> Province, <span>Vietnam</span>, 2001-2004: epidemiology and <span>TB</span> treatment outcomes”</span>. <em>PLoS ONE</em> 2 (6): e507. <a href="https://doi.org/10.1371/journal.pone.0000507">https://doi.org/10.1371/journal.pone.0000507</a>.
+</div>
+<div id="ref-tran2012quality" class="csl-entry" role="listitem">
+Tran, Bach Xuan, Arto Ohinmaa, và Long Thanh Nguyen. 2012. <span>“Quality of life profile and psychometric properties of the <span>EQ-5D-5L</span> in <span>HIV/AIDS</span> patients”</span>. <em>Health and Quality of Life Outcomes</em> 10: 132. <a href="https://doi.org/10.1186/1477-7525-10-132">https://doi.org/10.1186/1477-7525-10-132</a>.
+</div>
+<div id="ref-who2026lifetables" class="csl-entry" role="listitem">
+World Health Organization. 2026a. <span>“Global Health Observatory: life tables by country, <span>Viet Nam</span>, 2023 (indicators <span>LIFE_0000000029</span> nMx, <span>LIFE_0000000030</span> nqx, <span>LIFE_0000000035</span> ex)”</span>. 2026. <a href="https://ghoapi.azureedge.net/api/LIFE_0000000029">https://ghoapi.azureedge.net/api/LIFE_0000000029</a>.
+</div>
+<div id="ref-who2026tboutcomes" class="csl-entry" role="listitem">
+———. 2026b. <span>“Global tuberculosis data: treatment outcomes by country and year (CSV download, <span>Viet Nam</span>, 2023 cohort)”</span>. 2026. <a href="https://extranet.who.int/tme/generateCSV.asp?ds=outcomes">https://extranet.who.int/tme/generateCSV.asp?ds=outcomes</a>.
+</div>
+<div id="ref-who2026tbestimates" class="csl-entry" role="listitem">
+———. 2026c. <span>“Global tuberculosis data: <span>WHO</span> estimates of <span>TB</span> incidence and mortality by country (CSV download, <span>Viet Nam</span>, 2024)”</span>. 2026. <a href="https://extranet.who.int/tme/generateCSV.asp?ds=estimates">https://extranet.who.int/tme/generateCSV.asp?ds=estimates</a>.
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="pagination-link" aria-label="Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="pagination-link" aria-label="Bài 1: Ôn tập phân tích sống còn cho người làm mô hình">
+        <span class="nav-page-text"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
