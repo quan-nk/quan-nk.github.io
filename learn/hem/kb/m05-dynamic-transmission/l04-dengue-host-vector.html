@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="vi" xml:lang="vi"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue – Mô hình Kinh tế Y tế với R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" rel="next">
+<link href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-9e7f0c659d5fa2cace8548cb57964278.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c18d72663580ed8ca19ce2a2f99af51b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<meta name="mermaid-theme" content="neutral">
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m05-dynamic-transmission/index.html">M05 · Mô hình lây truyền động</a></li><li class="breadcrumb-item"><a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Mô hình Kinh tế Y tế với R</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lời mở đầu</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m00-r-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M00 · R cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l01-reproducible-workflow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Quy trình làm việc tái lập với R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m01-ee-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M01 · Nền tảng đánh giá kinh tế và cây quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l01-evaluation-types.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại đánh giá kinh tế, quan điểm, khung thời gian và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l03-decision-rules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l05-decision-tree.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Xây cây quyết định từ đầu trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m02-cohort-markov/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M02 · Mô hình chuyển trạng thái đoàn hệ (Markov)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l01-state-transition.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao cần mô hình chuyển trạng thái</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l02-rates-probabilities.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tỷ suất, xác suất và độ dài chu kỳ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l03-cohort-trace.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vết đoàn hệ, giá trị gắn với trạng thái và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l04-time-dependence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Phụ thuộc thời gian: lão hóa, trạng thái đường hầm và mảng 3 chiều</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l05-results-verification.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị gắn với lần chuyển, đường biên hiệu quả và xác minh mô hình</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m03-uncertainty-voi/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M03 · Bất định, phân tích độ nhạy và giá trị thông tin</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l01-deterministic-sa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại bất định và phân tích độ nhạy tất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l02-distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Chọn phân phối cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l03-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích độ nhạy xác suất (PSA) trong R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l04-ceac-reporting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: CEAC, CEAF, tổn thất kỳ vọng và cách báo cáo bất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l05-voi.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị thông tin: EVPI, EVPPI và EVSI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m04-microsimulation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M04 · Mô phỏng vi mô (microsimulation)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l01-why-microsimulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Khi mô hình đoàn hệ không đủ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l02-microsim-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô phỏng vi mô bằng vòng lặp trong R cơ bản</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l03-vectorisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vectơ hóa theo cá thể và đo hiệu năng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l04-parallel-rcpp.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tính toán song song và Rcpp cho vòng lặp nóng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l05-mc-error-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bao nhiêu cá thể là đủ? Sai số Monte Carlo, PSA và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m05-dynamic-transmission/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M05 · Mô hình lây truyền động</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l01-static-vs-dynamic.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Mô hình tĩnh và mô hình lây truyền động</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l02-sir-seir-desolve.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình SIR và SEIR trong R với deSolve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m06-amr-economics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M06 · Kinh tế học kháng kháng sinh (AMR)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l01-amr-burden.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Kinh tế học kháng kháng sinh: ngoại ứng, gánh nặng và kịch bản phản thực</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l03-ward-transmission.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m07-survival-psm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M07 · Phân tích sống còn cho mô hình quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l03-extrapolation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l05-partitioned-survival.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m08-calibration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M08 · Hiệu chuẩn mô hình (calibration)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l01-why-calibrate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao phải hiệu chuẩn mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l02-search-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tìm kiếm tham số: ngẫu nhiên, siêu khối Latin và Nelder–Mead</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l03-bayes-sir.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hiệu chuẩn Bayes và thuật toán SIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l04-psa-validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đưa kết quả hiệu chuẩn vào PSA, thẩm định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m09-inputs-vietnam/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M09 · Dữ liệu đầu vào cho Việt Nam và LMIC</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l01-costing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ước tính chi phí cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l02-cost-adjustment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Điều chỉnh chi phí về một năm tham chiếu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l03-outcome-inputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Đầu vào về kết cục sức khỏe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l04-evidence-synthesis.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tổng hợp bằng chứng cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l05-decision-context.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bối cảnh ra quyết định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m10-policy-bia-equity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l04-communicating-hta.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Truyền đạt kết quả cho người ra quyết định và quy trình HTA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m11-software-engineering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l01-code-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Cấu trúc mã cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l02-testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Xác minh và kiểm thử mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l03-version-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l04-r-package.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/glossary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Trong bài</h2>
+   
+  <ul class="collapse">
+  <li><a href="#mục-tiêu-học-tập" id="toc-mục-tiêu-học-tập" class="nav-link active" data-scroll-target="#mục-tiêu-học-tập">Mục tiêu học tập</a></li>
+  <li><a href="#ý-chính" id="toc-ý-chính" class="nav-link" data-scroll-target="#ý-chính">Ý chính</a></li>
+  <li><a href="#nội-dung" id="toc-nội-dung" class="nav-link" data-scroll-target="#nội-dung">Nội dung</a></li>
+  <li><a href="#thực-hành" id="toc-thực-hành" class="nav-link" data-scroll-target="#thực-hành">Thực hành</a></li>
+  <li><a href="#bài-tập" id="toc-bài-tập" class="nav-link" data-scroll-target="#bài-tập">Bài tập</a></li>
+  <li><a href="#tài-liệu-tham-khảo" id="toc-tài-liệu-tham-khảo" class="nav-link" data-scroll-target="#tài-liệu-tham-khảo">Tài liệu tham khảo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m05-dynamic-transmission/index.html">M05 · Mô hình lây truyền động</a></li><li class="breadcrumb-item"><a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></h1>
+<p class="subtitle lead">Thêm muỗi, mùa và vắc xin vào mô hình, rồi tính số ca, ca nhập viện và ca tử vong tránh được</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-important callout-titled" title="Vì sao bạn nên quan tâm?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Vì sao bạn nên quan tâm?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Giữa mùa mưa, bạn là bác sĩ khoa Truyền nhiễm của một bệnh viện tỉnh và phải kê thêm giường ra hành lang. Cả nước báo cáo 172,000 ca sốt xuất huyết năm 2023, 136,307 ca năm 2024 (đến 17/12) và 190,040 ca năm 2025 <span class="citation" data-cites="vov2024dengue2023 byt2024bc1823 baophapluat2026sxh2025">(<a href="../m00-r-foundations/index.html#ref-vov2024dengue2023" role="doc-biblioref">VOV 2024</a>; <a href="../m00-r-foundations/index.html#ref-byt2024bc1823" role="doc-biblioref">Bộ Y tế 2024a</a>; <a href="../m00-r-foundations/index.html#ref-baophapluat2026sxh2025" role="doc-biblioref">Báo Pháp luật Việt Nam 2026</a>)</span>; nửa đầu năm 2022, khoảng 74% ca được báo cáo phải nhập viện <span class="citation" data-cites="viettimes2022sxh">(<a href="../m00-r-foundations/index.html#ref-viettimes2022sxh" role="doc-biblioref">VietTimes 2022</a>)</span>. Một ca nằm viện 5.4 ngày <span class="citation" data-cites="recker2024markers">(<a href="../m00-r-foundations/index.html#ref-recker2024markers" role="doc-biblioref">Recker và c.s. 2024</a>)</span> tốn khoảng 2,227,820 VNĐ theo giá BHYT, bằng 9 ngày lương tối thiểu vùng I <span class="citation" data-cites="byt2024qd3220 chinhphu2025nd293">(<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">Bộ Y tế 2024b</a>; <a href="../m00-r-foundations/index.html#ref-chinhphu2025nd293" role="doc-biblioref">Chính phủ 2025</a>)</span>. Trước khi bàn ngân sách cho vắc xin, phải ước được chương trình tránh bao nhiêu ca, ca nhập viện và ca tử vong. Bài này dựng mô hình người–muỗi để làm việc đó.</p>
+</div>
+</div>
+<section id="mục-tiêu-học-tập" class="level2">
+<h2 class="anchored" data-anchor-id="mục-tiêu-học-tập">Mục tiêu học tập</h2>
+<p>Sau bài này, bạn có thể:</p>
+<ol type="1">
+<li>Viết và giải một mô hình vật chủ–véc tơ (host–vector model) kiểu Ross–Macdonald: người SEIR hai nhóm tuổi, muỗi SEI.</li>
+<li>Tính R0 theo hai quy ước (Ross–Macdonald và ma trận thế hệ kế tiếp) và biết dùng quy ước nào cho ngưỡng miễn dịch cộng đồng (herd immunity threshold).</li>
+<li>Thêm seasonal forcing (biến thiên lây truyền theo mùa) vào số muỗi và kiểm tra bằng lời giải giải tích.</li>
+<li>Chuyển tham số thử nghiệm vắc xin thành tham số mô hình: hiệu lực lúc tiêm và tốc độ suy giảm bảo vệ.</li>
+<li>Mô phỏng kịch bản tiêm chủng, tính số ca tránh được và thẩm định ngoại (external validation) mô hình một cách thô.</li>
+</ol>
+</section>
+<section id="ý-chính" class="level2">
+<h2 class="anchored" data-anchor-id="ý-chính">Ý chính</h2>
+<ul>
+<li>Sốt xuất huyết Dengue (SXHD) lây qua muỗi <em>Aedes</em>; muỗi chỉ lây sau thời gian ủ bệnh ngoại lai (extrinsic incubation period, EIP) và nhiều con chết trước đó. Lực lây nhiễm lên người phụ thuộc muỗi nhiễm, lên muỗi phụ thuộc người nhiễm: hai vòng phản hồi nối nhau.</li>
+<li>R0 kiểu Ross–Macdonald đo một vòng đầy đủ người → muỗi → người; NGM cho căn bậc hai của nó. Ngưỡng <span class="math inline">\(1 - 1/R_0\)</span> dùng R0 dạng Ross–Macdonald.</li>
+<li>Mật độ muỗi theo mùa làm số ca có tính mùa; đỉnh ca bệnh đến sau đỉnh muỗi vài tháng.</li>
+<li>Hiệu lực vắc xin giảm theo thời gian. Hai mốc hiệu lực <em>trung bình</em> của thử nghiệm cho hai phương trình, đủ để suy ra cả hiệu lực lúc tiêm <span class="math inline">\(E_0\)</span> lẫn tốc độ suy giảm <span class="math inline">\(\omega\)</span>.</li>
+<li>Sau khi tiêm, số ca giảm vài năm rồi bật lại; bảo vệ suy giảm làm lợi ích dài hạn nhỏ đi nhiều.</li>
+<li>Mô hình một type huyết thanh cho số ca đến cơ sở y tế gần số ca Bộ Y tế báo cáo, nhưng bị chặn trên về số ca có triệu chứng nên thấp hơn nhiều ước tính gánh nặng có hiệu chỉnh báo cáo thiếu; số liệu vắc xin lại đến từ thử nghiệm ở nước khác và đo bệnh, không đo nhiễm. Cả hai giả định phải nêu rõ.</li>
+</ul>
+</section>
+<section id="nội-dung" class="level2">
+<h2 class="anchored" data-anchor-id="nội-dung">Nội dung</h2>
+<section id="sxhd-ở-việt-nam-và-một-mô-hình-đủ-đơn-giản" class="level3">
+<h3 class="anchored" data-anchor-id="sxhd-ở-việt-nam-và-một-mô-hình-đủ-đơn-giản">SXHD ở Việt Nam và một mô hình đủ đơn giản</h3>
+<p>SXHD là gánh nặng lớn ở Việt Nam. Ba năm gần đây, Bộ Y tế báo cáo từ 136,307 đến 190,040 ca và từ 24 đến 43 ca tử vong mỗi năm <span class="citation" data-cites="vov2024dengue2023 byt2024bc1823 baophapluat2026sxh2025 outbreaknews2026vietnam">(<a href="../m00-r-foundations/index.html#ref-vov2024dengue2023" role="doc-biblioref">VOV 2024</a>; <a href="../m00-r-foundations/index.html#ref-byt2024bc1823" role="doc-biblioref">Bộ Y tế 2024a</a>; <a href="../m00-r-foundations/index.html#ref-baophapluat2026sxh2025" role="doc-biblioref">Báo Pháp luật Việt Nam 2026</a>; <a href="../m00-r-foundations/index.html#ref-outbreaknews2026vietnam" role="doc-biblioref">Herriman 2026</a>)</span>. Đó là số <em>được báo cáo</em>. Số ca có triệu chứng thật cao hơn nhiều và ước tính khác nhau tùy cách điều chỉnh cho báo cáo thiếu (underreporting); giám sát chủ động trong một thử nghiệm vắc xin ở năm nước Đông Nam Á, trong đó có Việt Nam, cho thấy báo cáo thường quy bỏ sót nhiều ca <span class="citation" data-cites="nealon2016symptomatic">(<a href="../m00-r-foundations/index.html#ref-nealon2016symptomatic" role="doc-biblioref">Nealon và c.s. 2016</a>)</span>. Trong số ca được báo cáo, phần lớn nằm viện: khoảng 74% trên cả nước (nửa đầu năm 2022) và 54% trong một tuần cao điểm ở TP.HCM cùng năm <span class="citation" data-cites="viettimes2022sxh sggp2022nhapvien">(<a href="../m00-r-foundations/index.html#ref-viettimes2022sxh" role="doc-biblioref">VietTimes 2022</a>; <a href="../m00-r-foundations/index.html#ref-sggp2022nhapvien" role="doc-biblioref">Báo Sài Gòn Giải Phóng 2022</a>)</span>, dù hướng dẫn của Bộ Y tế cho rằng đa số ca bệnh có thể điều trị ngoại trú <span class="citation" data-cites="haiphong2024qd2760">(<a href="../m00-r-foundations/index.html#ref-haiphong2024qd2760" role="doc-biblioref">Sở Y tế Hải Phòng 2024</a>)</span>. Mô hình dùng hai mức này như dữ liệu, và gọi ca đến cơ sở y tế là ca “được báo cáo”. Số ca tăng trong mùa mưa, đạt đỉnh khoảng tháng 6 đến tháng 10 <span class="citation" data-cites="hung2018estimates lee2017seasonal">(<a href="../m00-r-foundations/index.html#ref-hung2018estimates" role="doc-biblioref">Hung và c.s. 2018</a>; <a href="../m00-r-foundations/index.html#ref-lee2017seasonal" role="doc-biblioref">Lee và c.s. 2017</a>)</span>; ở Hà Nội dịch thường bùng vào tháng 10 đến tháng 12 <span class="citation" data-cites="vov2024dengue2023">(<a href="../m00-r-foundations/index.html#ref-vov2024dengue2023" role="doc-biblioref">VOV 2024</a>)</span>. Trên toàn cầu, chỉ khoảng một phần tư số ca nhiễm có triệu chứng <span class="citation" data-cites="bhatt2013global">(<a href="../m00-r-foundations/index.html#ref-bhatt2013global" role="doc-biblioref">Bhatt và c.s. 2013</a>)</span>, nhưng người nhiễm không triệu chứng vẫn lây được cho muỗi <span class="citation" data-cites="duong2015asymptomatic">(<a href="../m00-r-foundations/index.html#ref-duong2015asymptomatic" role="doc-biblioref">Duong và c.s. 2015</a>)</span>. Vì vậy mô hình cho mọi ca nhiễm cùng khả năng lây trong 5 ngày (giá trị minh họa; trong thực tế khả năng lây cho muỗi giảm dần theo ngày bệnh <span class="citation" data-cites="nguyet2013host">(<a href="../m00-r-foundations/index.html#ref-nguyet2013host" role="doc-biblioref">Nguyet và c.s. 2013</a>)</span>), và chỉ tách ca có triệu chứng khi tính kết quả sức khỏe.</p>
+<p>Virus Dengue có bốn type huyết thanh (serotype). Nhiễm một type tạo miễn dịch với type đó nhưng chỉ bảo vệ chéo ngắn hạn, khoảng 1–3 năm, với các type khác <span class="citation" data-cites="reich2013interactions">(<a href="../m00-r-foundations/index.html#ref-reich2013interactions" role="doc-biblioref">Reich và c.s. 2013</a>)</span>; ở miền Nam Việt Nam, người ta đã phân tích cả nhiễm lần một lẫn lần hai <span class="citation" data-cites="thai2011age">(<a href="../m00-r-foundations/index.html#ref-thai2011age" role="doc-biblioref">Thai và c.s. 2011</a>)</span>. Mô hình ở bài này gộp bốn type thành một tác nhân “giống Dengue”, miễn dịch suốt đời sau một lần nhiễm. Cách gộp này giữ được cơ chế lây qua muỗi, mùa và hiệu quả gián tiếp, nhưng bỏ qua nhiễm lần hai (thường nặng hơn) và cách vắc xin tác động khác nhau theo tình trạng huyết thanh <span class="citation" data-cites="ferguson2016benefits flasche2016long">(<a href="../m00-r-foundations/index.html#ref-ferguson2016benefits" role="doc-biblioref">Ferguson và c.s. 2016</a>; <a href="../m00-r-foundations/index.html#ref-flasche2016long" role="doc-biblioref">Flasche và c.s. 2016</a>)</span>.</p>
+</section>
+<section id="mô-hình-rossmacdonald" class="level3">
+<h3 class="anchored" data-anchor-id="mô-hình-rossmacdonald">Mô hình Ross–Macdonald</h3>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>flowchart LR</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  subgraph H["Người (hai nhóm tuổi; nhóm 1 gồm k ngăn tuổi, xem trang module)"]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    S["S"] --&gt;|"λh = a·b·Iv/Nh"| E["E"] --&gt;|"σh"| I["I"] --&gt;|"γ"| R["R"]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    V["V (đã tiêm, được bảo vệ)"] --&gt;|"ω: suy giảm"| S</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  end</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  subgraph M["Muỗi"]</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    Sv["Sv"] --&gt;|"λv = a·c·I/Nh"| Ev["Ev"] --&gt;|"σv"| Iv["Iv"]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>    N(("Muỗi mới: g·m·Nh·(1 + A cos ...)")) --&gt; Sv</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  end</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  Iv -.-&gt; S</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  I -.-&gt; Sv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  subgraph H["Người (hai nhóm tuổi; nhóm 1 gồm k ngăn tuổi, xem trang module)"]
+    S["S"] --&gt;|"λh = a·b·Iv/Nh"| E["E"] --&gt;|"σh"| I["I"] --&gt;|"γ"| R["R"]
+    V["V (đã tiêm, được bảo vệ)"] --&gt;|"ω: suy giảm"| S
+  end
+  subgraph M["Muỗi"]
+    Sv["Sv"] --&gt;|"λv = a·c·I/Nh"| Ev["Ev"] --&gt;|"σv"| Iv["Iv"]
+    N(("Muỗi mới: g·m·Nh·(1 + A cos ...)")) --&gt; Sv
+  end
+  Iv -.-&gt; S
+  I -.-&gt; Sv
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>Các mô hình “Ross–Macdonald” có chung một bộ giả định: muỗi đốt ngẫu nhiên, mỗi muỗi đốt <span class="math inline">\(a\)</span> lần mỗi ngày, muỗi chết với tỷ suất <span class="math inline">\(g\)</span> không đổi, và mật độ muỗi trên người là <span class="math inline">\(m\)</span> <span class="citation" data-cites="smith2012ross">(<a href="../m00-r-foundations/index.html#ref-smith2012ross" role="doc-biblioref">Smith và c.s. 2012</a>)</span>. Ở một làng tại Thái Lan, mỗi muỗi <em>Aedes aegypti</em> cái hút máu người khoảng 0.76 lần mỗi ngày <span class="citation" data-cites="scott2000longitudinal">(<a href="../m00-r-foundations/index.html#ref-scott2000longitudinal" role="doc-biblioref">Scott và c.s. 2000</a>)</span>; ta dùng con số này cho <span class="math inline">\(a\)</span>. Lực lây nhiễm lên người là <span class="math inline">\(\lambda_h = a\,b\,I_v/N_h\)</span> (<span class="math inline">\(b\)</span>: xác suất muỗi lây sang người mỗi lần đốt); lên muỗi là <span class="math inline">\(\lambda_v = a\,c\,I_h/N_h\)</span>. Người có thời gian ủ bệnh nội tại (intrinsic incubation period, IIP) trung bình 5.9 ngày; trong mô hình, đây cũng là độ dài của ngăn E. Trong muỗi, EIP trung bình 15 ngày ở 25 °C và ngắn hơn nhiều khi trời nóng <span class="citation" data-cites="chan2012incubation">(<a href="../m00-r-foundations/index.html#ref-chan2012incubation" role="doc-biblioref">Chan và Johansson 2012</a>)</span>. Tuổi thọ muỗi (10 ngày, giá trị minh họa) cũng phụ thuộc nhiệt độ <span class="citation" data-cites="brady2013modelling">(<a href="../m00-r-foundations/index.html#ref-brady2013modelling" role="doc-biblioref">Brady và c.s. 2013</a>)</span>. Vì ngăn E dài đúng bằng IIP, người nhiễm chỉ lây sau khi có triệu chứng; thực tế người chưa có triệu chứng đã lây được cho muỗi <span class="citation" data-cites="duong2015asymptomatic">(<a href="../m00-r-foundations/index.html#ref-duong2015asymptomatic" role="doc-biblioref">Duong và c.s. 2015</a>)</span>, một giới hạn của mô hình.</p>
+<p>R0 của một vòng đầy đủ là</p>
+<p><span class="math display">\[
+R_0 = \underbrace{\frac{a\,b}{g}\cdot\frac{\sigma_v}{\sigma_v+g}}_{\text{người mới nhiễm do một muỗi mới nhiễm}}\;\times\;\underbrace{\frac{m\,a\,c}{\gamma+\mu}\cdot\frac{\sigma_h}{\sigma_h+\mu}}_{\text{muỗi mới nhiễm do một người mới nhiễm}} .
+\]</span></p>
+<p>Thừa số <span class="math inline">\(\sigma_v/(\sigma_v + g)\)</span> là xác suất muỗi sống qua EIP. Vì <span class="math inline">\(a\)</span> xuất hiện hai lần trong R0, và <span class="math inline">\(g\)</span> xuất hiện hai lần trong thừa số thứ nhất, diệt muỗi trưởng thành có tác dụng rất mạnh. Ở mô hình này số muỗi mới mỗi ngày là <span class="math inline">\(g\,m\,N_h\)</span>, nên <span class="math inline">\(m\)</span> giữ cố định khi <span class="math inline">\(g\)</span> đổi; nếu giữ cố định số muỗi mới thì <span class="math inline">\(m \propto 1/g\)</span> và R0 còn nhạy với <span class="math inline">\(g\)</span> hơn nữa. NGM tính “một thế hệ” là một bước người → muỗi hoặc muỗi → người, nên giá trị riêng lớn nhất của nó bằng <span class="math inline">\(\sqrt{R_0}\)</span>. R0 dạng Ross–Macdonald của bài là 9.7. Con số này không đo trực tiếp mà suy ra từ lực lây nhiễm huyết thanh học ở Bình Thuận (<span class="math inline">\(\lambda\)</span> = 0.117 mỗi năm <span class="citation" data-cites="thai2011age">(<a href="../m00-r-foundations/index.html#ref-thai2011age" role="doc-biblioref">Thai và c.s. 2011</a>)</span>) bằng công thức của Bài 2, <span class="math inline">\(R_0 \approx 1 + \lambda L\)</span> với <span class="math inline">\(L\)</span> = 74.3 năm. Mật độ muỗi <span class="math inline">\(m\)</span> được suy ngược từ R0, nên phụ thuộc các giá trị <span class="math inline">\(b, c, g\)</span> còn là minh họa và không so được với chỉ số côn trùng học.</p>
+<p>Số muỗi mới trưởng thành mỗi ngày là <span class="math inline">\(g\,m\,N_h\,[1 + A\cos(2\pi(t - t_{\text{peak}})/365)]\)</span>, với biên độ <span class="math inline">\(A =\)</span> 0.5 và đỉnh vào ngày thứ 182 trong năm (giá trị minh họa). Đây là cách đơn giản nhất để đưa mùa vào mô hình <span class="citation" data-cites="altizer2006seasonality">(<a href="../m00-r-foundations/index.html#ref-altizer2006seasonality" role="doc-biblioref">Altizer và c.s. 2006</a>)</span>.</p>
+<p>Nhóm trẻ từ 0 đến 9 tuổi gồm 9 ngăn tuổi nối tiếp như ở Bài 3, để tuổi tiêm tập trung quanh 9 tuổi.</p>
+</section>
+<section id="vắc-xin-từ-thử-nghiệm-đến-tham-số-mô-hình" class="level3">
+<h3 class="anchored" data-anchor-id="vắc-xin-từ-thử-nghiệm-đến-tham-số-mô-hình">Vắc xin: từ thử nghiệm đến tham số mô hình</h3>
+<p>TAK-003 tiêm 2 liều cách nhau ba tháng <span class="citation" data-cites="biswal2020efficacy">(<a href="../m00-r-foundations/index.html#ref-biswal2020efficacy" role="doc-biblioref">Biswal và c.s. 2020</a>)</span>; WHO-SAGE khuyến cáo xem xét dùng cho người từ 6 đến 16 tuổi ở nơi lây truyền cao <span class="citation" data-cites="saezllorens2025tak">(<a href="../m00-r-foundations/index.html#ref-saezllorens2025tak" role="doc-biblioref">Sáez-Llorens và c.s. 2025</a>)</span>. Hiệu lực chống SXHD có xác nhận virus (virologically confirmed dengue) là 80.2% <em>trung bình</em> trong khoảng một năm đầu <span class="citation" data-cites="biswal2020efficacy">(<a href="../m00-r-foundations/index.html#ref-biswal2020efficacy" role="doc-biblioref">Biswal và c.s. 2020</a>)</span>, giảm từ năm thứ hai <span class="citation" data-cites="lopezmedina2022efficacy">(<a href="../m00-r-foundations/index.html#ref-lopezmedina2022efficacy" role="doc-biblioref">López-Medina và c.s. 2022</a>)</span>, và hiệu lực tích lũy sau khoảng 4.5 năm là 61.2% <span class="citation" data-cites="tricou2024longterm">(<a href="../m00-r-foundations/index.html#ref-tricou2024longterm" role="doc-biblioref">Tricou và c.s. 2024</a>)</span>. Hai thử nghiệm này chạy ở tám nước châu Á và Mỹ Latinh, không có địa điểm nào ở Việt Nam, và do nhà sản xuất tài trợ <span class="citation" data-cites="biswal2020efficacy tricou2024longterm">(<a href="../m00-r-foundations/index.html#ref-biswal2020efficacy" role="doc-biblioref">Biswal và c.s. 2020</a>; <a href="../m00-r-foundations/index.html#ref-tricou2024longterm" role="doc-biblioref">Tricou và c.s. 2024</a>)</span>. Mô hình dùng vắc xin tất cả hoặc không (all-or-nothing), bảo vệ giảm theo hàm mũ <span class="math inline">\(E(t) = E_0 e^{-\omega t}\)</span>.</p>
+<p>Hai mốc trên là hiệu lực <em>trung bình</em> trên hai khoảng thời gian tính từ lúc tiêm, nên hiệu lực lúc tiêm <span class="math inline">\(E_0\)</span> cao hơn mốc đầu. Với <span class="math inline">\(T_1\)</span> bằng khoảng một năm và <span class="math inline">\(T_2\)</span> bằng thời gian theo dõi:</p>
+<p><span class="math display">\[
+E_0\,\frac{1 - e^{-\omega T_1}}{\omega T_1} = E_{\text{năm đầu}}, \qquad
+E_0\,\frac{1 - e^{-\omega T_2}}{\omega T_2} = E_{\text{tích lũy}} .
+\]</span></p>
+<p>Hai phương trình, hai ẩn <span class="math inline">\((E_0, \omega)\)</span>: chia vế cho vế để tìm <span class="math inline">\(\omega\)</span> bằng <code>uniroot()</code>, rồi suy ra <span class="math inline">\(E_0\)</span>. Cách đơn giản hơn là đặt <span class="math inline">\(E_0\)</span> bằng hiệu lực năm đầu và chỉ khớp <span class="math inline">\(\omega\)</span>; ta giữ cách đó làm kịch bản độ nhạy (Bài 5). Hai giả định cần nói rõ: hiệu lực tích lũy được coi là bảo vệ trung bình theo thời gian, chỉ đúng khi tỷ lệ tấn công thấp; và hai mốc được tính từ cùng một gốc thời gian (lúc tiêm), trong khi khoảng đầu thực ra bắt đầu 30 ngày sau liều hai và khoảng tích lũy bắt đầu từ liều một. Ngoài ra thử nghiệm đo hiệu lực chống <em>bệnh</em>, còn mô hình dùng nó như hiệu lực chống <em>nhiễm</em>, một bất định mà Flasche và cộng sự cũng nêu <span class="citation" data-cites="flasche2016long">(<a href="../m00-r-foundations/index.html#ref-flasche2016long" role="doc-biblioref">Flasche và c.s. 2016</a>)</span>.</p>
+</section>
+</section>
+<section id="thực-hành" class="level2">
+<h2 class="anchored" data-anchor-id="thực-hành">Thực hành</h2>
+<p>Phần này chạy <code>code/l04-dengue-host-vector.R</code>. Đoạn đầu chỉ nạp tham số và chuyển chúng thành tỷ suất theo ngày bằng <code>dengue_inputs()</code>, nơi duy nhất biến đổi tham số.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">isTRUE</span>(<span class="fu">l10n_info</span>()[[<span class="st">"UTF-8"</span>]])) <span class="fu">invisible</span>(<span class="fu">Sys.setlocale</span>(<span class="st">"LC_CTYPE"</span>, <span class="st">"en_US.UTF-8"</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/helpers.R"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/vn_data.R"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">m05_params</span>()                                      <span class="co"># params/dengue.csv + shared values</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>ptab <span class="ot">&lt;-</span> <span class="fu">attr</span>(p, <span class="st">"table"</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>low_of <span class="ot">&lt;-</span> <span class="cf">function</span>(nm) ptab<span class="sc">$</span>low[ptab<span class="sc">$</span>name <span class="sc">==</span> nm]       <span class="co"># lower bound of a parameter</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>inp <span class="ot">&lt;-</span> <span class="fu">dengue_inputs</span>(p)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Đoạn sau tính <span class="math inline">\(m\)</span> cho R0 mục tiêu và kiểm tra R0. Dòng R0 Ross–Macdonald bằng 9.7 đúng theo cách xây dựng (vì <span class="math inline">\(m\)</span> được suy ra từ R0). Hai phép kiểm tra thật nằm ở NGM: nó phải bằng căn bậc hai của R0, và phải tăng gấp đôi khi gấp đôi tỷ lệ đốt (vì R0 tỷ lệ với <span class="math inline">\(a^2\)</span>). Dòng cuối kiểm tra R0 trong bảng tham số khớp <span class="math inline">\(1 + \lambda L\)</span> tính từ huyết thanh học và bảng sống dùng chung.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mosquitoes per person (m) needed for the target R0, and checks of R0.</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>per_m <span class="ot">&lt;-</span> <span class="fu">r0_per_m</span>(inp<span class="sc">$</span>bite, inp<span class="sc">$</span>b, inp<span class="sc">$</span>c, inp<span class="sc">$</span>g, inp<span class="sc">$</span>sigma_v, inp<span class="sc">$</span>gamma, inp<span class="sc">$</span>sigma_h, inp<span class="sc">$</span>mu)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>r0_rm <span class="ot">&lt;-</span> inp<span class="sc">$</span>m <span class="sc">*</span> per_m                  <span class="co"># equals p$r0 by construction, because m was solved from r0</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>r0_ngm <span class="ot">&lt;-</span> <span class="fu">spectral_radius</span>(<span class="fu">dengue_ngm</span>(inp))</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Independent check 1: the NGM built from the ODE structure must give sqrt(R0) of Ross-Macdonald</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(r0_ngm <span class="sc">-</span> <span class="fu">sqrt</span>(p<span class="sc">$</span>r0)) <span class="sc">&lt;</span> <span class="fl">1e-8</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Independent check 2: R0 is proportional to bite^2, so the NGM eigenvalue is proportional to</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="co"># bite. Doubling the bite rate (same mosquito density m) must double it.</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>inp_bite2 <span class="ot">&lt;-</span> inp</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>inp_bite2<span class="sc">$</span>bite <span class="ot">&lt;-</span> <span class="dv">2</span> <span class="sc">*</span> inp<span class="sc">$</span>bite</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(<span class="fu">spectral_radius</span>(<span class="fu">dengue_ngm</span>(inp_bite2)) <span class="sc">/</span> r0_ngm <span class="sc">-</span> <span class="dv">2</span>) <span class="sc">&lt;</span> <span class="fl">1e-8</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Where R0 comes from: lambda = (R0 - 1) / L (Lesson 2) with the Binh Thuan serological force of</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="co"># infection and the shared life expectancy. The CSV value must match this within rounding.</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>r0_from_foi <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">+</span> p<span class="sc">$</span>val_foi_binhthuan <span class="sc">*</span> p<span class="sc">$</span>life_exp</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(p<span class="sc">$</span>r0 <span class="sc">-</span> r0_from_foi) <span class="sc">&lt;</span> <span class="fl">0.1</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">mosquitoes_per_person =</span> inp<span class="sc">$</span>m,</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>        <span class="at">survive_eip =</span> inp<span class="sc">$</span>sigma_v <span class="sc">/</span> (inp<span class="sc">$</span>sigma_v <span class="sc">+</span> inp<span class="sc">$</span>g),</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">R0_ross_macdonald =</span> r0_rm, <span class="at">R0_ngm =</span> r0_ngm, <span class="at">R0_from_foi =</span> r0_from_foi), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>mosquitoes_per_person           survive_eip     R0_ross_macdonald 
+                3.360                 0.400                 9.700 
+               R0_ngm           R0_from_foi 
+                3.114                 9.694 </code></pre>
+</div>
+</div>
+<p>Chỉ 40% số muỗi bị nhiễm sống qua EIP, nên cần khoảng 3.4 muỗi trên mỗi người để đạt R0 này. Tiếp theo, chạy 150 năm không tiêm chủng. Kiểm tra: dân số người không đổi, và số ca nhiễm mỗi năm gần như không đổi (trạng thái lưu hành theo mùa đã ổn định).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Run burnin_years without vaccination to reach the seasonal endemic state</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>y0 <span class="ot">&lt;-</span> <span class="fu">dengue_burnin</span>(inp, p<span class="sc">$</span>burnin_years)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>inp0 <span class="ot">&lt;-</span> <span class="fu">dengue_inputs</span>(p, <span class="at">coverage =</span> <span class="dv">0</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>base <span class="ot">&lt;-</span> <span class="fu">dengue_run</span>(inp0, y0, p<span class="sc">$</span>scenario_years)     <span class="co"># scenario_years, daily output</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>sp9 <span class="ot">&lt;-</span> <span class="fu">unname</span>(<span class="fu">sp_last_stage</span>(y0, inp<span class="sc">$</span>k))            <span class="co"># ever infected, children in the last age stage</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>ann_base <span class="ot">&lt;-</span> <span class="fu">annual_totals</span>(base)</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>inf_base <span class="ot">&lt;-</span> ann_base<span class="sc">$</span>infections_1 <span class="sc">+</span> ann_base<span class="sc">$</span>infections_2</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Checks: humans conserved; endemic state is stable (annual infections vary &lt; 1%)</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">max</span>(<span class="fu">abs</span>(base<span class="sc">$</span>Nh <span class="sc">-</span> p<span class="sc">$</span>n_h)) <span class="sc">&lt;</span> <span class="fl">1e-3</span>, <span class="fu">diff</span>(<span class="fu">range</span>(inf_base)) <span class="sc">/</span> <span class="fu">mean</span>(inf_base) <span class="sc">&lt;</span> <span class="fl">0.01</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">SP9 =</span> sp9, <span class="at">infections_per_year =</span> <span class="fu">mean</span>(inf_base),</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">symptomatic_per_year =</span> p<span class="sc">$</span>p_sympt <span class="sc">*</span> <span class="fu">mean</span>(inf_base)), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                 SP9  infections_per_year symptomatic_per_year 
+               0.615            12002.727             2952.671 </code></pre>
+</div>
+</div>
+<p>Ở trạng thái lưu hành của mô hình, 61.5% trẻ ở ngăn tuổi cuối (khoảng 8–9 tuổi) đã từng nhiễm, và mỗi năm có khoảng 12,003 ca nhiễm trên một triệu dân. Theo phân loại của Flasche và cộng sự, SP9 này ở mức trung bình đến cao (từ 50% đến dưới 70%) <span class="citation" data-cites="flasche2016long">(<a href="../m00-r-foundations/index.html#ref-flasche2016long" role="doc-biblioref">Flasche và c.s. 2016</a>)</span>; đó là đặc trưng của mô hình (R0 suy từ huyết thanh học ở Bình Thuận), không chứng minh một địa phương cụ thể đủ điều kiện “lây truyền cao” của khuyến cáo. Vì mỗi người chỉ nhiễm một lần, số ca nhiễm mỗi năm xấp xỉ số trẻ sinh ra.</p>
+<p>Đoạn sau xem một năm ở trạng thái lưu hành. Kiểm tra: số muỗi trong mô hình khớp lời giải giải tích của phương trình <span class="math inline">\(dN_v/dt = \text{số muỗi mới} - g N_v\)</span> (hàm <code>mosquito_periodic()</code>).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># One year of the endemic state: weekly symptomatic cases and mosquitoes per person</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>yr1 <span class="ot">&lt;-</span> base[base<span class="sc">$</span>time <span class="sc">&lt;=</span> DAYS_PER_YEAR, ]</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Mosquito numbers follow the closed-form periodic solution (independent of infection)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">max</span>(<span class="fu">abs</span>(yr1<span class="sc">$</span>Nv <span class="sc">/</span> <span class="fu">mosquito_periodic</span>(yr1<span class="sc">$</span>time, inp) <span class="sc">-</span> <span class="dv">1</span>)) <span class="sc">&lt;</span> <span class="fl">1e-4</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>daily_sympt <span class="ot">&lt;-</span> p<span class="sc">$</span>p_sympt <span class="sc">*</span> <span class="fu">diff</span>(yr1<span class="sc">$</span>C1 <span class="sc">+</span> yr1<span class="sc">$</span>C2)     <span class="co"># days 1..365</span></span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>week <span class="ot">&lt;-</span> <span class="fu">ceiling</span>(<span class="fu">seq_len</span>(<span class="dv">364</span>) <span class="sc">/</span> <span class="dv">7</span>)                       <span class="co"># 52 full weeks</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>weekly <span class="ot">&lt;-</span> <span class="fu">tapply</span>(daily_sympt[<span class="dv">1</span><span class="sc">:</span><span class="dv">364</span>], week, sum)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>peak_day_cases <span class="ot">&lt;-</span> yr1<span class="sc">$</span>time[<span class="sc">-</span><span class="dv">1</span>][<span class="fu">which.max</span>(daily_sympt)]</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>peak_day_mosq <span class="ot">&lt;-</span> yr1<span class="sc">$</span>time[<span class="fu">which.max</span>(yr1<span class="sc">$</span>Nv)]</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>month_vi <span class="ot">&lt;-</span> <span class="cf">function</span>(day) <span class="fu">as.integer</span>(<span class="fu">format</span>(<span class="fu">as.Date</span>(<span class="st">"2025-01-01"</span>) <span class="sc">+</span> day, <span class="st">"%m"</span>))</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">peak_month_mosquitoes =</span> <span class="fu">month_vi</span>(peak_day_mosq), <span class="at">peak_month_cases =</span> <span class="fu">month_vi</span>(peak_day_cases),</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">lag_days =</span> peak_day_cases <span class="sc">-</span> peak_day_mosq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>peak_month_mosquitoes      peak_month_cases              lag_days 
+                    7                    10                    95 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The mosquito peak is an illustrative value; the case peak it produces must still fall in the</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># reported dengue season (June-November) and after the mosquito peak</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">month_vi</span>(peak_day_cases) <span class="sc">%in%</span> <span class="dv">6</span><span class="sc">:</span><span class="dv">11</span>, peak_day_cases <span class="sc">&gt;</span> peak_day_mosq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Đoạn sau vẽ số ca có triệu chứng mỗi tuần và số muỗi trên mỗi người trong cùng một năm. Kiểm tra: đỉnh muỗi (tháng 7) đến trước đỉnh ca bệnh, và đỉnh ca bệnh rơi vào mùa dịch được báo cáo (tháng 6–11; script dừng nếu không).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>season_df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">week =</span> <span class="fu">as.integer</span>(<span class="fu">names</span>(weekly)), <span class="at">value =</span> <span class="fu">as.vector</span>(weekly),</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">panel =</span> <span class="fu">paste0</span>(<span class="st">"Ca có triệu chứng mỗi tuần ("</span>, <span class="fu">fmt_num</span>(p<span class="sc">$</span>n_h), <span class="st">" dân)"</span>)),</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">week =</span> <span class="fu">as.integer</span>(<span class="fu">names</span>(weekly)),</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>             <span class="at">value =</span> <span class="fu">as.vector</span>(<span class="fu">tapply</span>(yr1<span class="sc">$</span>Nv[<span class="dv">2</span><span class="sc">:</span><span class="dv">365</span>] <span class="sc">/</span> p<span class="sc">$</span>n_h, week, mean)),</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">panel =</span> <span class="st">"Số muỗi trên mỗi người"</span>))</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>season_df<span class="sc">$</span>panel <span class="ot">&lt;-</span> <span class="fu">factor</span>(season_df<span class="sc">$</span>panel, <span class="at">levels =</span> <span class="fu">unique</span>(season_df<span class="sc">$</span>panel))</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>fig_season <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(season_df, <span class="fu">aes</span>(week, value)) <span class="sc">+</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour =</span> pal_course[<span class="dv">1</span>], <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>panel, <span class="at">ncol =</span> <span class="dv">1</span>, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">fmt_num</span>(x)) <span class="sc">+</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Tuần trong năm"</span>, <span class="at">y =</span> <span class="cn">NULL</span>,</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Mùa muỗi đi trước mùa bệnh"</span>,</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Trạng thái lưu hành có biến thiên theo mùa (biên độ và đỉnh mùa muỗi là giá trị minh họa)"</span>) <span class="sc">+</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_season, <span class="st">"l04-season.png"</span>, <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="fig-l04-season" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-l04-season-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figs/l04-season.png" class="img-fluid figure-img" style="width:90.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-l04-season-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;31.1: Số muỗi đạt đỉnh tháng 7, số ca có triệu chứng đạt đỉnh vài tháng sau.
+</figcaption>
+</figure>
+</div>
+<p>Số ca đạt đỉnh vào tháng 10, chậm hơn đỉnh muỗi 95 ngày: cần thời gian để muỗi nhiễm, qua EIP, rồi lây sang người, và để số người nhiễm tích lũy.</p>
+<p>Trước khi dùng mô hình, so nó với dữ liệu. Đoạn sau làm ba phép so thô, trên 100,000 dân mỗi năm: (1) số ca đến cơ sở y tế của mô hình với số ca Bộ Y tế báo cáo 2023–2025 (dùng dân số năm 2025 cho cả ba năm <span class="citation" data-cites="gso2026population2025">(<a href="../m00-r-foundations/index.html#ref-gso2026population2025" role="doc-biblioref">Cục Thống kê (Bộ Tài chính) 2026</a>)</span>); (2) số ca có triệu chứng và số năm sống điều chỉnh theo bệnh tật (DALY, không chiết khấu) với ước tính gánh nặng có hiệu chỉnh báo cáo thiếu cho năm 2013 <span class="citation" data-cites="hung2018estimates worldbank2026pop">(<a href="../m00-r-foundations/index.html#ref-hung2018estimates" role="doc-biblioref">Hung và c.s. 2018</a>; <a href="../m00-r-foundations/index.html#ref-worldbank2026pop" role="doc-biblioref">World Bank 2026</a>)</span>; (3) lực lây nhiễm và SP9 với huyết thanh học ở Bình Thuận <span class="citation" data-cites="thai2011age">(<a href="../m00-r-foundations/index.html#ref-thai2011age" role="doc-biblioref">Thai và c.s. 2011</a>)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Crude external check 1: cases that reach a health facility in the model vs cases reported</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># by the Ministry of Health in 2023-2025, per 100,000 people per year (2025 population for all</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># three years: an approximation).</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>flows0 <span class="ot">&lt;-</span> <span class="fu">dengue_flows</span>(base, p, <span class="at">disc_rate =</span> <span class="dv">0</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>yr1_flows <span class="ot">&lt;-</span> flows0[flows0<span class="sc">$</span>day <span class="sc">&lt;=</span> DAYS_PER_YEAR, ]</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>rep_cases <span class="ot">&lt;-</span> <span class="fu">c</span>(p<span class="sc">$</span>rep_cases_2023, p<span class="sc">$</span>rep_cases_2024, p<span class="sc">$</span>rep_cases_2025)</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>rep_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">source =</span> <span class="fu">c</span>(<span class="st">"model_attended"</span>, <span class="st">"reported_2023"</span>, <span class="st">"reported_2024"</span>, <span class="st">"reported_2025"</span>),</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">per_100000 =</span> <span class="fu">c</span>(<span class="fu">sum</span>(yr1_flows<span class="sc">$</span>attended) <span class="sc">/</span> p<span class="sc">$</span>n_h, rep_cases <span class="sc">/</span> p<span class="sc">$</span>population) <span class="sc">*</span> <span class="fl">1e5</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>rep_tab<span class="sc">$</span>per_100000 <span class="ot">&lt;-</span> <span class="fu">round</span>(rep_tab<span class="sc">$</span>per_100000, <span class="dv">1</span>)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>rep_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          source per_100000
+1 model_attended      194.8
+2  reported_2023      168.1
+3  reported_2024      133.2
+4  reported_2025      185.8</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>model_vs_reported <span class="ot">&lt;-</span> rep_tab<span class="sc">$</span>per_100000[<span class="dv">1</span>] <span class="sc">/</span> <span class="fu">mean</span>(rep_tab<span class="sc">$</span>per_100000[<span class="sc">-</span><span class="dv">1</span>])</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Crude external check 2: burden estimates for 2013 (Hung et al. 2018), which correct for</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="co"># under-reporting. DALYs here are undiscounted, as in GBD.</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>val_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">measure =</span> <span class="fu">c</span>(<span class="st">"symptomatic"</span>, <span class="st">"daly"</span>),</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="fu">c</span>(<span class="fu">sum</span>(yr1_flows<span class="sc">$</span>symptomatic), <span class="fu">sum</span>(yr1_flows<span class="sc">$</span>daly_undisc)) <span class="sc">/</span> p<span class="sc">$</span>n_h <span class="sc">*</span> <span class="fl">1e5</span>,</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimate =</span> <span class="fu">c</span>(p<span class="sc">$</span>val_sympt_2013, p<span class="sc">$</span>val_daly_2013) <span class="sc">/</span> p<span class="sc">$</span>val_pop_2013 <span class="sc">*</span> <span class="fl">1e5</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">older_estimate =</span> <span class="fu">c</span>(p<span class="sc">$</span>val_sympt_2013_older, p<span class="sc">$</span>val_daly_2013_older) <span class="sc">/</span> p<span class="sc">$</span>val_pop_2013 <span class="sc">*</span> <span class="fl">1e5</span>)</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>val_tab[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(val_tab[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">1</span>)</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>val_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      measure model estimate older_estimate
+1 symptomatic 295.1   2499.5          489.0
+2        daly   5.0     44.0           12.2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Why is the model so low? With ONE lifetime infection per person, symptomatic incidence cannot</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># exceed (births per person-year) x (share symptomatic). With up to four infections per person</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="co"># (one per serotype) the ceiling is four times higher. Per 100,000 people per year:</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>ceiling_one <span class="ot">&lt;-</span> p<span class="sc">$</span>p_sympt <span class="sc">/</span> p<span class="sc">$</span>life_exp <span class="sc">*</span> <span class="fl">1e5</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>ceiling_four <span class="ot">&lt;-</span> <span class="dv">4</span> <span class="sc">*</span> ceiling_one</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(val_tab<span class="sc">$</span>model[<span class="dv">1</span>] <span class="sc">&lt;=</span> ceiling_one)         <span class="co"># the model respects its own structural ceiling</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">model =</span> val_tab<span class="sc">$</span>model[<span class="dv">1</span>], <span class="at">ceiling_one_infection =</span> ceiling_one,</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">ceiling_four_infections =</span> ceiling_four, <span class="at">burden_estimate =</span> val_tab<span class="sc">$</span>estimate[<span class="dv">1</span>]), <span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  model   ceiling_one_infection ceiling_four_infections 
+                    295                     331                    1324 
+        burden_estimate 
+                   2500 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Force of infection: model (mean over one year, per year) vs the Binh Thuan serological estimate</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>foi_model <span class="ot">&lt;-</span> <span class="fu">mean</span>(base<span class="sc">$</span>foi_h[<span class="dv">1</span><span class="sc">:</span>DAYS_PER_YEAR]) <span class="sc">*</span> DAYS_PER_YEAR</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>sp9_bt <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">exp</span>(<span class="sc">-</span>p<span class="sc">$</span>age_vacc <span class="sc">*</span> p<span class="sc">$</span>val_foi_binhthuan)   <span class="co"># SP9 implied by the Binh Thuan force of infection</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>gap_vs_four <span class="ot">&lt;-</span> val_tab<span class="sc">$</span>estimate[<span class="dv">1</span>] <span class="sc">/</span> ceiling_four        <span class="co"># how far the burden estimate is above even that ceiling</span></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">foi_model =</span> foi_model, <span class="at">foi_binh_thuan =</span> p<span class="sc">$</span>val_foi_binhthuan,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">SP9_model =</span> sp9, <span class="at">SP9_if_binh_thuan_foi =</span> sp9_bt, <span class="at">estimate_over_four_infection_ceiling =</span> gap_vs_four), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                           foi_model                       foi_binh_thuan 
+                               0.111                                0.117 
+                           SP9_model                SP9_if_binh_thuan_foi 
+                               0.615                                0.651 
+estimate_over_four_infection_ceiling 
+                               1.888 </code></pre>
+</div>
+</div>
+<p>Mô hình cho 195 ca đến cơ sở y tế trên 100,000 dân mỗi năm, trong khi số được báo cáo dao động từ 133 đến 186: mô hình cao hơn 20% so với trung bình ba năm, đủ gần cho một mô hình chưa hiệu chuẩn. Nhưng số ca có triệu chứng (295) thấp hơn cả ước tính cũ (489) lẫn ước tính theo phương pháp GBD (2,500), vốn hiệu chỉnh cho ca không được báo cáo. Cấu trúc một type huyết thanh giải thích một phần: mỗi người nhiễm một lần nên số ca có triệu chứng không thể vượt tỷ lệ có triệu chứng chia cho tuổi thọ, tức 331 ca trên 100,000 dân mỗi năm. Ngay cả khi mỗi người nhiễm tới bốn lần, trần cũng chỉ là 1,324, và ước tính GBD vẫn cao gấp 1.9 lần trần đó; phần còn lại có thể đến từ tỷ lệ có triệu chứng (một tỷ số toàn cầu) và hệ số điều chỉnh báo cáo thiếu <span class="citation" data-cites="hung2018estimates">(<a href="../m00-r-foundations/index.html#ref-hung2018estimates" role="doc-biblioref">Hung và c.s. 2018</a>)</span>. M08 xử lý chuyện này bằng hiệu chuẩn. Về lây truyền, lực lây nhiễm trung bình của mô hình là 0.111 mỗi năm, so với 0.117 ở Bình Thuận (SP9 suy ra là 65%, so với 61% của mô hình). Vì R0 được suy ra từ chính ước tính này, đây là kiểm tra tính nhất quán chứ không phải thẩm định độc lập. Kết luận: mô hình tái tạo được số ca được báo cáo nhưng đánh giá thấp gánh nặng thật; nhớ điều này khi đọc ICER ở Bài 5.</p>
+<p>Tiếp theo, đoạn <code>l04-waning</code> giải hai phương trình ở trên cho hai cách khớp: hai mốc (chính) và một tham số (độ nhạy). Kiểm tra: cách thứ nhất phải tái tạo <em>cả hai</em> hiệu lực trung bình của thử nghiệm, cách thứ hai chỉ tái tạo mốc 4.5 năm.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># From two trial averages to (E0, omega): a joint fit (main) and the one-parameter fit (sensitivity)</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>fit_joint <span class="ot">&lt;-</span> <span class="fu">waning_fit</span>(p<span class="sc">$</span>ve_initial, p<span class="sc">$</span>ve_cum, p<span class="sc">$</span>ve_initial_years, p<span class="sc">$</span>ve_followup_years, <span class="st">"joint"</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>fit_single <span class="ot">&lt;-</span> <span class="fu">waning_fit</span>(p<span class="sc">$</span>ve_initial, p<span class="sc">$</span>ve_cum, p<span class="sc">$</span>ve_initial_years, p<span class="sc">$</span>ve_followup_years, <span class="st">"single"</span>)</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: the joint fit reproduces BOTH trial averages; the one-parameter fit reproduces only the second</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>avg_of <span class="ot">&lt;-</span> <span class="cf">function</span>(fit, years) fit[[<span class="st">"e0"</span>]] <span class="sc">*</span> <span class="fu">mean_protection</span>(fit[[<span class="st">"omega"</span>]], years)</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(<span class="fu">avg_of</span>(fit_joint, p<span class="sc">$</span>ve_initial_years) <span class="sc">-</span> p<span class="sc">$</span>ve_initial) <span class="sc">&lt;</span> <span class="fl">1e-9</span>,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>          <span class="fu">abs</span>(<span class="fu">avg_of</span>(fit_joint, p<span class="sc">$</span>ve_followup_years) <span class="sc">-</span> p<span class="sc">$</span>ve_cum) <span class="sc">&lt;</span> <span class="fl">1e-9</span>,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>          <span class="fu">abs</span>(<span class="fu">avg_of</span>(fit_single, p<span class="sc">$</span>ve_followup_years) <span class="sc">-</span> p<span class="sc">$</span>ve_cum) <span class="sc">&lt;</span> <span class="fl">1e-9</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>fit_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">fit =</span> <span class="fu">c</span>(<span class="st">"Hai mốc (chính)"</span>, <span class="st">"Một tham số (độ nhạy)"</span>),</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">e0 =</span> <span class="fu">c</span>(fit_joint[[<span class="st">"e0"</span>]], fit_single[[<span class="st">"e0"</span>]]),</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">omega_per_year =</span> <span class="fu">c</span>(fit_joint[[<span class="st">"omega"</span>]], fit_single[[<span class="st">"omega"</span>]]),</span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">mean_duration_years =</span> <span class="dv">1</span> <span class="sc">/</span> <span class="fu">c</span>(fit_joint[[<span class="st">"omega"</span>]], fit_single[[<span class="st">"omega"</span>]]),</span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">protected_years_per_vaccinee =</span> <span class="fu">c</span>(fit_joint[[<span class="st">"e0"</span>]] <span class="sc">/</span> fit_joint[[<span class="st">"omega"</span>]],</span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>                                   fit_single[[<span class="st">"e0"</span>]] <span class="sc">/</span> fit_single[[<span class="st">"omega"</span>]]),</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">average_first_year =</span> <span class="fu">c</span>(<span class="fu">avg_of</span>(fit_joint, p<span class="sc">$</span>ve_initial_years), <span class="fu">avg_of</span>(fit_single, p<span class="sc">$</span>ve_initial_years)),</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">average_4.5_years =</span> <span class="fu">c</span>(<span class="fu">avg_of</span>(fit_joint, p<span class="sc">$</span>ve_followup_years), <span class="fu">avg_of</span>(fit_single, p<span class="sc">$</span>ve_followup_years)))</span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>fit_tab[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(fit_tab[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">3</span>)</span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>fit_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    fit    e0 omega_per_year mean_duration_years
+1       Hai mốc (chính) 0.871          0.167               5.979
+2 Một tham số (độ nhạy) 0.802          0.126               7.929
+  protected_years_per_vaccinee average_first_year average_4.5_years
+1                        5.207              0.802             0.612
+2                        6.359              0.753             0.612</code></pre>
+</div>
+</div>
+<p>Cách khớp hai mốc cho <span class="math inline">\(E_0 =\)</span> 87.1% và <span class="math inline">\(\omega =\)</span> 0.167 mỗi năm (bảo vệ kéo dài trung bình 6.0 năm). Cách một tham số cho <span class="math inline">\(\omega =\)</span> 0.126 (7.9 năm), nhưng bảo vệ trung bình năm đầu chỉ còn 75.3% thay vì 80.2%: không còn khớp mốc thứ nhất. Mỗi trẻ cảm nhiễm được tiêm có 5.2 năm được bảo vệ theo cách thứ nhất, 6.4 năm theo cách thứ hai.</p>
+<p>Bây giờ là các kịch bản tiêm chủng ở tuổi 9: không tiêm, bao phủ 50% và 80% (bảo vệ suy giảm), và 80% với bảo vệ suốt đời ở hiệu lực năm đầu để thấy vai trò của suy giảm. Kịch bản “không tiêm” chính là lần chạy nền ở trên. Mỗi kịch bản chạy 30 năm.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Four scenarios over scenario_years: no vaccination; routine vaccination at age 9 with low</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># or base coverage (waning protection); base coverage with lifelong protection (first-year efficacy)</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>cov_low <span class="ot">&lt;-</span> <span class="fu">low_of</span>(<span class="st">"coverage"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>lab <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(<span class="st">"Bao phủ "</span>, <span class="fu">fmt_pct</span>(x, <span class="dv">0</span>))</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>scen <span class="ot">&lt;-</span> <span class="fu">list</span>(inp0, <span class="fu">dengue_inputs</span>(p, <span class="at">coverage =</span> cov_low), inp, <span class="fu">dengue_inputs</span>(p, <span class="at">waning =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(scen) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Không tiêm"</span>, <span class="fu">lab</span>(cov_low), <span class="fu">lab</span>(p<span class="sc">$</span>coverage),</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">paste0</span>(<span class="fu">lab</span>(p<span class="sc">$</span>coverage), <span class="st">", không suy giảm"</span>))</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>runs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">list</span>(base), <span class="fu">lapply</span>(scen[<span class="sc">-</span><span class="dv">1</span>], <span class="cf">function</span>(x) <span class="fu">dengue_run</span>(x, y0, p<span class="sc">$</span>scenario_years)))</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(runs) <span class="ot">&lt;-</span> <span class="fu">names</span>(scen)                   <span class="co"># the "no vaccination" run is the baseline run above</span></span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>ann_df <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (s <span class="cf">in</span> <span class="fu">names</span>(runs)) {</span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  a <span class="ot">&lt;-</span> <span class="fu">annual_totals</span>(runs[[s]])</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  ann_df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(ann_df, <span class="fu">data.frame</span>(<span class="at">year =</span> a<span class="sc">$</span>year, <span class="at">scenario =</span> s,</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>                                     <span class="at">symptomatic =</span> p<span class="sc">$</span>p_sympt <span class="sc">*</span> (a<span class="sc">$</span>infections_1 <span class="sc">+</span> a<span class="sc">$</span>infections_2)))</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>ann_df<span class="sc">$</span>scenario <span class="ot">&lt;-</span> <span class="fu">factor</span>(ann_df<span class="sc">$</span>scenario, <span class="at">levels =</span> <span class="fu">names</span>(runs))</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">omega_per_year =</span> inp<span class="sc">$</span>omega_year, <span class="at">mean_protection_years =</span> <span class="dv">1</span> <span class="sc">/</span> inp<span class="sc">$</span>omega_year), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       omega_per_year mean_protection_years 
+                0.167                 5.979 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Does the base programme fall below, then rebound ABOVE the no-vaccination level in some year?</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>base_level <span class="ot">&lt;-</span> <span class="fu">mean</span>(ann_df<span class="sc">$</span>symptomatic[ann_df<span class="sc">$</span>scenario <span class="sc">==</span> <span class="st">"Không tiêm"</span>])</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>prog_years <span class="ot">&lt;-</span> ann_df<span class="sc">$</span>symptomatic[ann_df<span class="sc">$</span>scenario <span class="sc">==</span> <span class="fu">lab</span>(p<span class="sc">$</span>coverage)]</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">min_vs_base =</span> <span class="fu">min</span>(prog_years) <span class="sc">/</span> base_level, <span class="at">max_vs_base =</span> <span class="fu">max</span>(prog_years) <span class="sc">/</span> base_level,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">years_above_base =</span> <span class="fu">sum</span>(prog_years <span class="sc">&gt;</span> base_level))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     min_vs_base      max_vs_base years_above_base 
+       0.6145923        1.0910727        9.0000000 </code></pre>
+</div>
+</div>
+<p>Đoạn sau vẽ số ca có triệu chứng mỗi năm của bốn kịch bản. Kiểm tra: đường “không tiêm” gần như phẳng, các đường còn lại giảm mạnh rồi bật lên.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>fig_scen <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(ann_df, <span class="fu">aes</span>(year, symptomatic, <span class="at">colour =</span> scenario)) <span class="sc">+</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> pal_course[<span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">4</span>, <span class="dv">1</span>, <span class="dv">3</span>)], <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">fmt_num</span>(x), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="cn">NA</span>)) <span class="sc">+</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Năm sau khi bắt đầu tiêm chủng"</span>, <span class="at">y =</span> <span class="st">"Ca có triệu chứng mỗi năm"</span>,</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Trăng mật, rồi dịch bật lại"</span>,</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="fu">paste0</span>(<span class="st">"Tiêm thường xuyên ở tuổi "</span>, p<span class="sc">$</span>age_vacc, <span class="st">", "</span>, <span class="fu">fmt_num</span>(p<span class="sc">$</span>n_h),</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>                         <span class="st">" dân"</span>)) <span class="sc">+</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>() <span class="sc">+</span> <span class="fu">guides</span>(<span class="at">colour =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>))</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_scen, <span class="st">"l04-scenarios.png"</span>, <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="fl">4.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="fig-l04-scen" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-l04-scen-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figs/l04-scenarios.png" class="img-fluid figure-img" style="width:90.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-l04-scen-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;31.2: Số ca có triệu chứng mỗi năm theo kịch bản tiêm chủng, một triệu dân.
+</figcaption>
+</figure>
+</div>
+<p>Với bao phủ 80%, số ca có triệu chứng giảm xuống còn 61% mức không tiêm ở năm thứ 3, rồi bật lên, có 9 năm vượt cả mức không tiêm (cao nhất 109%). Nguyên nhân là người cảm nhiễm tích lũy khi lây truyền thấp và khi bảo vệ của vắc xin suy giảm. Cuối cùng, tính số ca, ca nhập viện và ca tử vong tránh được trong 20 năm (khung thời gian cơ sở). Kiểm tra: đọc từng hàng, mọi giá trị tránh được nên dương nếu vắc xin có tác dụng.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cases, hospitalisations and deaths averted over the base horizon (undiscounted counts)</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>h_report <span class="ot">&lt;-</span> p<span class="sc">$</span>horizon_years</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>tot <span class="ot">&lt;-</span> <span class="fu">lapply</span>(runs, <span class="cf">function</span>(r) <span class="fu">dengue_totals</span>(<span class="fu">dengue_flows</span>(r, p), h_report))</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>averted <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (s <span class="cf">in</span> <span class="fu">names</span>(runs)[<span class="sc">-</span><span class="dv">1</span>]) {</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  averted <span class="ot">&lt;-</span> <span class="fu">rbind</span>(averted, <span class="fu">data.frame</span>(</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">scenario =</span> s, <span class="at">vaccinated =</span> tot[[s]][[<span class="st">"vaccinated"</span>]],</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">cases =</span> tot[[<span class="dv">1</span>]][[<span class="st">"symptomatic"</span>]] <span class="sc">-</span> tot[[s]][[<span class="st">"symptomatic"</span>]],</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">hospital =</span> tot[[<span class="dv">1</span>]][[<span class="st">"hospital"</span>]] <span class="sc">-</span> tot[[s]][[<span class="st">"hospital"</span>]],</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">deaths =</span> tot[[<span class="dv">1</span>]][[<span class="st">"deaths"</span>]] <span class="sc">-</span> tot[[s]][[<span class="st">"deaths"</span>]]))</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>averted<span class="sc">$</span>cases_per_1000_vacc <span class="ot">&lt;-</span> <span class="dv">1000</span> <span class="sc">*</span> averted<span class="sc">$</span>cases <span class="sc">/</span> averted<span class="sc">$</span>vaccinated</span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>averted[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(averted[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">1</span>)</span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>averted                                  <span class="co"># read it: every row should be positive if vaccination helps</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     scenario vaccinated   cases hospital deaths
+1                 Bao phủ 50%   119317.5  3493.4   1706.2    0.5
+2                 Bao phủ 80%   190908.0  5783.1   2824.4    0.8
+3 Bao phủ 80%, không suy giảm   190908.0 18265.5   8920.9    2.7
+  cases_per_1000_vacc
+1                29.3
+2                30.3
+3                95.7</code></pre>
+</div>
+</div>
+<p>Với bao phủ 80%, chương trình tránh được 5,783 ca có triệu chứng, 2,824 ca nhập viện và 0.8 ca tử vong trong 20 năm trên một triệu dân. Nhân lên cho 102.3 triệu dân, đó là khoảng 289,000 ca nhập viện và 82 ca tử vong tránh được trong 20 năm, tức khoảng 4 ca tử vong mỗi năm, so với 43 ca tử vong được báo cáo năm 2025. Nếu bảo vệ kéo dài suốt đời, số ca tránh được tăng lên 18,266. Tham số suy giảm vì thế là một trong những tham số quan trọng nhất cho phân tích độ nhạy (M03).</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Mẹo thực hành">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mẹo thực hành
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Suy ngược mật độ muỗi từ R0 (hoặc từ tỷ lệ huyết thanh dương tính theo tuổi) thay vì nhập một con số <span class="math inline">\(m\)</span> không có nguồn: một dạng hiệu chuẩn (calibration) đơn giản; M08 làm bài bản.</li>
+<li>Chạy đủ lâu trước khi can thiệp, rồi kiểm tra số ca mỗi năm đã ổn định.</li>
+<li>Kiểm tra từng khối riêng rẽ: muỗi có lời giải giải tích, dân số người bảo toàn, NGM bằng căn bậc hai của R0 và tăng đúng theo tỷ lệ đốt.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Lỗi thường gặp">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lỗi thường gặp
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Dùng R0 từ NGM trong công thức <span class="math inline">\(1 - 1/R_0\)</span>.</strong> Với bệnh lây qua véc tơ truyền bệnh, NGM cho căn bậc hai của R0 dạng Ross–Macdonald; dùng nhầm sẽ đánh giá thấp nhiều tỷ lệ miễn dịch cần đạt.</li>
+<li><strong>Quên rằng muỗi phải sống qua EIP.</strong> Bỏ thừa số <span class="math inline">\(\sigma_v/(\sigma_v + g)\)</span> làm R0 cao hơn nhiều so với thực tế với cùng mật độ muỗi.</li>
+<li><strong>Coi hiệu lực trung bình của một khoảng thời gian là hiệu lực lúc tiêm, hoặc lấy hiệu lực của năm đầu cho cả khung thời gian.</strong> Hiệu lực TAK-003 giảm theo thời gian; giữ 80.2% suốt đời sẽ phóng đại lợi ích.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="bài-tập" class="level2">
+<h2 class="anchored" data-anchor-id="bài-tập">Bài tập</h2>
+<ol type="1">
+<li>(Dễ) Tắt biến thiên theo mùa (biên độ bằng 0). Tỷ lệ trẻ đã nhiễm ở ngăn tuổi cuối có đổi không? Vì sao?</li>
+<li>(Trung bình) Ở 30 °C, EIP trung bình chỉ còn 6.5 ngày <span class="citation" data-cites="chan2012incubation">(<a href="../m00-r-foundations/index.html#ref-chan2012incubation" role="doc-biblioref">Chan và Johansson 2012</a>)</span>. Giữ nguyên mật độ muỗi, R0 mới là bao nhiêu?</li>
+<li>(Trung bình) Với tốc độ suy giảm đã suy ra, bao nhiêu phần trăm trẻ cảm nhiễm được tiêm còn được bảo vệ sau 1, 5 và 10 năm kể từ khi tiêm?</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>Bài 1.</strong> Gần như không đổi: mùa làm số ca dồn vào vài tháng, nhưng mức lây truyền trung bình cả năm vẫn do R0 quyết định.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 1: remove seasonality (amplitude 0). Does the endemic level change?</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>p_flat <span class="ot">&lt;-</span> p</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>p_flat<span class="sc">$</span>season_amp <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>inp_flat <span class="ot">&lt;-</span> <span class="fu">dengue_inputs</span>(p_flat)</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>y_flat <span class="ot">&lt;-</span> <span class="fu">dengue_burnin</span>(inp_flat, p<span class="sc">$</span>burnin_years)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">SP9_seasonal =</span> sp9, <span class="at">SP9_flat =</span> <span class="fu">unname</span>(<span class="fu">sp_last_stage</span>(y_flat, inp<span class="sc">$</span>k))), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>SP9_seasonal     SP9_flat 
+       0.615        0.626 </code></pre>
+</div>
+</div>
+<p>Tỷ lệ trẻ đã nhiễm là 61.5% khi có mùa và 62.6% khi không có mùa.</p>
+<p><strong>Bài 2.</strong> R0 tăng mạnh vì nhiều muỗi sống qua EIP hơn. Đây là một lý do khí hậu ảnh hưởng nhiều đến SXHD.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 2: hotter weather (30 °C) shortens the EIP. Keeping the same mosquito density,</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co"># what is the new R0?</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>eip_hot <span class="ot">&lt;-</span> p<span class="sc">$</span>eip_days_30c</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>r0_hot <span class="ot">&lt;-</span> inp<span class="sc">$</span>m <span class="sc">*</span> <span class="fu">r0_per_m</span>(inp<span class="sc">$</span>bite, inp<span class="sc">$</span>b, inp<span class="sc">$</span>c, inp<span class="sc">$</span>g, <span class="dv">1</span> <span class="sc">/</span> eip_hot, inp<span class="sc">$</span>gamma, inp<span class="sc">$</span>sigma_h, inp<span class="sc">$</span>mu)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">R0_25C =</span> p<span class="sc">$</span>r0, <span class="at">R0_30C =</span> r0_hot), <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>R0_25C R0_30C 
+   9.7   14.7 </code></pre>
+</div>
+</div>
+<p><strong>Bài 3.</strong> Bảo vệ giảm theo hàm mũ từ <span class="math inline">\(E_0\)</span>; sau vài năm tỷ lệ được bảo vệ giảm nhanh.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 3: share of vaccinated (initially susceptible) children still protected</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 1, 5 and 10 years after vaccination</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>years_after <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">10</span>)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">setNames</span>(<span class="fu">round</span>(inp<span class="sc">$</span>eff <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>inp<span class="sc">$</span>omega_year <span class="sc">*</span> years_after), <span class="dv">3</span>), <span class="fu">paste0</span>(<span class="st">"year_"</span>, years_after))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> year_1  year_5 year_10 
+  0.737   0.377   0.164 </code></pre>
+</div>
+</div>
+<p>Sau 10 năm chỉ còn 16% trẻ cảm nhiễm được tiêm còn được bảo vệ, so với 74% sau 1 năm.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="tài-liệu-tham-khảo" class="level2">
+<h2 class="anchored" data-anchor-id="tài-liệu-tham-khảo">Tài liệu tham khảo</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-altizer2006seasonality" class="csl-entry" role="listitem">
+Altizer, Sonia, Andrew Dobson, Parviez Hosseini, Peter Hudson, Mercedes Pascual, và Pejman Rohani. 2006. <span>“Seasonality and the dynamics of infectious diseases”</span>. <em>Ecology Letters</em> 9 (4): 467–84. <a href="https://doi.org/10.1111/j.1461-0248.2005.00879.x">https://doi.org/10.1111/j.1461-0248.2005.00879.x</a>.
+</div>
+<div id="ref-baophapluat2026sxh2025" class="csl-entry" role="listitem">
+Báo Pháp luật Việt Nam. 2026. <span>“Bộ Y tế thông tin về tình hình bệnh sốt xuất huyết và tay chân miệng”</span>. 12 Tháng Giêng 2026. <a href="https://baophapluat.vn/bo-y-te-thong-tin-ve-tinh-hinh-benh-sot-xuat-huyet-va-tay-chan-mieng.html">https://baophapluat.vn/bo-y-te-thong-tin-ve-tinh-hinh-benh-sot-xuat-huyet-va-tay-chan-mieng.html</a>.
+</div>
+<div id="ref-sggp2022nhapvien" class="csl-entry" role="listitem">
+Báo Sài Gòn Giải Phóng. 2022. <span>“Dồn dập nhập viện vì sốt xuất huyết”</span>. 25 Tháng Sáu 2022. <a href="https://www.sggp.org.vn/don-dap-nhap-vien-vi-sot-xuat-huyet-post641580.html">https://www.sggp.org.vn/don-dap-nhap-vien-vi-sot-xuat-huyet-post641580.html</a>.
+</div>
+<div id="ref-bhatt2013global" class="csl-entry" role="listitem">
+Bhatt, Samir, Peter W. Gething, Oliver J. Brady, Jane P. Messina, Andrew W. Farlow, Catherine L. Moyes, John M. Drake, và c.s. 2013. <span>“The global distribution and burden of dengue”</span>. <em>Nature</em> 496 (7446): 504–7. <a href="https://doi.org/10.1038/nature12060">https://doi.org/10.1038/nature12060</a>.
+</div>
+<div id="ref-biswal2020efficacy" class="csl-entry" role="listitem">
+Biswal, Shibadas và c.s. 2020. <span>“Efficacy of a tetravalent dengue vaccine in healthy children aged 4–16 years: a randomised, placebo-controlled, phase 3 trial”</span>. <em>The Lancet</em> 395 (10234): 1423–33. <a href="https://doi.org/10.1016/S0140-6736(20)30414-1">https://doi.org/10.1016/S0140-6736(20)30414-1</a>.
+</div>
+<div id="ref-byt2024bc1823" class="csl-entry" role="listitem">
+Bộ Y tế. 2024a. <span>“Báo cáo 1823/<span>BC-BYT</span> năm 2024 về công tác y tế tháng 12 (từ ngày 18/11/2024 đến ngày 17/12/2024)”</span>. 2024. <a href="https://luatvietnam.vn/y-te/bao-cao-1823-bc-byt-2024-cong-tac-y-te-thang-12-tu-ngay-18-11-2024-den-ngay-17-12-2024-381994-d6.html">https://luatvietnam.vn/y-te/bao-cao-1823-bc-byt-2024-cong-tac-y-te-thang-12-tu-ngay-18-11-2024-den-ngay-17-12-2024-381994-d6.html</a>.
+</div>
+<div id="ref-byt2024qd3220" class="csl-entry" role="listitem">
+———. 2024b. <span>“Quyết định số 3220/<span>QĐ-BYT</span> ngày 01/11/2024 về giá dịch vụ khám bệnh, chữa bệnh áp dụng tại Bệnh viện Bạch Mai”</span>. 1 Tháng Mười-Một 2024. <a href="https://apicms.bachmai.gov.vn/documents/37204/1543632/8_Nov_2024_022948_GMTupload_00004592.pdf/b3ab6717-2151-db08-9913-3cfbfd7e0738">https://apicms.bachmai.gov.vn/documents/37204/1543632/8_Nov_2024_022948_GMTupload_00004592.pdf/b3ab6717-2151-db08-9913-3cfbfd7e0738</a>.
+</div>
+<div id="ref-brady2013modelling" class="csl-entry" role="listitem">
+Brady, Oliver J., Michael A. Johansson, Carlos A. Guerra, Samir Bhatt, Nick Golding, David M. Pigott, Hélène Delatte, và c.s. 2013. <span>“Modelling adult <span>Aedes aegypti</span> and <span>Aedes albopictus</span> survival at different temperatures in laboratory and field settings”</span>. <em>Parasites &amp; Vectors</em> 6: 351. <a href="https://doi.org/10.1186/1756-3305-6-351">https://doi.org/10.1186/1756-3305-6-351</a>.
+</div>
+<div id="ref-chan2012incubation" class="csl-entry" role="listitem">
+Chan, Miranda, và Michael A. Johansson. 2012. <span>“The incubation periods of dengue viruses”</span>. <em>PLoS One</em> 7 (11): e50972. <a href="https://doi.org/10.1371/journal.pone.0050972">https://doi.org/10.1371/journal.pone.0050972</a>.
+</div>
+<div id="ref-chinhphu2025nd293" class="csl-entry" role="listitem">
+Chính phủ. 2025. <span>“Nghị định 293/2025/<span>NĐ-CP</span> quy định mức lương tối thiểu đối với người lao động làm việc theo hợp đồng lao động (hiệu lực từ 1/1/2026)”</span>. 2025. <a href="https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026">https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026</a>.
+</div>
+<div id="ref-gso2026population2025" class="csl-entry" role="listitem">
+Cục Thống kê (Bộ Tài chính). 2026. <span>“Thông cáo báo chí về tình hình dân số, lao động, việc làm quý <span>IV</span> và năm 2025”</span>. 5 Tháng Giêng 2026. <a href="https://www.nso.gov.vn/?p=59530">https://www.nso.gov.vn/?p=59530</a>.
+</div>
+<div id="ref-duong2015asymptomatic" class="csl-entry" role="listitem">
+Duong, Veasna, Louis Lambrechts, Richard E. Paul, Sowath Ly, Rath Srey Lay, Kanya C. Long, Rekol Huy, và c.s. 2015. <span>“Asymptomatic humans transmit dengue virus to mosquitoes”</span>. <em>Proceedings of the National Academy of Sciences of the United States of America</em> 112 (47): 14688–93. <a href="https://doi.org/10.1073/pnas.1508114112">https://doi.org/10.1073/pnas.1508114112</a>.
+</div>
+<div id="ref-ferguson2016benefits" class="csl-entry" role="listitem">
+Ferguson, Neil M., Isabel Rodríguez-Barraquer, Ilaria Dorigatti, Luis Mier-y-Teran-Romero, Daniel J. Laydon, và Derek A. T. Cummings. 2016. <span>“Benefits and risks of the <span>Sanofi-Pasteur</span> dengue vaccine: modeling optimal deployment”</span>. <em>Science</em> 353 (6303): 1033–36. <a href="https://doi.org/10.1126/science.aaf9590">https://doi.org/10.1126/science.aaf9590</a>.
+</div>
+<div id="ref-flasche2016long" class="csl-entry" role="listitem">
+Flasche, Stefan, Mark Jit, Isabel Rodríguez-Barraquer, Laurent Coudeville, Mario Recker, Katia Koelle, George Milne, và c.s. 2016. <span>“The long-term safety, public health impact, and cost-effectiveness of routine vaccination with a recombinant, live-attenuated dengue vaccine (<span>Dengvaxia</span>): a model comparison study”</span>. <em>PLoS Medicine</em> 13 (11): e1002181. <a href="https://doi.org/10.1371/journal.pmed.1002181">https://doi.org/10.1371/journal.pmed.1002181</a>.
+</div>
+<div id="ref-outbreaknews2026vietnam" class="csl-entry" role="listitem">
+Herriman, Robert. 2026. <span>“Vietnam: Dengue fever rise in <span>Ho Chi Minh City</span>”</span>. Outbreak News Today. 24 Tháng Giêng 2026. <a href="https://outbreaknewstoday.substack.com/p/vietnam-dengue-fever-rise-in-ho-chi">https://outbreaknewstoday.substack.com/p/vietnam-dengue-fever-rise-in-ho-chi</a>.
+</div>
+<div id="ref-hung2018estimates" class="csl-entry" role="listitem">
+Hung, Trinh Manh, Hannah E. Clapham, Alison A. Bettis, Hoang Quoc Cuong, Guy E. Thwaites, Bridget A. Wills, Maciej F. Boni, và Hugo C. Turner. 2018. <span>“The estimates of the health and economic burden of dengue in <span>Vietnam</span>”</span>. <em>Trends in Parasitology</em> 34 (10): 904–18. <a href="https://doi.org/10.1016/j.pt.2018.07.007">https://doi.org/10.1016/j.pt.2018.07.007</a>.
+</div>
+<div id="ref-lee2017seasonal" class="csl-entry" role="listitem">
+Lee, Hu Suk, Hung Nguyen-Viet, Vu Sinh Nam, Mihye Lee, Sungho Won, Phuc Pham Duc, và Delia Grace. 2017. <span>“Seasonal patterns of dengue fever and associated climate factors in 4 provinces in <span>Vietnam</span> from 1994 to 2013”</span>. <em>BMC Infectious Diseases</em> 17 (1): 218. <a href="https://doi.org/10.1186/s12879-017-2326-8">https://doi.org/10.1186/s12879-017-2326-8</a>.
+</div>
+<div id="ref-lopezmedina2022efficacy" class="csl-entry" role="listitem">
+López-Medina, Eduardo và c.s. 2022. <span>“Efficacy of a dengue vaccine candidate (<span>TAK-003</span>) in healthy children and adolescents 2 years after vaccination”</span>. <em>The Journal of Infectious Diseases</em> 225 (9): 1521–32. <a href="https://doi.org/10.1093/infdis/jiaa761">https://doi.org/10.1093/infdis/jiaa761</a>.
+</div>
+<div id="ref-nealon2016symptomatic" class="csl-entry" role="listitem">
+Nealon, Joshua, Anne-Frieda Taurel, Maria Rosario Capeding, Ngoc Huu Tran, Sri Rezeki Hadinegoro, Tawee Chotpitayasunondh, Chee Kheong Chong, và c.s. 2016. <span>“Symptomatic dengue disease in five <span>Southeast Asian</span> countries: epidemiological evidence from a dengue vaccine trial”</span>. <em>PLoS Neglected Tropical Diseases</em> 10 (8): e0004918. <a href="https://doi.org/10.1371/journal.pntd.0004918">https://doi.org/10.1371/journal.pntd.0004918</a>.
+</div>
+<div id="ref-nguyet2013host" class="csl-entry" role="listitem">
+Nguyet, Minh Nguyen, Thi Hue Kien Duong, Vu Tuan Trung, Than Ha Quyen Nguyen, Chau N. B. Tran, Vo Thi Long, Le Thi Dui, và c.s. 2013. <span>“Host and viral features of human dengue cases shape the population of infected and infectious <span>Aedes aegypti</span> mosquitoes”</span>. <em>Proceedings of the National Academy of Sciences of the United States of America</em> 110 (22): 9072–77. <a href="https://doi.org/10.1073/pnas.1303395110">https://doi.org/10.1073/pnas.1303395110</a>.
+</div>
+<div id="ref-recker2024markers" class="csl-entry" role="listitem">
+Recker, Mario, Wim A. Fleischmann, Trinh Huu Nghia, Nguyen Van Truong, Le Van Nam, Do Duc Anh, Le Huu Song, và c.s. 2024. <span>“Markers of prolonged hospitalisation in severe dengue”</span>. <em>PLoS Neglected Tropical Diseases</em> 18 (1): e0011922. <a href="https://doi.org/10.1371/journal.pntd.0011922">https://doi.org/10.1371/journal.pntd.0011922</a>.
+</div>
+<div id="ref-reich2013interactions" class="csl-entry" role="listitem">
+Reich, Nicholas G., Sourya Shrestha, Aaron A. King, Pejman Rohani, Justin Lessler, Siripen Kalayanarooj, In-Kyu Yoon, Robert V. Gibbons, Donald S. Burke, và Derek A. T. Cummings. 2013. <span>“Interactions between serotypes of dengue highlight epidemiological impact of cross-immunity”</span>. <em>Journal of the Royal Society Interface</em> 10 (86): 20130414. <a href="https://doi.org/10.1098/rsif.2013.0414">https://doi.org/10.1098/rsif.2013.0414</a>.
+</div>
+<div id="ref-saezllorens2025tak" class="csl-entry" role="listitem">
+Sáez-Llorens, Xavier và c.s. 2025. <span>“<span>TAK-003</span>: development of a tetravalent dengue vaccine”</span>. <em>Expert Review of Vaccines</em> 24 (1): 324–38. <a href="https://doi.org/10.1080/14760584.2025.2490295">https://doi.org/10.1080/14760584.2025.2490295</a>.
+</div>
+<div id="ref-scott2000longitudinal" class="csl-entry" role="listitem">
+Scott, T. W., P. H. Amerasinghe, A. C. Morrison, L. H. Lorenz, G. G. Clark, D. Strickman, P. Kittayapong, và J. D. Edman. 2000. <span>“Longitudinal studies of <span>Aedes aegypti</span> (<span>Diptera</span>: <span>Culicidae</span>) in <span>Thailand</span> and <span>Puerto Rico</span>: blood feeding frequency”</span>. <em>Journal of Medical Entomology</em> 37 (1): 89–101. <a href="https://doi.org/10.1603/0022-2585-37.1.89">https://doi.org/10.1603/0022-2585-37.1.89</a>.
+</div>
+<div id="ref-smith2012ross" class="csl-entry" role="listitem">
+Smith, David L., Katherine E. Battle, Simon I. Hay, Christopher M. Barker, Thomas W. Scott, và F. Ellis McKenzie. 2012. <span>“Ross, Macdonald, and a theory for the dynamics and control of mosquito-transmitted pathogens”</span>. <em>PLoS Pathogens</em> 8 (4): e1002588. <a href="https://doi.org/10.1371/journal.ppat.1002588">https://doi.org/10.1371/journal.ppat.1002588</a>.
+</div>
+<div id="ref-haiphong2024qd2760" class="csl-entry" role="listitem">
+Sở Y tế Hải Phòng. 2024. <span>“Cập nhật chẩn đoán và điều trị sốt xuất huyết theo Quyết định số 2760/<span>QĐ-BYT</span> ngày 04/7/2023”</span>. 2024. <a href="https://cdn.haiphong.gov.vn/gov-hpg/SiteFolders/Root/6458/tintuc/2024/6/cap-nhat-chan-doan-va-dieu-tri-dhf-qd-2670-2023.pdf">https://cdn.haiphong.gov.vn/gov-hpg/SiteFolders/Root/6458/tintuc/2024/6/cap-nhat-chan-doan-va-dieu-tri-dhf-qd-2670-2023.pdf</a>.
+</div>
+<div id="ref-thai2011age" class="csl-entry" role="listitem">
+Thai, Khoa T. D., Hiroshi Nishiura, Phuong Lan Hoang, Nga Thanh Thi Tran, Giao Trong Phan, Hung Quoc Le, Binh Quang Tran, Nam Van Nguyen, và Peter J. de Vries. 2011. <span>“Age-specificity of clinical dengue during primary and secondary infections”</span>. <em>PLoS Neglected Tropical Diseases</em> 5 (6): e1180. <a href="https://doi.org/10.1371/journal.pntd.0001180">https://doi.org/10.1371/journal.pntd.0001180</a>.
+</div>
+<div id="ref-tricou2024longterm" class="csl-entry" role="listitem">
+Tricou, Vianney, Delia Yu, Humberto Reynales, Shibadas Biswal, Xavier Saez-Llorens, Chukiat Sirivichayakul, Pio Lopez, và c.s. 2024. <span>“Long-term efficacy and safety of a tetravalent dengue vaccine (<span>TAK-003</span>): 4.5-year results from a phase 3, randomised, double-blind, placebo-controlled trial”</span>. <em>The Lancet Global Health</em> 12 (2): e257–70. <a href="https://doi.org/10.1016/S2214-109X(23)00522-3">https://doi.org/10.1016/S2214-109X(23)00522-3</a>.
+</div>
+<div id="ref-viettimes2022sxh" class="csl-entry" role="listitem">
+VietTimes. 2022. <span>“Bùng phát dịch sốt xuất huyết: Trẻ em tử vong nhiều hơn người lớn”</span>. 26 Tháng Sáu 2022. <a href="https://viettimes.vn/bung-phat-dich-sot-xuat-huyet-tre-em-tu-vong-nhieu-hon-nguoi-lon-post158051.html">https://viettimes.vn/bung-phat-dich-sot-xuat-huyet-tre-em-tu-vong-nhieu-hon-nguoi-lon-post158051.html</a>.
+</div>
+<div id="ref-vov2024dengue2023" class="csl-entry" role="listitem">
+VOV. 2024. <span>“Dengue fever cases in <span>Hanoi</span> higher than <span>Ho Chi Minh City</span>”</span>. 26 Tháng Giêng 2024. <a href="https://kynguyenvuonminh.vov.vn/en/society/dengue-fever-cases-in-hanoi-higher-than-ho-chi-minh-city-post1074005.vov">https://kynguyenvuonminh.vov.vn/en/society/dengue-fever-cases-in-hanoi-higher-than-ho-chi-minh-city-post1074005.vov</a>.
+</div>
+<div id="ref-worldbank2026pop" class="csl-entry" role="listitem">
+World Bank. 2026. <span>“Population, total – <span>Viet Nam</span> (<span>SP.POP.TOTL</span>)”</span>. World Development Indicators. <a href="https://api.worldbank.org/v2/country/VNM/indicator/SP.POP.TOTL?format=json&amp;date=2010:2016">https://api.worldbank.org/v2/country/VNM/indicator/SP.POP.TOTL?format=json&amp;date=2010:2016</a>.
+</div>
+</div>
+<div class="video-script">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Kịch bản video (~15 phút)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Slide</th>
+<th>Lời giảng chính</th>
+<th>Hình/Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>SXHD ở Việt Nam</td>
+<td>190,040 ca báo cáo năm 2025; khoảng 74% ca báo cáo nằm viện; mùa mưa; bốn type huyết thanh</td>
+<td>callout đầu bài</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Một mô hình đủ đơn giản</td>
+<td>một type “giống Dengue”; nói rõ cái gì bị bỏ qua</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Ross–Macdonald</td>
+<td>hai lực lây nhiễm; muỗi phải sống qua EIP</td>
+<td>sơ đồ Mermaid</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Hai quy ước R0</td>
+<td>Ross–Macdonald = 9.7; NGM = 3.11</td>
+<td>chunk <code>l04-r0</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Mùa</td>
+<td>đỉnh muỗi tháng 7; đỉnh ca tháng 10</td>
+<td><code>figs/l04-season.png</code></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Từ thử nghiệm đến E0 và ω</td>
+<td>80.2% và 61.2% là hiệu lực trung bình; E0 = 87.1%, bảo vệ trung bình 6.0 năm</td>
+<td>chunk <code>l04-waning</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Thẩm định ngoại</td>
+<td>gần số ca được báo cáo, thấp hơn nhiều ước tính gánh nặng; trần của một lần nhiễm</td>
+<td>chunk <code>l04-validation</code></td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Kịch bản tiêm chủng</td>
+<td>trăng mật rồi bật lại</td>
+<td><code>figs/l04-scenarios.png</code></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Ca tránh được</td>
+<td>5,783 ca, 2,824 ca nhập viện trong 20 năm</td>
+<td>chunk <code>l04-averted</code></td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Lỗi thường gặp</td>
+<td>nhầm quy ước R0; quên EIP; hiệu lực không đổi</td>
+<td>callout</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Chuyển tiếp</td>
+<td>từ số ca đến chi phí và DALY → Bài 5</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="pagination-link" aria-label="Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="pagination-link" aria-label="Bài 5: Đánh giá kinh tế với mô hình lây truyền động">
+        <span class="nav-page-text"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

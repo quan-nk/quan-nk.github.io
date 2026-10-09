@@ -1,0 +1,1792 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="vi" xml:lang="vi"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu – Mô hình Kinh tế Y tế với R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../kb/m00-r-foundations/l05-ggplot2.html" rel="next">
+<link href="../../kb/m00-r-foundations/l03-functions-loops.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-9e7f0c659d5fa2cace8548cb57964278.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c18d72663580ed8ca19ce2a2f99af51b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m00-r-foundations/index.html">M00 · R cho mô hình kinh tế y tế</a></li><li class="breadcrumb-item"><a href="../../kb/m00-r-foundations/l04-data-frames.html"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Mô hình Kinh tế Y tế với R</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lời mở đầu</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m00-r-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M00 · R cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l01-reproducible-workflow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Quy trình làm việc tái lập với R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m01-ee-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M01 · Nền tảng đánh giá kinh tế và cây quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l01-evaluation-types.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại đánh giá kinh tế, quan điểm, khung thời gian và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l03-decision-rules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l05-decision-tree.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Xây cây quyết định từ đầu trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m02-cohort-markov/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M02 · Mô hình chuyển trạng thái đoàn hệ (Markov)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l01-state-transition.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao cần mô hình chuyển trạng thái</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l02-rates-probabilities.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tỷ suất, xác suất và độ dài chu kỳ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l03-cohort-trace.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vết đoàn hệ, giá trị gắn với trạng thái và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l04-time-dependence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Phụ thuộc thời gian: lão hóa, trạng thái đường hầm và mảng 3 chiều</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l05-results-verification.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị gắn với lần chuyển, đường biên hiệu quả và xác minh mô hình</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m03-uncertainty-voi/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M03 · Bất định, phân tích độ nhạy và giá trị thông tin</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l01-deterministic-sa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại bất định và phân tích độ nhạy tất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l02-distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Chọn phân phối cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l03-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích độ nhạy xác suất (PSA) trong R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l04-ceac-reporting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: CEAC, CEAF, tổn thất kỳ vọng và cách báo cáo bất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l05-voi.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị thông tin: EVPI, EVPPI và EVSI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m04-microsimulation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M04 · Mô phỏng vi mô (microsimulation)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l01-why-microsimulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Khi mô hình đoàn hệ không đủ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l02-microsim-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô phỏng vi mô bằng vòng lặp trong R cơ bản</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l03-vectorisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vectơ hóa theo cá thể và đo hiệu năng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l04-parallel-rcpp.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tính toán song song và Rcpp cho vòng lặp nóng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l05-mc-error-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bao nhiêu cá thể là đủ? Sai số Monte Carlo, PSA và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m05-dynamic-transmission/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M05 · Mô hình lây truyền động</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l01-static-vs-dynamic.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Mô hình tĩnh và mô hình lây truyền động</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l02-sir-seir-desolve.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình SIR và SEIR trong R với deSolve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m06-amr-economics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M06 · Kinh tế học kháng kháng sinh (AMR)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l01-amr-burden.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Kinh tế học kháng kháng sinh: ngoại ứng, gánh nặng và kịch bản phản thực</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l03-ward-transmission.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m07-survival-psm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M07 · Phân tích sống còn cho mô hình quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l03-extrapolation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l05-partitioned-survival.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m08-calibration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M08 · Hiệu chuẩn mô hình (calibration)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l01-why-calibrate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao phải hiệu chuẩn mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l02-search-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tìm kiếm tham số: ngẫu nhiên, siêu khối Latin và Nelder–Mead</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l03-bayes-sir.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hiệu chuẩn Bayes và thuật toán SIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l04-psa-validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đưa kết quả hiệu chuẩn vào PSA, thẩm định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m09-inputs-vietnam/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M09 · Dữ liệu đầu vào cho Việt Nam và LMIC</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l01-costing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ước tính chi phí cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l02-cost-adjustment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Điều chỉnh chi phí về một năm tham chiếu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l03-outcome-inputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Đầu vào về kết cục sức khỏe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l04-evidence-synthesis.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tổng hợp bằng chứng cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l05-decision-context.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bối cảnh ra quyết định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m10-policy-bia-equity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l04-communicating-hta.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Truyền đạt kết quả cho người ra quyết định và quy trình HTA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m11-software-engineering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l01-code-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Cấu trúc mã cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l02-testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Xác minh và kiểm thử mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l03-version-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l04-r-package.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/glossary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Trong bài</h2>
+   
+  <ul class="collapse">
+  <li><a href="#mục-tiêu-học-tập" id="toc-mục-tiêu-học-tập" class="nav-link active" data-scroll-target="#mục-tiêu-học-tập">Mục tiêu học tập</a></li>
+  <li><a href="#ý-chính" id="toc-ý-chính" class="nav-link" data-scroll-target="#ý-chính">Ý chính</a></li>
+  <li><a href="#nội-dung" id="toc-nội-dung" class="nav-link" data-scroll-target="#nội-dung">Nội dung</a></li>
+  <li><a href="#thực-hành" id="toc-thực-hành" class="nav-link" data-scroll-target="#thực-hành">Thực hành</a></li>
+  <li><a href="#bài-tập" id="toc-bài-tập" class="nav-link" data-scroll-target="#bài-tập">Bài tập</a></li>
+  <li><a href="#tài-liệu-tham-khảo" id="toc-tài-liệu-tham-khảo" class="nav-link" data-scroll-target="#tài-liệu-tham-khảo">Tài liệu tham khảo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m00-r-foundations/index.html">M00 · R cho mô hình kinh tế y tế</a></li><li class="breadcrumb-item"><a href="../../kb/m00-r-foundations/l04-data-frames.html"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></h1>
+<p class="subtitle lead">Từ tệp trích xuất kháng sinh đồ lộn xộn đến bảng tỷ lệ đề kháng có khoảng tin cậy</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-important callout-titled" title="Vì sao bạn nên quan tâm?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Vì sao bạn nên quan tâm?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Mỗi dòng trong tệp xuất của khoa vi sinh là tiền thật: một lần cấy máu bằng hệ thống tự động (325,200 VNĐ) cộng một kháng sinh đồ (213,800 VNĐ) đã bằng 2.2 ngày lương tối thiểu vùng I theo mức từ 1/1/2026 <span class="citation" data-cites="byt2024qd3220 chinhphu2025nd293">(<a href="index.html#ref-byt2024qd3220" role="doc-biblioref">Bộ Y tế 2024</a>; <a href="index.html#ref-chinhphu2025nd293" role="doc-biblioref">Chính phủ 2025</a>)</span>. Tệp xuất đó thường lộn xộn: tên vi khuẩn gõ nhiều kiểu, kết quả viết thường, và một người bệnh nhiễm chủng kháng được cấy đi cấy lại. Nếu không loại chủng trùng, tỷ lệ kháng carbapenem bị kéo lên và phác đồ kinh nghiệm của bệnh viện có thể chuyển sang colistin sớm hơn cần thiết. Trong VINARES 2016–2017, 79% chủng <em>Acinetobacter</em> kháng carbapenem, tính trên chủng đã loại trùng <span class="citation" data-cites="vu2021antimicrobial">(<a href="index.html#ref-vu2021antimicrobial" role="doc-biblioref">Vu và c.s. 2021</a>)</span>. Con số như vậy chỉ đáng tin khi mọi bước làm sạch và loại trùng được viết thành mã; bài này dạy các bước đó.</p>
+</div>
+</div>
+<section id="mục-tiêu-học-tập" class="level2">
+<h2 class="anchored" data-anchor-id="mục-tiêu-học-tập">Mục tiêu học tập</h2>
+<p>Sau bài này, bạn có thể:</p>
+<ol type="1">
+<li>Nhập một tệp CSV vào data frame với các đối số đúng cho giá trị thiếu và mã hóa tiếng Việt.</li>
+<li>Phát hiện và sửa bằng mã các lỗi nhập liệu điển hình: tên viết nhiều kiểu, mã kết quả không chuẩn, ngày dạng chữ, dòng trùng.</li>
+<li>Giữ lại chủng phân lập (isolate) đầu tiên của mỗi người bệnh và giải thích vì sao bước này làm thay đổi tỷ lệ đề kháng.</li>
+<li>Chuyển dữ liệu từ dạng rộng (wide format) sang dạng dài (long format) và ngược lại.</li>
+<li>Tính tỷ lệ đề kháng kèm khoảng tin cậy Wilson, kiểm tra kết quả với hàm có sẵn của R, và nói rõ khoảng tin cậy đó đo loại bất định nào.</li>
+</ol>
+</section>
+<section id="ý-chính" class="level2">
+<h2 class="anchored" data-anchor-id="ý-chính">Ý chính</h2>
+<ul>
+<li><strong>Data frame</strong> là bảng có các cột cùng độ dài; mỗi cột là một vectơ có kiểu riêng. Lấy dòng và cột bằng <code>df[dòng, cột]</code>.</li>
+<li>Không sửa dữ liệu thô. Mỗi bước làm sạch là một dòng mã, kèm một kiểm tra: tên lạ thì dừng, mã lạ thì dừng.</li>
+<li>Dùng <strong>bảng tra (lookup table)</strong> để chuẩn hóa tên. Đây là một vectơ có tên, dễ đọc và dễ bổ sung hơn một chuỗi <code>ifelse()</code>.</li>
+<li>Báo cáo tỷ lệ đề kháng dùng <strong>một chủng cho mỗi người bệnh, mỗi loài, mỗi kỳ</strong> <span class="citation" data-cites="hindler2007analysis">(<a href="index.html#ref-hindler2007analysis" role="doc-biblioref">Hindler và Stelling 2007</a>)</span>. Giữ chủng lặp lại sẽ làm lệch tỷ lệ về phía những người bệnh được cấy nhiều lần.</li>
+<li><strong>Dữ liệu dạng dài</strong> (một dòng cho mỗi chủng × kháng sinh) là dạng thuận tiện nhất để tóm tắt và vẽ biểu đồ <span class="citation" data-cites="wickham2014tidy">(<a href="index.html#ref-wickham2014tidy" role="doc-biblioref">Wickham 2014</a>)</span>.</li>
+<li>Khoảng tin cậy Wald (<span class="math inline">\(\hat p \pm 1.96\,SE\)</span>) hoạt động kém khi mẫu nhỏ hoặc tỷ lệ gần 0 hay 1. Hãy dùng <strong>khoảng Wilson</strong> <span class="citation" data-cites="wilson1927probable agresti1998approximate brown2001interval">(<a href="index.html#ref-wilson1927probable" role="doc-biblioref">Wilson 1927</a>; <a href="index.html#ref-agresti1998approximate" role="doc-biblioref">Agresti và Coull 1998</a>; <a href="index.html#ref-brown2001interval" role="doc-biblioref">Brown, Cai, và DasGupta 2001</a>)</span>. Khoảng này chỉ phản ánh sai số lấy mẫu nhị thức; khi gộp các bệnh viện và năm có khác biệt thật rồi muốn khái quát ra ngoài các ô đã quan sát, khoảng thực sự rộng hơn.</li>
+<li>Định nghĩa phải nói rõ: “đề kháng” chỉ tính R, hay “không nhạy cảm” tính cả I và R. Coi I là không nhạy cảm là quy ước của Clinical and Laboratory Standards Institute (CLSI) và của Magiorakos; theo European Committee on Antimicrobial Susceptibility Testing (EUCAST) hiện hành, I nghĩa là nhạy cảm khi tăng liều.</li>
+</ul>
+</section>
+<section id="nội-dung" class="level2">
+<h2 class="anchored" data-anchor-id="nội-dung">Nội dung</h2>
+<section id="data-frame-và-nhập-dữ-liệu" class="level3">
+<h3 class="anchored" data-anchor-id="data-frame-và-nhập-dữ-liệu">Data frame và nhập dữ liệu</h3>
+<p><code>read.csv()</code> đọc tệp CSV thành data frame. Ba đối số quan trọng: <code>na.strings</code> cho biết ô nào là giá trị thiếu (ở đây là ô trống); <code>encoding = "UTF-8"</code> giữ đúng dấu tiếng Việt; và từ R 4.0, chuỗi ký tự không còn bị tự đổi thành factor. Ngay sau khi nhập, luôn xem <code>dim()</code>, <code>str()</code> và <code>table()</code> của các cột phân loại. Phần lớn lỗi dữ liệu lộ ra ở bước này.</p>
+</section>
+<section id="làm-sạch-bằng-mã" class="level3">
+<h3 class="anchored" data-anchor-id="làm-sạch-bằng-mã">Làm sạch bằng mã</h3>
+<p>Tệp trích xuất từ phòng xét nghiệm trong module này có bốn loại lỗi thường gặp trong dữ liệu thật: tên vi khuẩn viết nhiều kiểu (<code>E.coli</code>, <code>Escherichia coli</code>, <code>A. baumanii</code>), mã kết quả viết thường hoặc thừa khoảng trắng, ngày ở dạng chữ <code>dd/mm/yyyy</code>, và dòng nhập trùng. Nguyên tắc chung: chuẩn hóa trước (<code>trimws()</code>, <code>tolower()</code>, <code>toupper()</code>), tra bảng sau, và <strong>dừng nếu gặp giá trị không có trong bảng</strong>. Không bao giờ để một tên lạ lặng lẽ trở thành <code>NA</code> rồi biến mất khỏi mẫu số.</p>
+<p>Dữ liệu ở đây là mô phỏng, nên ta có một lợi thế không bao giờ có với dữ liệu thật: so sánh kết quả làm sạch với dữ liệu gốc trước khi bị làm “bẩn”. Đây là cách tốt để kiểm tra một quy trình làm sạch trước khi dùng nó cho dữ liệu thật.</p>
+</section>
+<section id="chủng-đầu-tiên" class="level3">
+<h3 class="anchored" data-anchor-id="chủng-đầu-tiên">Chủng đầu tiên</h3>
+<p>Một người bệnh nhiễm khuẩn kéo dài thường được cấy nhiều lần, và các chủng lặp lại gần như giống hệt nhau. Nếu đếm tất cả, tỷ lệ đề kháng phản ánh số lần cấy chứ không phản ánh số người bệnh. Hướng dẫn của CLSI về bản tổng kết mức độ nhạy cảm kháng sinh tích lũy, bản M39-A2 mà Hindler và Stelling mô tả, coi việc loại chủng lặp lại của cùng một người bệnh là một vấn đề then chốt <span class="citation" data-cites="hindler2007analysis">(<a href="index.html#ref-hindler2007analysis" role="doc-biblioref">Hindler và Stelling 2007</a>)</span>. Mạng lưới giám sát ở Việt Nam cũng báo cáo trên chủng đã loại trùng: VINARES <span class="citation" data-cites="vu2021antimicrobial">(<a href="index.html#ref-vu2021antimicrobial" role="doc-biblioref">Vu và c.s. 2021</a>)</span>, và ACORN2 giữ chủng đầu tiên của mỗi loài theo loại bệnh phẩm trong mỗi đợt nhiễm khuẩn <span class="citation" data-cites="nguyen2026clinically">(<a href="index.html#ref-nguyen2026clinically" role="doc-biblioref">Nguyen và c.s. 2026</a>)</span>. Bài này dùng quy tắc đơn giản: chủng đầu tiên của mỗi người bệnh, mỗi loài, mỗi năm.</p>
+</section>
+<section id="dữ-liệu-rộng-và-dữ-liệu-dài" class="level3">
+<h3 class="anchored" data-anchor-id="dữ-liệu-rộng-và-dữ-liệu-dài">Dữ liệu rộng và dữ liệu dài</h3>
+<p>Tệp trích xuất có dạng <strong>rộng (wide)</strong>: mỗi chủng một dòng, mỗi kháng sinh một cột. Để tóm tắt theo loài × kháng sinh, ta cần dạng <strong>dài (long)</strong>: mỗi dòng là một cặp chủng × kháng sinh có kết quả. Dạng dài là dữ liệu “gọn” (tidy): mỗi biến một cột, mỗi quan sát một dòng <span class="citation" data-cites="wickham2014tidy">(<a href="index.html#ref-wickham2014tidy" role="doc-biblioref">Wickham 2014</a>)</span>. Hàm <code>to_long()</code> trong <code>code/model.R</code> chuyển dạng bằng base R; <code>tidyr::pivot_longer()</code> làm cùng việc đó, và sách <em>R for Data Science</em> hướng dẫn chi tiết cách làm theo tidyverse <span class="citation" data-cites="wickham_r4ds">(<a href="index.html#ref-wickham_r4ds" role="doc-biblioref">Wickham, Çetinkaya-Rundel, và Grolemund không ngày</a>)</span>. Bảng báo cáo cuối cùng lại có dạng rộng (loài × kháng sinh), tạo bằng <code>tapply()</code>.</p>
+</section>
+<section id="tỷ-lệ-và-khoảng-tin-cậy" class="level3">
+<h3 class="anchored" data-anchor-id="tỷ-lệ-và-khoảng-tin-cậy">Tỷ lệ và khoảng tin cậy</h3>
+<p>Với <span class="math inline">\(x\)</span> chủng đề kháng trên <span class="math inline">\(n\)</span> chủng có kết quả, <span class="math inline">\(\hat p = x/n\)</span>. Khoảng Wald <span class="math inline">\(\hat p \pm z\sqrt{\hat p(1-\hat p)/n}\)</span> có thể vượt ra ngoài [0, 1] và có độ rộng bằng 0 khi <span class="math inline">\(x = 0\)</span>. Khoảng Wilson <span class="citation" data-cites="wilson1927probable">(<a href="index.html#ref-wilson1927probable" role="doc-biblioref">Wilson 1927</a>)</span> dời tâm về phía 0.5 và luôn nằm trong [0, 1]:</p>
+<p><span class="math display">\[
+\tilde p = \frac{\hat p + \dfrac{z^2}{2n}}{1 + \dfrac{z^2}{n}}, \qquad
+\text{nửa độ rộng} = \frac{z}{1 + z^2/n}\sqrt{\frac{\hat p(1-\hat p)}{n} + \frac{z^2}{4n^2}},
+\]</span></p>
+<p>với <span class="math inline">\(z = 1.96\)</span> cho KTC 95%. Các so sánh hệ thống cho thấy khoảng Wilson đạt tỷ lệ bao phủ gần mức danh nghĩa tốt hơn khoảng Wald, còn khoảng Clopper-Pearson “chính xác” thường rộng hơn cần thiết <span class="citation" data-cites="agresti1998approximate brown2001interval">(<a href="index.html#ref-agresti1998approximate" role="doc-biblioref">Agresti và Coull 1998</a>; <a href="index.html#ref-brown2001interval" role="doc-biblioref">Brown, Cai, và DasGupta 2001</a>)</span>. Trong R, <code>prop.test(x, n, correct = FALSE)</code> trả về đúng khoảng Wilson, nên ta dùng nó để kiểm tra hàm <code>wilson_ci()</code> tự viết.</p>
+<p>Một điều cần nói rõ là bảng tóm tắt ước lượng cái gì. Bảng trong bài này là <strong>tỷ lệ gộp 5 năm (2021–2025) của 3 bệnh viện</strong>, không phải tỷ lệ của một quần thể đồng nhất. Khoảng Wilson giả định mọi chủng là một mẫu ngẫu nhiên độc lập từ cùng một quần thể, nên nó chỉ đo sai số lấy mẫu nhị thức. Khi các bệnh viện và các năm thật sự khác nhau (dữ liệu mô phỏng được thiết kế như vậy, giống dữ liệu thật), và ta muốn nói về mức đề kháng của các bệnh viện và năm nói chung chứ không chỉ riêng 15 ô bệnh viện × năm này, khoảng gộp quá hẹp. Bản tổng kết tích lũy theo CLSI cũng được lập cho từng cơ sở y tế và thường theo năm <span class="citation" data-cites="hindler2007analysis">(<a href="index.html#ref-hindler2007analysis" role="doc-biblioref">Hindler và Stelling 2007</a>)</span>, chứ không gộp nhiều cơ sở và nhiều năm như bảng ở đây. Thực hành bên dưới đo mức độ quá hẹp này bằng độ phân tán (dispersion) của mô hình quasi-binomial.</p>
+</section>
+</section>
+<section id="thực-hành" class="level2">
+<h2 class="anchored" data-anchor-id="thực-hành">Thực hành</h2>
+<p>Nạp hàm, các bảng tham số và tệp thô do Bài 1 tạo ra. Nếu tệp chưa có, script tạo lại bằng đúng mã của Bài 1; nếu đã có, script chỉ đọc, không bao giờ ghi đè. Nhờ vậy bài này chạy độc lập mà không làm thay đổi dữ liệu thô.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">isTRUE</span>(<span class="fu">l10n_info</span>()[[<span class="st">"UTF-8"</span>]])) <span class="fu">invisible</span>(<span class="fu">Sys.setlocale</span>(<span class="st">"LC_CTYPE"</span>, <span class="st">"en_US.UTF-8"</span>))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/helpers.R"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/vn_data.R"</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">warnPartialMatchDollar =</span> <span class="cn">TRUE</span>)   <span class="co"># `$` that silently matches a shortened name now warns</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>p_sim <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/amr_sim.csv"</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>ref <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/reference_data.csv"</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>d <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/teaching_demos.csv"</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="co"># The simulated "truth" (only possible because the data are simulated)</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>iso_true <span class="ot">&lt;-</span> <span class="fu">simulate_isolates</span>(p_sim, <span class="at">seed =</span> <span class="dv">2025</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># The raw laboratory export is written by Lesson 1. Raw data are read-only, so this lesson</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="co"># re-creates the file (same seeds as Lesson 1) only if it is missing, and never overwrites it.</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>raw_file <span class="ot">&lt;-</span> <span class="st">"data/amr_isolates_raw.csv"</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">file.exists</span>(raw_file)) {</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dir.create</span>(<span class="st">"data"</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">write.csv</span>(<span class="fu">make_messy</span>(iso_true, p_sim, <span class="at">seed =</span> <span class="dv">2026</span>), raw_file, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">na =</span> <span class="st">""</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Nhập tệp CSV: ô trống là giá trị thiếu, mã hóa UTF-8. Kiểm tra: cột <code>date</code> có kiểu chữ (<code>chr</code>), chưa phải ngày.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>raw <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(raw_file, <span class="at">na.strings =</span> <span class="st">""</span>, <span class="at">encoding =</span> <span class="st">"UTF-8"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(raw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4100   11</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(raw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   4100 obs. of  11 variables:
+ $ isolate_id: chr  "I00001" "I00002" "I00003" "I00004" ...
+ $ patient_id: chr  "P00005" "P00073" "P00190" "P00218" ...
+ $ hospital  : chr  "A" "A" "A" "A" ...
+ $ ward      : chr  "non-ICU" "ICU" "non-ICU" "ICU" ...
+ $ date      : chr  "01/01/2021" "01/01/2021" "01/01/2021" "01/01/2021" ...
+ $ organism  : chr  "A. baumannii" "E. coli" "E. coli" "E. coli" ...
+ $ CRO       : chr  NA " r" "R" "R" ...
+ $ CIP       : chr  "R" "R" " r" "R" ...
+ $ GEN       : chr  "R" "R" "R" "R" ...
+ $ SXT       : chr  "R" "R" "R" "R" ...
+ $ MEM       : chr  "R" "S" "S" "R" ...</code></pre>
+</div>
+</div>
+<p>Tệp trích xuất có 4,100 dòng và 11 cột.</p>
+<p>Khám phá trước khi sửa. <code>table()</code> của cột tên vi khuẩn và cột meropenem cho thấy ngay các kiểu viết lạ; <code>duplicated()</code> đếm dòng trùng hoàn toàn. Kiểm tra: ghi lại từng loại lỗi trước khi viết mã sửa.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span>(<span class="fu">table</span>(raw<span class="sc">$</span>organism), <span class="at">decreasing =</span> <span class="cn">TRUE</span>)   <span class="co"># several spellings of the same species</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+                E. coli            A. baumannii           K. pneumoniae 
+                   1937                     980                     872 
+       Escherichia coli                  E.coli                 E. COLI 
+                     56                      48                      40 
+               e. coli            k. pneumoniae             A. baumanii 
+                     38                      29                      25 
+            A.baumannii Acinetobacter baumannii   Klebsiella pneumoniae 
+                     25                      18                      18 
+           K.pneumoniae 
+                     14 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(raw<span class="sc">$</span>MEM, <span class="at">useNA =</span> <span class="st">"ifany"</span>)                <span class="co"># " r", " s": lower case and spaces</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+   i    r    s    I    R    S &lt;NA&gt; 
+   3   63  100  134 1356 2351   93 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sum</span>(<span class="fu">duplicated</span>(raw))                           <span class="co"># rows entered twice</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 20</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(raw<span class="sc">$</span>date, <span class="dv">3</span>)                              <span class="co"># text, not dates</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "01/01/2021" "01/01/2021" "01/01/2021"</code></pre>
+</div>
+</div>
+<p>Cột tên vi khuẩn có 13 cách viết khác nhau cho ba loài, và có 20 dòng trùng hoàn toàn.</p>
+<p>Làm sạch từng bước. Mỗi bước có một <code>stopifnot()</code>: mọi tên phải nằm trong bảng tra, mọi kết quả phải là S, I, R hoặc <code>NA</code>, mọi ngày phải đọc được. Kiểm tra: sau bước 4 chỉ còn đúng ba loài.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>clean <span class="ot">&lt;-</span> raw</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Organism: lower-case, trim spaces, then look up the standard name</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>clean<span class="sc">$</span>organism <span class="ot">&lt;-</span> <span class="fu">unname</span>(ORGANISM_LOOKUP[<span class="fu">tolower</span>(<span class="fu">trimws</span>(clean<span class="sc">$</span>organism))])</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="sc">!</span><span class="fu">anyNA</span>(clean<span class="sc">$</span>organism))              <span class="co"># every spelling was recognised</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Results: trim spaces and upper-case; only S, I, R or NA may remain</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (a <span class="cf">in</span> <span class="fu">names</span>(ANTIBIOTICS)) clean[[a]] <span class="ot">&lt;-</span> <span class="fu">toupper</span>(<span class="fu">trimws</span>(clean[[a]]))</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">unlist</span>(clean[<span class="fu">names</span>(ANTIBIOTICS)]) <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"S"</span>, <span class="st">"I"</span>, <span class="st">"R"</span>, <span class="cn">NA</span>)))</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. Dates: dd/mm/yyyy text -&gt; Date, then derive the year</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>clean<span class="sc">$</span>date <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(clean<span class="sc">$</span>date, <span class="at">format =</span> <span class="st">"%d/%m/%Y"</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="sc">!</span><span class="fu">anyNA</span>(clean<span class="sc">$</span>date))</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>clean<span class="sc">$</span>year <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">format</span>(clean<span class="sc">$</span>date, <span class="st">"%Y"</span>))</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a><span class="co"># 4. Exact duplicate rows</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>n_before <span class="ot">&lt;-</span> <span class="fu">nrow</span>(clean)</span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>clean <span class="ot">&lt;-</span> clean[<span class="sc">!</span><span class="fu">duplicated</span>(clean), ]</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">rows_before =</span> n_before, <span class="at">rows_after =</span> <span class="fu">nrow</span>(clean), <span class="at">removed =</span> n_before <span class="sc">-</span> <span class="fu">nrow</span>(clean))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>rows_before  rows_after     removed 
+       4100        4080          20 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(clean<span class="sc">$</span>organism)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ A. baumannii       E. coli K. pneumoniae 
+         1044          2112           924 </code></pre>
+</div>
+</div>
+<p>Đã loại 20 dòng trùng.</p>
+<p>Các bước trên được đóng gói trong <code>clean_isolates()</code>. Ta kiểm tra hàm cho cùng kết quả, và vì dữ liệu là mô phỏng, kiểm tra luôn rằng dữ liệu sau làm sạch <strong>trùng khớp hoàn toàn</strong> với dữ liệu gốc. Kiểm tra: hai <code>stopifnot()</code> đều qua. Phép so sánh với dữ liệu gốc cũng xác nhận rằng tệp trong <code>data/</code> đúng là tệp do mã tạo ra.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The packaged function gives the same result; with SIMULATED data we can also check</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># against the truth, which is never possible with real data. This also confirms that the</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># file in data/ is the export the code generates (nobody edited it).</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>clean_fn <span class="ot">&lt;-</span> <span class="fu">clean_isolates</span>(raw)</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">isTRUE</span>(<span class="fu">all.equal</span>(clean_fn, iso_true)))</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(clean) <span class="sc">==</span> <span class="fu">nrow</span>(clean_fn))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Lấy một phần data frame theo điều kiện trên dòng và theo tên cột: các chủng <em>A. baumannii</em> từ ICU. Kiểm tra: chỉ còn bốn cột đã chọn.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Rows by a condition, columns by name</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>icu_aba <span class="ot">&lt;-</span> clean_fn[clean_fn<span class="sc">$</span>ward <span class="sc">==</span> <span class="st">"ICU"</span> <span class="sc">&amp;</span> clean_fn<span class="sc">$</span>organism <span class="sc">==</span> <span class="st">"A. baumannii"</span>,</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>                    <span class="fu">c</span>(<span class="st">"isolate_id"</span>, <span class="st">"hospital"</span>, <span class="st">"year"</span>, <span class="st">"MEM"</span>)]</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(icu_aba, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   isolate_id hospital year MEM
+22     I00022        A 2021   R
+24     I00024        A 2021   R
+26     I00026        A 2021   R
+45     I00045        A 2021   R</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(icu_aba)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 232</code></pre>
+</div>
+</div>
+<p>Giữ chủng đầu tiên của mỗi người bệnh × loài × năm. Kiểm tra: không còn cặp người bệnh-loài-năm nào bị lặp.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>iso <span class="ot">&lt;-</span> clean_fn</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>first <span class="ot">&lt;-</span> <span class="fu">first_isolates</span>(iso)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">isolates =</span> <span class="fu">nrow</span>(iso), <span class="at">first_isolates =</span> <span class="fu">nrow</span>(first), <span class="at">patients =</span> <span class="fu">length</span>(<span class="fu">unique</span>(iso<span class="sc">$</span>patient_id)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      isolates first_isolates       patients 
+          4080           3094           3094 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="sc">!</span><span class="fu">anyDuplicated</span>(first[, <span class="fu">c</span>(<span class="st">"patient_id"</span>, <span class="st">"organism"</span>, <span class="st">"year"</span>)]))</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># In these simulated data each patient has one species in one year, so first isolates = patients</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(first) <span class="sc">==</span> <span class="fu">length</span>(<span class="fu">unique</span>(iso<span class="sc">$</span>patient_id)))</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="fu">table</span>(first<span class="sc">$</span>organism)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ A. baumannii       E. coli K. pneumoniae 
+          701          1713           680 </code></pre>
+</div>
+</div>
+<p>Từ 4,080 chủng còn 3,094 chủng đầu tiên, gồm 701 chủng <em>A. baumannii</em>, 1,713 chủng <em>E. coli</em> và 680 chủng <em>K. pneumoniae</em>. Ở đây số chủng đầu tiên bằng số người bệnh, vì trong dữ liệu mô phỏng mỗi người bệnh chỉ có một loài trong một năm; <code>stopifnot()</code> trong đoạn mã đã kiểm tra điều đó.</p>
+<p>Chuyển sang dạng dài. Kiểm tra: số dòng của bảng dài bằng số ô có kết quả (không phải <code>NA</code>) trong bảng rộng.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>long <span class="ot">&lt;-</span> <span class="fu">to_long</span>(first)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dim</span>(long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 14321     9</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(long[, <span class="fu">c</span>(<span class="st">"isolate_id"</span>, <span class="st">"organism"</span>, <span class="st">"antibiotic"</span>, <span class="st">"result"</span>)], <span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  isolate_id      organism antibiotic result
+1     I00002       E. coli        CRO      R
+2     I00003       E. coli        CRO      R
+3     I00004       E. coli        CRO      R
+4     I00005 K. pneumoniae        CRO      S
+5     I00006       E. coli        CRO      R
+6     I00007       E. coli        CRO      R</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: one long row per non-missing result in the wide table</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(long) <span class="sc">==</span> <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(first[, <span class="fu">names</span>(ANTIBIOTICS)])))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Bảng dài có 14,321 dòng, mỗi dòng là một kết quả kháng sinh đồ.</p>
+<p>Tóm tắt: số chủng đề kháng, số chủng có kết quả, tỷ lệ và KTC 95% Wilson cho mỗi loài × kháng sinh. Kiểm tra: <code>stopifnot()</code> xác nhận <code>lo ≤ est ≤ hi</code> ở mọi dòng, và không có dòng <em>A. baumannii</em> × ceftriaxone vì kháng sinh này không được thử nghiệm. Đây là tỷ lệ gộp mọi năm và mọi bệnh viện.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">resistance_summary</span>(long, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"organism"</span>, <span class="st">"antibiotic"</span>))</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>res_print <span class="ot">&lt;-</span> res</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>res_print[, <span class="fu">c</span>(<span class="st">"est"</span>, <span class="st">"lo"</span>, <span class="st">"hi"</span>)] <span class="ot">&lt;-</span> <span class="fu">round</span>(res_print[, <span class="fu">c</span>(<span class="st">"est"</span>, <span class="st">"lo"</span>, <span class="st">"hi"</span>)], <span class="dv">3</span>)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>res_print</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        organism antibiotic  n_r    n   est    lo    hi
+1   A. baumannii        CIP  562  683 0.823 0.792 0.850
+2        E. coli        CIP 1114 1659 0.671 0.649 0.694
+3  K. pneumoniae        CIP  312  666 0.468 0.431 0.506
+4        E. coli        CRO 1132 1644 0.689 0.666 0.710
+5  K. pneumoniae        CRO  352  655 0.537 0.499 0.575
+6   A. baumannii        GEN  499  682 0.732 0.697 0.764
+7        E. coli        GEN  803 1670 0.481 0.457 0.505
+8  K. pneumoniae        GEN  293  655 0.447 0.410 0.486
+9   A. baumannii        MEM  448  688 0.651 0.615 0.686
+10       E. coli        MEM  171 1660 0.103 0.089 0.119
+11 K. pneumoniae        MEM  228  666 0.342 0.307 0.379
+12  A. baumannii        SXT  658  682 0.965 0.948 0.976
+13       E. coli        SXT 1176 1652 0.712 0.690 0.733
+14 K. pneumoniae        SXT  355  659 0.539 0.501 0.576</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(res<span class="sc">$</span>lo <span class="sc">&lt;=</span> res<span class="sc">$</span>est <span class="sc">&amp;</span> res<span class="sc">$</span>est <span class="sc">&lt;=</span> res<span class="sc">$</span>hi))   <span class="co"># the estimate lies inside its own interval</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">range</span>(res<span class="sc">$</span>n)                                            <span class="co"># isolates behind each proportion</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  655 1670</code></pre>
+</div>
+</div>
+<p>Dữ liệu được mô phỏng quanh các mốc công bố của Việt Nam (các dòng <code>target_*</code> trong <code>params/amr_sim.csv</code>): VINARES 2016–2017 cho ceftriaxone, ciprofloxacin, gentamicin và trimethoprim-sulfamethoxazole <span class="citation" data-cites="vu2021antimicrobial">(<a href="index.html#ref-vu2021antimicrobial" role="doc-biblioref">Vu và c.s. 2021</a>)</span>, khảo sát bệnh viện toàn quốc cho carbapenem <span class="citation" data-cites="larsson2025burden">(<a href="index.html#ref-larsson2025burden" role="doc-biblioref">Larsson và c.s. 2025</a>)</span>. Đoạn mã sau so bảng vừa tính với các mốc đó. Cột <code>z</code> là chênh lệch chia cho sai số chuẩn nhị thức tại mốc. Kiểm tra: mọi giá trị <code>z</code> nằm trong khoảng ±4, tức chênh lệch còn trong tầm dao động lấy mẫu.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The data are simulated AROUND published Vietnamese figures (target_* rows in params/amr_sim.csv).</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare the pooled proportions with their targets; z = difference / binomial SE at the target.</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>target <span class="ot">&lt;-</span> <span class="fu">resistance_matrix</span>(p_sim)</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>target <span class="ot">&lt;-</span> target[<span class="fu">cbind</span>(<span class="fu">match</span>(res<span class="sc">$</span>organism, ORGANISMS), <span class="fu">match</span>(res<span class="sc">$</span>antibiotic, <span class="fu">colnames</span>(target)))]</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>res<span class="sc">$</span>z <span class="ot">&lt;-</span> (res<span class="sc">$</span>est <span class="sc">-</span> res<span class="sc">$</span>target) <span class="sc">/</span> <span class="fu">sqrt</span>(res<span class="sc">$</span>target <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> res<span class="sc">$</span>target) <span class="sc">/</span> res<span class="sc">$</span>n)</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>anchor_tab <span class="ot">&lt;-</span> res[, <span class="fu">c</span>(<span class="st">"organism"</span>, <span class="st">"antibiotic"</span>, <span class="st">"n"</span>, <span class="st">"est"</span>, <span class="st">"target"</span>, <span class="st">"z"</span>)]</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>anchor_tab[, <span class="fu">c</span>(<span class="st">"est"</span>, <span class="st">"target"</span>, <span class="st">"z"</span>)] <span class="ot">&lt;-</span> <span class="fu">round</span>(anchor_tab[, <span class="fu">c</span>(<span class="st">"est"</span>, <span class="st">"target"</span>, <span class="st">"z"</span>)], <span class="dv">3</span>)</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>anchor_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        organism antibiotic    n   est target      z
+1   A. baumannii        CIP  683 0.823  0.816  0.461
+2        E. coli        CIP 1659 0.671  0.670  0.129
+3  K. pneumoniae        CIP  666 0.468  0.440  1.480
+4        E. coli        CRO 1644 0.689  0.717 -2.560
+5  K. pneumoniae        CRO  655 0.537  0.556 -0.958
+6   A. baumannii        GEN  682 0.732  0.738 -0.376
+7        E. coli        GEN 1670 0.481  0.477  0.314
+8  K. pneumoniae        GEN  655 0.447  0.465 -0.907
+9   A. baumannii        MEM  688 0.651  0.640  0.610
+10       E. coli        MEM 1660 0.103  0.110 -0.910
+11 K. pneumoniae        MEM  666 0.342  0.370 -1.478
+12  A. baumannii        SXT  682 0.965  0.957  1.005
+13       E. coli        SXT 1652 0.712  0.727 -1.381
+14 K. pneumoniae        SXT  659 0.539  0.524  0.755</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="sc">!</span><span class="fu">anyNA</span>(res<span class="sc">$</span>target), <span class="fu">all</span>(<span class="fu">abs</span>(res<span class="sc">$</span>z) <span class="sc">&lt;</span> <span class="dv">4</span>))   <span class="co"># within sampling error of the anchors</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Chênh lệch lớn nhất là 2.6 sai số chuẩn, ở cặp <em>E. coli</em> × CRO. Đây là lợi thế của dữ liệu mô phỏng: ta biết “sự thật” mà nó được sinh ra quanh đó, nên kiểm tra được cả quy trình tóm tắt.</p>
+<p>Mỗi tỷ lệ trong bảng dựa trên từ 655 đến 1,670 chủng. Khoảng Wilson trong bảng trên chưa tính đến khác biệt giữa bệnh viện và giữa các năm. Để đo, ta chia dữ liệu meropenem thành các ô bệnh viện × năm, rồi ước lượng độ phân tán bằng <code>glm()</code> với họ <code>quasibinomial</code> (hàm có sẵn của base R; ở đây ta chỉ lấy con số <code>dispersion</code>, không dùng hệ số). Độ phân tán bằng 1 nghĩa là chỉ có sai số nhị thức; lớn hơn 1 nghĩa là các ô khác nhau nhiều hơn mức ngẫu nhiên cho phép. Kiểm tra: độ phân tán lớn hơn 1 ở cả ba loài.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The Wilson CI treats all pooled isolates as ONE random sample. Do hospitals and years differ?</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Meropenem: resistance in each hospital x year cell, then a quasi-binomial model with no</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a><span class="co"># covariates. Its dispersion is 1 if only binomial sampling error is present, and above 1 if</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a><span class="co"># the cells differ more than chance allows.</span></span>
+<span id="cb39-5"><a href="#cb39-5" aria-hidden="true" tabindex="-1"></a>mem_cells <span class="ot">&lt;-</span> <span class="fu">resistance_summary</span>(long[long<span class="sc">$</span>antibiotic <span class="sc">==</span> <span class="st">"MEM"</span>, ],</span>
+<span id="cb39-6"><a href="#cb39-6" aria-hidden="true" tabindex="-1"></a>                                <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"organism"</span>, <span class="st">"hospital"</span>, <span class="st">"year"</span>))</span>
+<span id="cb39-7"><a href="#cb39-7" aria-hidden="true" tabindex="-1"></a>disp <span class="ot">&lt;-</span> <span class="fu">sapply</span>(<span class="fu">unique</span>(mem_cells<span class="sc">$</span>organism), <span class="cf">function</span>(o) {</span>
+<span id="cb39-8"><a href="#cb39-8" aria-hidden="true" tabindex="-1"></a>  cells <span class="ot">&lt;-</span> mem_cells[mem_cells<span class="sc">$</span>organism <span class="sc">==</span> o, ]</span>
+<span id="cb39-9"><a href="#cb39-9" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">glm</span>(<span class="fu">cbind</span>(n_r, n <span class="sc">-</span> n_r) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">family =</span> quasibinomial, <span class="at">data =</span> cells)</span>
+<span id="cb39-10"><a href="#cb39-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>(fit)<span class="sc">$</span>dispersion</span>
+<span id="cb39-11"><a href="#cb39-11" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb39-12"><a href="#cb39-12" aria-hidden="true" tabindex="-1"></a>n_cells <span class="ot">&lt;-</span> <span class="fu">table</span>(mem_cells<span class="sc">$</span>organism)</span>
+<span id="cb39-13"><a href="#cb39-13" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">rbind</span>(<span class="at">cells =</span> n_cells[<span class="fu">names</span>(disp)], <span class="at">dispersion =</span> disp, <span class="at">ci_wider_by =</span> <span class="fu">sqrt</span>(disp)), <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            A. baumannii E. coli K. pneumoniae
+cells              15.00   15.00         15.00
+dispersion          2.78    2.66          2.57
+ci_wider_by         1.67    1.63          1.60</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(disp <span class="sc">&gt;</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Với meropenem, độ phân tán nằm từ 2.6 đến 2.8, cao nhất ở <em>A. baumannii</em> (2.8). Khoảng tin cậy thực sự rộng hơn khoảng Wilson gộp xấp xỉ <span class="math inline">\(\sqrt{\text{độ phân tán}}\)</span> lần, tức từ 1.6 đến 1.7 lần. Vì vậy hãy đọc khoảng Wilson của bảng gộp như một cận dưới của bất định. Muốn nói về một bệnh viện hay một năm, tóm tắt riêng từng nhóm đó (xem Bài 5), hoặc dùng mô hình có hiệu ứng nhóm.</p>
+<p>So sánh với các hàm có sẵn, dùng ví dụ <em>K. pneumoniae</em> × meropenem. Kiểm tra: khoảng Wilson tự viết trùng với <code>prop.test()</code> đến 10 chữ số thập phân; khoảng Clopper-Pearson của <code>binom.test()</code> hơi rộng hơn. Hai dòng cuối cho thấy khoảng Wald hỏng ở mẫu nhỏ.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Wilson interval = prop.test() without continuity correction; exact = binom.test()</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>k <span class="ot">&lt;-</span> <span class="fu">which</span>(res<span class="sc">$</span>organism <span class="sc">==</span> <span class="st">"K. pneumoniae"</span> <span class="sc">&amp;</span> res<span class="sc">$</span>antibiotic <span class="sc">==</span> <span class="st">"MEM"</span>)</span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> res<span class="sc">$</span>n_r[k]; n <span class="ot">&lt;-</span> res<span class="sc">$</span>n[k]</span>
+<span id="cb42-4"><a href="#cb42-4" aria-hidden="true" tabindex="-1"></a>ci_ours <span class="ot">&lt;-</span> <span class="fu">c</span>(res<span class="sc">$</span>lo[k], res<span class="sc">$</span>hi[k])</span>
+<span id="cb42-5"><a href="#cb42-5" aria-hidden="true" tabindex="-1"></a>ci_prop <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">prop.test</span>(x, n, <span class="at">correct =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>conf.int)</span>
+<span id="cb42-6"><a href="#cb42-6" aria-hidden="true" tabindex="-1"></a>ci_exact <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(<span class="fu">binom.test</span>(x, n)<span class="sc">$</span>conf.int)</span>
+<span id="cb42-7"><a href="#cb42-7" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">max</span>(<span class="fu">abs</span>(ci_ours <span class="sc">-</span> ci_prop)) <span class="sc">&lt;</span> <span class="fl">1e-10</span>)</span>
+<span id="cb42-8"><a href="#cb42-8" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">rbind</span>(<span class="at">wilson =</span> ci_ours, <span class="at">prop_test =</span> ci_prop, <span class="at">clopper_pearson =</span> ci_exact), <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                  [,1]   [,2]
+wilson          0.3073 0.3792
+prop_test       0.3073 0.3792
+clopper_pearson 0.3063 0.3798</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Why not Wald? With a few resistant isolates out of a small sample its lower limit is below zero</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>p_small <span class="ot">&lt;-</span> d<span class="sc">$</span>wald_demo_x <span class="sc">/</span> d<span class="sc">$</span>wald_demo_n</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>wald_lo_small <span class="ot">&lt;-</span> p_small <span class="sc">-</span> <span class="fu">qnorm</span>(<span class="fl">0.975</span>) <span class="sc">*</span> <span class="fu">sqrt</span>(p_small <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_small) <span class="sc">/</span> d<span class="sc">$</span>wald_demo_n)</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>wilson_lo_small <span class="ot">&lt;-</span> <span class="fu">wilson_ci</span>(d<span class="sc">$</span>wald_demo_x, d<span class="sc">$</span>wald_demo_n)<span class="sc">$</span>lo</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">wald_lower =</span> wald_lo_small, <span class="at">wilson_lower =</span> wilson_lo_small)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  wald_lower wilson_lower 
+ -0.03869417   0.03736126 </code></pre>
+</div>
+</div>
+<p>Tỷ lệ <em>K. pneumoniae</em> đề kháng meropenem (%) là 34.2 (KTC 95%: 30.7–37.9), tính trên 666 chủng đầu tiên. Với 2 chủng đề kháng trên 15, cận dưới của khoảng Wald là -0.039, một tỷ lệ âm vô nghĩa; cận dưới của khoảng Wilson là 0.037.</p>
+<p>Loại chủng lặp lại có đáng không? So sánh tỷ lệ đề kháng meropenem tính trên mọi chủng với tỷ lệ tính trên chủng đầu tiên. Kiểm tra: hai bảng xếp loài theo cùng thứ tự trước khi ghép.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Meropenem resistance with all isolates versus first isolates only</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>mem_all <span class="ot">&lt;-</span> <span class="fu">resistance_summary</span>(<span class="fu">to_long</span>(iso), <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"organism"</span>, <span class="st">"antibiotic"</span>))</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>mem_all <span class="ot">&lt;-</span> mem_all[mem_all<span class="sc">$</span>antibiotic <span class="sc">==</span> <span class="st">"MEM"</span>, ]</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>mem_first <span class="ot">&lt;-</span> res[res<span class="sc">$</span>antibiotic <span class="sc">==</span> <span class="st">"MEM"</span>, ]</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a>dedup_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">organism =</span> mem_first<span class="sc">$</span>organism,</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">all_isolates =</span> <span class="fu">round</span>(mem_all<span class="sc">$</span>est, <span class="dv">3</span>),</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">first_isolates =</span> <span class="fu">round</span>(mem_first<span class="sc">$</span>est, <span class="dv">3</span>))</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a>dedup_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       organism all_isolates first_isolates
+1  A. baumannii        0.724          0.651
+2       E. coli        0.136          0.103
+3 K. pneumoniae        0.426          0.342</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">identical</span>(mem_all<span class="sc">$</span>organism, mem_first<span class="sc">$</span>organism))</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The lesson (and its opening box) says repeats pull the meropenem proportion UP for every species</span></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(mem_all<span class="sc">$</span>est <span class="sc">&gt;</span> mem_first<span class="sc">$</span>est))</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>gap_kpn <span class="ot">&lt;-</span> mem_all<span class="sc">$</span>est[mem_all<span class="sc">$</span>organism <span class="sc">==</span> <span class="st">"K. pneumoniae"</span>] <span class="sc">-</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  mem_first<span class="sc">$</span>est[mem_first<span class="sc">$</span>organism <span class="sc">==</span> <span class="st">"K. pneumoniae"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Với <em>K. pneumoniae</em>, tính trên mọi chủng cho 42.6%, còn tính trên chủng đầu tiên cho 34.2%: chênh 8.3 điểm phần trăm. Chênh lệch này có trong dữ liệu vì ta đã mô phỏng để người bệnh có chủng kháng meropenem được cấy lại thường hơn (xác suất cấy lại 35% so với 10% mỗi lần, giá trị minh họa).</p>
+<p>Chuyển bảng tóm tắt dài thành bảng báo cáo rộng (loài × kháng sinh). Kiểm tra: ô <em>A. baumannii</em> × CRO là <code>NA</code>, không phải 0.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Long summary -&gt; wide antibiogram table (organism x antibiotic); NA = not tested</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>abg <span class="ot">&lt;-</span> <span class="fu">tapply</span>(res<span class="sc">$</span>est, <span class="fu">list</span>(res<span class="sc">$</span>organism, res<span class="sc">$</span>antibiotic), sum)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a>abg <span class="ot">&lt;-</span> abg[, <span class="fu">names</span>(ANTIBIOTICS)]</span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="dv">100</span> <span class="sc">*</span> abg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>              CRO CIP GEN SXT MEM
+A. baumannii   NA  82  73  96  65
+E. coli        69  67  48  71  10
+K. pneumoniae  54  47  45  54  34</code></pre>
+</div>
+</div>
+<p>Cùng việc chuyển dạng và tóm tắt, viết bằng <code>tidyr</code> và <code>dplyr</code>. Nhiều người thấy cách viết này dễ đọc hơn; điều quan trọng là hai cách cho cùng một kết quả. Kiểm tra: mọi số đếm khớp nhau.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The same reshaping and summary with tidyr/dplyr; results must match exactly</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>long_tv <span class="ot">&lt;-</span> tidyr<span class="sc">::</span><span class="fu">pivot_longer</span>(first, <span class="at">cols =</span> <span class="fu">c</span>(CRO, CIP, GEN, SXT, MEM),</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>                               <span class="at">names_to =</span> <span class="st">"antibiotic"</span>, <span class="at">values_to =</span> <span class="st">"result"</span>,</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>                               <span class="at">values_drop_na =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>sum_tv <span class="ot">&lt;-</span> long_tv <span class="sc">|&gt;</span></span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">group_by</span>(organism, antibiotic) <span class="sc">|&gt;</span></span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">summarise</span>(<span class="at">n_r =</span> <span class="fu">sum</span>(result <span class="sc">==</span> <span class="st">"R"</span>), <span class="at">n =</span> dplyr<span class="sc">::</span><span class="fu">n</span>(), <span class="at">.groups =</span> <span class="st">"drop"</span>)</span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>check <span class="ot">&lt;-</span> <span class="fu">merge</span>(res[, <span class="fu">c</span>(<span class="st">"organism"</span>, <span class="st">"antibiotic"</span>, <span class="st">"n_r"</span>, <span class="st">"n"</span>)], sum_tv,</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>               <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"organism"</span>, <span class="st">"antibiotic"</span>), <span class="at">suffixes =</span> <span class="fu">c</span>(<span class="st">"_base"</span>, <span class="st">"_tv"</span>))</span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(check) <span class="sc">==</span> <span class="fu">nrow</span>(res), <span class="fu">all</span>(check<span class="sc">$</span>n_r_base <span class="sc">==</span> check<span class="sc">$</span>n_r_tv),</span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>          <span class="fu">all</span>(check<span class="sc">$</span>n_base <span class="sc">==</span> check<span class="sc">$</span>n_tv))</span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(check, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      organism antibiotic n_r_base n_base n_r_tv n_tv
+1 A. baumannii        CIP      562    683    562  683
+2 A. baumannii        GEN      499    682    499  682
+3 A. baumannii        MEM      448    688    448  688</code></pre>
+</div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Mẹo thực hành">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mẹo thực hành
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Đọc dữ liệu một lần ở đầu script, lưu thành đối tượng <code>raw</code>, và không bao giờ ghi đè lên nó. Mọi bước làm sạch tạo đối tượng mới.</li>
+<li>Viết bảng tra tên vi khuẩn thành một vectơ có tên trong <code>code/model.R</code>. Khi phòng xét nghiệm có kiểu viết mới, <code>clean_isolates()</code> sẽ dừng và nêu đúng tên đó; bạn chỉ cần thêm một dòng vào bảng tra.</li>
+<li>Khi so sánh hai bảng tóm tắt, dùng <code>merge()</code> theo khóa (<code>organism</code>, <code>antibiotic</code>) thay vì giả định hai bảng có cùng thứ tự dòng.</li>
+<li>Trong <code>$</code>, luôn gõ đủ tên cột, và tên phần tử nếu là danh sách (Bài 2). R cho phép gõ tắt: nếu tên tắt khớp đúng một cột, R trả về cột đó; nếu khớp nhiều cột, R trả về <code>NULL</code> mà không báo lỗi. Cảnh báo <code>warnPartialMatchDollar</code> bắt được lỗi này.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Lỗi thường gặp">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lỗi thường gặp
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Tính tỷ lệ trên mọi chủng.</strong> Tỷ lệ bị kéo về phía những người bệnh được cấy nhiều lần. Luôn nói rõ quy tắc loại trùng đã dùng.</li>
+<li><strong>Đổi <code>NA</code> thành <code>"S"</code>.</strong> Chủng chưa thử nghiệm không phải chủng nhạy cảm. <code>NA</code> phải nằm ngoài cả tử số lẫn mẫu số.</li>
+<li><strong>Dùng sai khoảng tin cậy.</strong> Khoảng Wald cho mẫu nhỏ có cận dưới âm như ví dụ ở trên; hãy dùng <code>wilson_ci()</code> hoặc <code>prop.test(correct = FALSE)</code>. Và đừng coi khoảng Wilson của bảng gộp là toàn bộ bất định: nó không tính khác biệt giữa bệnh viện và giữa các năm.</li>
+<li><strong>Kiểm tra không bao giờ thất bại.</strong> <code>all(logical(0))</code> là <code>TRUE</code>, nên <code>stopifnot()</code> trên một vectơ rỗng luôn qua. Điều này dễ xảy ra khi <code>$</code> trả về <code>NULL</code> vì tên viết tắt không khớp cột nào: ví dụ <code>check$n</code> có thể khớp nhầm hoặc không khớp. Hãy gõ đủ tên (<code>check$n_base</code>) và thử kiểm tra trên một ví dụ đã biết là sai.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="bài-tập" class="level2">
+<h2 class="anchored" data-anchor-id="bài-tập">Bài tập</h2>
+<p><strong>Bài tập 1 (dễ).</strong> Với <em>K. pneumoniae</em> và gentamicin, so sánh tỷ lệ “đề kháng” (chỉ R) với tỷ lệ “không nhạy cảm” (I hoặc R), kèm KTC 95%.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Đối số <code>nonsusceptible = TRUE</code> của <code>resistance_summary()</code> đổi tử số từ R sang I + R.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 1: K. pneumoniae and gentamicin: resistant (R) vs non-susceptible (I + R)</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>r_only <span class="ot">&lt;-</span> <span class="fu">resistance_summary</span>(long, <span class="at">nonsusceptible =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>ns <span class="ot">&lt;-</span> <span class="fu">resistance_summary</span>(long, <span class="at">nonsusceptible =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a>k1 <span class="ot">&lt;-</span> r_only<span class="sc">$</span>organism <span class="sc">==</span> <span class="st">"K. pneumoniae"</span> <span class="sc">&amp;</span> r_only<span class="sc">$</span>antibiotic <span class="sc">==</span> <span class="st">"GEN"</span></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">rbind</span>(<span class="at">R =</span> <span class="fu">unlist</span>(r_only[k1, <span class="fu">c</span>(<span class="st">"est"</span>, <span class="st">"lo"</span>, <span class="st">"hi"</span>)]),</span>
+<span id="cb53-6"><a href="#cb53-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">I_or_R =</span> <span class="fu">unlist</span>(ns[k1, <span class="fu">c</span>(<span class="st">"est"</span>, <span class="st">"lo"</span>, <span class="st">"hi"</span>)])), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         est    lo    hi
+R      0.447 0.410 0.486
+I_or_R 0.476 0.438 0.515</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Bài tập 2 (vừa).</strong> Tính tỷ lệ đề kháng meropenem theo loài và theo khoa (ICU so với khoa khác), dùng chủng đầu tiên. Ở loài nào KTC của hai khoa không chồng lên nhau?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Lọc bảng dài theo kháng sinh rồi tóm tắt theo <code>organism</code> và <code>ward</code>. Hai KTC không chồng lên nhau là dấu hiệu khác biệt rõ; hai KTC chồng lên nhau chưa đủ để kết luận là không khác biệt.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 2: meropenem resistance by ward (ICU vs other wards), first isolates</span></span>
+<span id="cb55-2"><a href="#cb55-2" aria-hidden="true" tabindex="-1"></a>by_ward <span class="ot">&lt;-</span> <span class="fu">resistance_summary</span>(long[long<span class="sc">$</span>antibiotic <span class="sc">==</span> <span class="st">"MEM"</span>, ], <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"organism"</span>, <span class="st">"ward"</span>))</span>
+<span id="cb55-3"><a href="#cb55-3" aria-hidden="true" tabindex="-1"></a>by_ward[, <span class="fu">c</span>(<span class="st">"est"</span>, <span class="st">"lo"</span>, <span class="st">"hi"</span>)] <span class="ot">&lt;-</span> <span class="fu">round</span>(by_ward[, <span class="fu">c</span>(<span class="st">"est"</span>, <span class="st">"lo"</span>, <span class="st">"hi"</span>)], <span class="dv">3</span>)</span>
+<span id="cb55-4"><a href="#cb55-4" aria-hidden="true" tabindex="-1"></a>by_ward</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       organism    ward n_r    n   est    lo    hi
+1  A. baumannii     ICU 108  146 0.740 0.663 0.804
+2       E. coli     ICU  47  312 0.151 0.115 0.195
+3 K. pneumoniae     ICU  57  127 0.449 0.365 0.536
+4  A. baumannii non-ICU 340  542 0.627 0.586 0.667
+5       E. coli non-ICU 124 1348 0.092 0.078 0.109
+6 K. pneumoniae non-ICU 171  539 0.317 0.279 0.358</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Bài tập 3 (khó hơn, dữ liệu thật).</strong> Báo cáo VINARES 2016–2017 công bố số chủng <em>Acinetobacter</em> spp. và <em>Pseudomonas aeruginosa</em> kháng carbapenem trên số chủng có kết quả <span class="citation" data-cites="vu2021antimicrobial">(<a href="index.html#ref-vu2021antimicrobial" role="doc-biblioref">Vu và c.s. 2021</a>)</span>. Các con số này nằm trong <code>params/reference_data.csv</code>. Tính KTC 95% Wilson cho hai tỷ lệ. Vì sao KTC hẹp hơn nhiều so với KTC của bệnh viện mô phỏng?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 3: real data. Carbapenem resistance in VINARES 2016-2017 (vu2021antimicrobial)</span></span>
+<span id="cb57-2"><a href="#cb57-2" aria-hidden="true" tabindex="-1"></a>vinares <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb57-3"><a href="#cb57-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">acinetobacter =</span> <span class="fu">wilson_ci</span>(ref<span class="sc">$</span>vinares_acb_carb_r, ref<span class="sc">$</span>vinares_acb_carb_n),</span>
+<span id="cb57-4"><a href="#cb57-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">pseudomonas =</span> <span class="fu">wilson_ci</span>(ref<span class="sc">$</span>vinares_pae_carb_r, ref<span class="sc">$</span>vinares_pae_carb_n)</span>
+<span id="cb57-5"><a href="#cb57-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb57-6"><a href="#cb57-6" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(vinares, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                est    lo    hi
+acinetobacter 0.788 0.775 0.801
+pseudomonas   0.448 0.432 0.465</code></pre>
+</div>
+</div>
+<p>Tỷ lệ <em>Acinetobacter</em> spp. kháng carbapenem trong VINARES là 78.8 (KTC 95%: 77.5–80.1) (%). KTC hẹp vì mẫu số lớn: 3,622 chủng, so với 655 đến 1,670 chủng ở mỗi loài × kháng sinh trong dữ liệu mô phỏng (KTC của <em>K. pneumoniae</em> × meropenem rộng 7.2 điểm phần trăm, so với 2.7 của VINARES). KTC chỉ phản ánh sai số chọn mẫu ngẫu nhiên; nó không phản ánh sai lệch do cách chọn bệnh phẩm hay do khác biệt giữa các bệnh viện, mà chính các tác giả VINARES đã lưu ý.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="tài-liệu-tham-khảo" class="level2">
+<h2 class="anchored" data-anchor-id="tài-liệu-tham-khảo">Tài liệu tham khảo</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-agresti1998approximate" class="csl-entry" role="listitem">
+Agresti, Alan, và Brent A. Coull. 1998. <span>“Approximate is better than <span>‘exact’</span> for interval estimation of binomial proportions”</span>. <em>The American Statistician</em> 52 (2): 119–26. <a href="https://doi.org/10.1080/00031305.1998.10480550">https://doi.org/10.1080/00031305.1998.10480550</a>.
+</div>
+<div id="ref-byt2024qd3220" class="csl-entry" role="listitem">
+Bộ Y tế. 2024. <span>“Quyết định số 3220/<span>QĐ-BYT</span> ngày 01/11/2024 về giá dịch vụ khám bệnh, chữa bệnh áp dụng tại Bệnh viện Bạch Mai”</span>. 1 Tháng Mười-Một 2024. <a href="https://apicms.bachmai.gov.vn/documents/37204/1543632/8_Nov_2024_022948_GMTupload_00004592.pdf/b3ab6717-2151-db08-9913-3cfbfd7e0738">https://apicms.bachmai.gov.vn/documents/37204/1543632/8_Nov_2024_022948_GMTupload_00004592.pdf/b3ab6717-2151-db08-9913-3cfbfd7e0738</a>.
+</div>
+<div id="ref-brown2001interval" class="csl-entry" role="listitem">
+Brown, Lawrence D., T. Tony Cai, và Anirban DasGupta. 2001. <span>“Interval estimation for a binomial proportion”</span>. <em>Statistical Science</em> 16 (2): 101–33. <a href="https://doi.org/10.1214/ss/1009213286">https://doi.org/10.1214/ss/1009213286</a>.
+</div>
+<div id="ref-chinhphu2025nd293" class="csl-entry" role="listitem">
+Chính phủ. 2025. <span>“Nghị định 293/2025/<span>NĐ-CP</span> quy định mức lương tối thiểu đối với người lao động làm việc theo hợp đồng lao động (hiệu lực từ 1/1/2026)”</span>. 2025. <a href="https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026">https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026</a>.
+</div>
+<div id="ref-hindler2007analysis" class="csl-entry" role="listitem">
+Hindler, Janet F., và John Stelling. 2007. <span>“Analysis and presentation of cumulative antibiograms: a new consensus guideline from the <span>Clinical and Laboratory Standards Institute</span>”</span>. <em>Clinical Infectious Diseases</em> 44 (6): 867–73. <a href="https://doi.org/10.1086/511864">https://doi.org/10.1086/511864</a>.
+</div>
+<div id="ref-larsson2025burden" class="csl-entry" role="listitem">
+Larsson, M., L. V. N. Truong, T. D. Nguyen, T. N. Do, và c.s. 2025. <span>“Burden of carbapenem-resistant <span>Gram</span>-negative bacterial infections in <span>Vietnam</span>: a national hospital survey”</span>. <em>Journal of Hospital Infection</em> 165: 189–98. <a href="https://doi.org/10.1016/j.jhin.2025.03.019">https://doi.org/10.1016/j.jhin.2025.03.019</a>.
+</div>
+<div id="ref-nguyen2026clinically" class="csl-entry" role="listitem">
+Nguyen, Thi Hoa và c.s. 2026. <span>“A Clinically-Oriented Antimicrobial Resistance Surveillance Network 2 (<span>ACORN2</span>): results from three hospitals in <span>Vietnam</span>”</span>. <em>International Journal of Infectious Diseases</em> 168: 108673. <a href="https://doi.org/10.1016/j.ijid.2026.108673">https://doi.org/10.1016/j.ijid.2026.108673</a>.
+</div>
+<div id="ref-vu2021antimicrobial" class="csl-entry" role="listitem">
+Vu, Tien Viet Dung, Marc Choisy, Thi Thuy Nga Do, Van Minh Hoang Nguyen, James I. Campbell, Thi Hoi Le, Vu Trung Nguyen, và c.s. 2021. <span>“Antimicrobial susceptibility testing results from 13 hospitals in <span>Viet Nam</span>: <span>VINARES</span> 2016–2017”</span>. <em>Antimicrobial Resistance and Infection Control</em> 10 (1): 78. <a href="https://doi.org/10.1186/s13756-021-00937-4">https://doi.org/10.1186/s13756-021-00937-4</a>.
+</div>
+<div id="ref-wickham2014tidy" class="csl-entry" role="listitem">
+Wickham, Hadley. 2014. <span>“Tidy data”</span>. <em>Journal of Statistical Software</em> 59 (10). <a href="https://doi.org/10.18637/jss.v059.i10">https://doi.org/10.18637/jss.v059.i10</a>.
+</div>
+<div id="ref-wickham_r4ds" class="csl-entry" role="listitem">
+Wickham, Hadley, Mine Çetinkaya-Rundel, và Garrett Grolemund. không ngày. <em>R for Data Science</em>. 2nd ab. Truy cập 8 Tháng Mười 2026. <a href="https://r4ds.hadley.nz/">https://r4ds.hadley.nz/</a>.
+</div>
+<div id="ref-wilson1927probable" class="csl-entry" role="listitem">
+Wilson, Edwin B. 1927. <span>“Probable inference, the law of succession, and statistical inference”</span>. <em>Journal of the American Statistical Association</em> 22 (158): 209–12. <a href="https://doi.org/10.1080/01621459.1927.10502953">https://doi.org/10.1080/01621459.1927.10502953</a>.
+</div>
+</div>
+<div class="video-script">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Kịch bản video (~15 phút)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Slide</th>
+<th>Lời giảng chính</th>
+<th>Hình/Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Data frame</td>
+<td>Cột là vectơ; <code>df[dòng, cột]</code>; <code>str()</code></td>
+<td><code>l04-import</code></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Khám phá trước khi sửa</td>
+<td><code>table()</code>, <code>duplicated()</code>; bốn loại lỗi</td>
+<td><code>l04-inspect</code></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Làm sạch bằng mã</td>
+<td>Chuẩn hóa → tra bảng → dừng nếu lạ</td>
+<td><code>l04-clean-steps</code></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Kiểm tra quy trình làm sạch</td>
+<td>Dữ liệu mô phỏng cho phép so với “sự thật”</td>
+<td><code>l04-clean-check</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Chủng đầu tiên và mốc công bố</td>
+<td>Vì sao loại trùng; CLSI M39-A2; VINARES, ACORN2; dữ liệu mô phỏng quanh mốc công bố, cột <code>z</code></td>
+<td><code>l04-first-isolate</code>, <code>l04-anchor-check</code></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Rộng và dài</td>
+<td>Dữ liệu gọn; <code>to_long()</code>; <code>pivot_longer()</code></td>
+<td><code>l04-long</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Khoảng Wilson</td>
+<td>Wald hỏng ở mẫu nhỏ; công thức; kiểm tra với <code>prop.test()</code>; ước lượng gì (gộp mọi năm và bệnh viện) và độ phân tán</td>
+<td><code>l04-ci-check</code>, <code>l04-dispersion</code></td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Ảnh hưởng của loại trùng</td>
+<td>Mọi chủng so với chủng đầu tiên</td>
+<td><code>l04-dedup-effect</code></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Bảng báo cáo</td>
+<td>Dài → rộng bằng <code>tapply()</code>; <code>NA</code> khác 0</td>
+<td><code>l04-wide</code></td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Cách viết tidyverse</td>
+<td>Cùng kết quả, kiểm tra bằng <code>merge()</code></td>
+<td><code>l04-tidyverse</code></td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Dữ liệu thật</td>
+<td>KTC cho số liệu VINARES; giới hạn của KTC</td>
+<td><code>l04-ex3</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="pagination-link" aria-label="Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="pagination-link" aria-label="Bài 5: Biểu đồ với ggplot2">
+        <span class="nav-page-text"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

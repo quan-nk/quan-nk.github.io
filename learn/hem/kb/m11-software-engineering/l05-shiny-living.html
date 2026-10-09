@@ -1,0 +1,2021 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="vi" xml:lang="vi"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bài 5: Ứng dụng Shiny và mô hình “sống” – Mô hình Kinh tế Y tế với R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../kb/glossary.html" rel="next">
+<link href="../../kb/m11-software-engineering/l04-r-package.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-9e7f0c659d5fa2cace8548cb57964278.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c18d72663580ed8ca19ce2a2f99af51b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<meta name="mermaid-theme" content="neutral">
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m11-software-engineering/index.html">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</a></li><li class="breadcrumb-item"><a href="../../kb/m11-software-engineering/l05-shiny-living.html"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Mô hình Kinh tế Y tế với R</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lời mở đầu</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m00-r-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M00 · R cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l01-reproducible-workflow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Quy trình làm việc tái lập với R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m01-ee-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M01 · Nền tảng đánh giá kinh tế và cây quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l01-evaluation-types.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại đánh giá kinh tế, quan điểm, khung thời gian và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l03-decision-rules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l05-decision-tree.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Xây cây quyết định từ đầu trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m02-cohort-markov/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M02 · Mô hình chuyển trạng thái đoàn hệ (Markov)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l01-state-transition.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao cần mô hình chuyển trạng thái</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l02-rates-probabilities.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tỷ suất, xác suất và độ dài chu kỳ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l03-cohort-trace.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vết đoàn hệ, giá trị gắn với trạng thái và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l04-time-dependence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Phụ thuộc thời gian: lão hóa, trạng thái đường hầm và mảng 3 chiều</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l05-results-verification.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị gắn với lần chuyển, đường biên hiệu quả và xác minh mô hình</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m03-uncertainty-voi/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M03 · Bất định, phân tích độ nhạy và giá trị thông tin</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l01-deterministic-sa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại bất định và phân tích độ nhạy tất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l02-distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Chọn phân phối cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l03-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích độ nhạy xác suất (PSA) trong R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l04-ceac-reporting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: CEAC, CEAF, tổn thất kỳ vọng và cách báo cáo bất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l05-voi.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị thông tin: EVPI, EVPPI và EVSI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m04-microsimulation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M04 · Mô phỏng vi mô (microsimulation)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l01-why-microsimulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Khi mô hình đoàn hệ không đủ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l02-microsim-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô phỏng vi mô bằng vòng lặp trong R cơ bản</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l03-vectorisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vectơ hóa theo cá thể và đo hiệu năng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l04-parallel-rcpp.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tính toán song song và Rcpp cho vòng lặp nóng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l05-mc-error-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bao nhiêu cá thể là đủ? Sai số Monte Carlo, PSA và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m05-dynamic-transmission/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M05 · Mô hình lây truyền động</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l01-static-vs-dynamic.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Mô hình tĩnh và mô hình lây truyền động</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l02-sir-seir-desolve.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình SIR và SEIR trong R với deSolve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m06-amr-economics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M06 · Kinh tế học kháng kháng sinh (AMR)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l01-amr-burden.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Kinh tế học kháng kháng sinh: ngoại ứng, gánh nặng và kịch bản phản thực</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l03-ward-transmission.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m07-survival-psm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M07 · Phân tích sống còn cho mô hình quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l03-extrapolation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l05-partitioned-survival.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m08-calibration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M08 · Hiệu chuẩn mô hình (calibration)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l01-why-calibrate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao phải hiệu chuẩn mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l02-search-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tìm kiếm tham số: ngẫu nhiên, siêu khối Latin và Nelder–Mead</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l03-bayes-sir.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hiệu chuẩn Bayes và thuật toán SIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l04-psa-validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đưa kết quả hiệu chuẩn vào PSA, thẩm định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m09-inputs-vietnam/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M09 · Dữ liệu đầu vào cho Việt Nam và LMIC</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l01-costing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ước tính chi phí cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l02-cost-adjustment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Điều chỉnh chi phí về một năm tham chiếu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l03-outcome-inputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Đầu vào về kết cục sức khỏe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l04-evidence-synthesis.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tổng hợp bằng chứng cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l05-decision-context.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bối cảnh ra quyết định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m10-policy-bia-equity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l04-communicating-hta.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Truyền đạt kết quả cho người ra quyết định và quy trình HTA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m11-software-engineering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l01-code-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Cấu trúc mã cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l02-testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Xác minh và kiểm thử mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l03-version-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l04-r-package.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/glossary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Trong bài</h2>
+   
+  <ul class="collapse">
+  <li><a href="#mục-tiêu-học-tập" id="toc-mục-tiêu-học-tập" class="nav-link active" data-scroll-target="#mục-tiêu-học-tập">Mục tiêu học tập</a></li>
+  <li><a href="#ý-chính" id="toc-ý-chính" class="nav-link" data-scroll-target="#ý-chính">Ý chính</a></li>
+  <li><a href="#nội-dung" id="toc-nội-dung" class="nav-link" data-scroll-target="#nội-dung">Nội dung</a></li>
+  <li><a href="#thực-hành" id="toc-thực-hành" class="nav-link" data-scroll-target="#thực-hành">Thực hành</a></li>
+  <li><a href="#bài-tập" id="toc-bài-tập" class="nav-link" data-scroll-target="#bài-tập">Bài tập</a></li>
+  <li><a href="#tài-liệu-tham-khảo" id="toc-tài-liệu-tham-khảo" class="nav-link" data-scroll-target="#tài-liệu-tham-khảo">Tài liệu tham khảo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m11-software-engineering/index.html">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</a></li><li class="breadcrumb-item"><a href="../../kb/m11-software-engineering/l05-shiny-living.html"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></h1>
+<p class="subtitle lead">Đưa mô hình đến người ra quyết định qua một giao diện tương tác, và cập nhật nó tự động mà vẫn an toàn</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-important callout-titled" title="Vì sao bạn nên quan tâm?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Vì sao bạn nên quan tâm?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Trong một buổi họp ở sở y tế, lãnh đạo hỏi: “Nếu giá BPaLM tăng gấp đôi thì sao? Nếu dùng ngưỡng chi phí-hiệu quả thấp hơn, 62.75 triệu VNĐ cho mỗi năm sống điều chỉnh theo chất lượng (QALY) thay vì 125.5 triệu (một lần GDP bình quân đầu người năm 2025) thì sao?” <span class="citation" data-cites="gso2026gdp2025 woods2016country">(<a href="../m00-r-foundations/index.html#ref-gso2026gdp2025" role="doc-biblioref">Cục Thống kê (Bộ Tài chính) 2026</a>; <a href="../m00-r-foundations/index.html#ref-woods2016country" role="doc-biblioref">Woods và c.s. 2016</a>)</span>. Một ứng dụng tốt trả lời trong vài giây mà không cho ai chép công thức ra bảng tính riêng. Mô hình cũng phải theo kịp thực tế: từ ngày 26/5/2026, bảng giá BHYT mới đưa chi phí theo dõi mỗi tháng từ 565,100 VNĐ lên 587,700 VNĐ <span class="citation" data-cites="byt2026qd1519">(<a href="../m00-r-foundations/index.html#ref-byt2026qd1519" role="doc-biblioref">Bộ Y tế 2026</a>)</span>, thêm khoảng 0.6 bát phở cho mỗi người bệnh mỗi tháng <span class="citation" data-cites="nhadautu2025pho">(<a href="../m00-r-foundations/index.html#ref-nhadautu2025pho" role="doc-biblioref">Nhadautu.vn 2025</a>)</span>. Bài này giúp bạn quyết định đưa gì lên màn hình cho người ra quyết định, và cập nhật mô hình tự động thế nào để một lỗi gõ không lọt tới họ.</p>
+</div>
+</div>
+<section id="mục-tiêu-học-tập" class="level2">
+<h2 class="anchored" data-anchor-id="mục-tiêu-học-tập">Mục tiêu học tập</h2>
+<p>Sau bài này, bạn có thể:</p>
+<ol type="1">
+<li>Giải thích khi nào ứng dụng Shiny (Shiny app) giúp truyền đạt mô hình, và giới hạn của nó.</li>
+<li>Dựng ứng dụng Shiny tối giản gồm giao diện (<code>ui</code>) và máy chủ (<code>server</code>), trong đó mọi phép tính do hàm của mô hình đảm nhận.</li>
+<li>Kiểm thử phần máy chủ của ứng dụng bằng <code>testServer()</code> mà không cần trình duyệt.</li>
+<li>Mô tả mô hình “sống” (living model) và dựng một quy trình cập nhật tự động có các cổng kiểm tra.</li>
+</ol>
+</section>
+<section id="ý-chính" class="level2">
+<h2 class="anchored" data-anchor-id="ý-chính">Ý chính</h2>
+<ul>
+<li>Ứng dụng là giao diện, không phải mô hình: không chép logic mô hình vào ứng dụng; nó chỉ gọi <code>run_model()</code> (ba phác đồ, đường biên, so sánh BPaLM với phác đồ ngắn) và <code>nmb_by_wtp()</code>.</li>
+<li>Shiny nối đầu vào với đầu ra bằng biểu thức phản ứng (reactive): đầu vào → <code>params()</code> → <code>model()</code> → mọi đầu ra, và mô hình chạy một lần mỗi khi đầu vào đổi.</li>
+<li>Chỉ cho đổi tham số có ý nghĩa, trong khoảng lấy từ bảng tham số; ghi rõ nguồn của giá và ngưỡng, số phiên bản và mã tham số. Thanh trượt trả lời “nếu… thì sao”, không thay cho phân tích bất định (M03).</li>
+<li><code>testServer()</code> kiểm thử phần máy chủ như một hàm (đặt đầu vào, đọc biểu thức phản ứng và đầu ra), nhanh và ổn định hơn kiểm thử bằng trình duyệt <span class="citation" data-cites="posit2026servertesting">(<a href="../m00-r-foundations/index.html#ref-posit2026servertesting" role="doc-biblioref">Posit không ngày</a>)</span>.</li>
+<li>Mô hình “sống” được cập nhật khi có bằng chứng mới. Tự động hóa chỉ an toàn khi bản cập nhật qua các cổng (đầu vào hợp lệ, kiểm thử đạt, người duyệt) và mỗi bản công bố được lưu theo phiên bản và mã tham số.</li>
+</ul>
+</section>
+<section id="nội-dung" class="level2">
+<h2 class="anchored" data-anchor-id="nội-dung">Nội dung</h2>
+<section id="khi-nào-cần-một-ứng-dụng" class="level3">
+<h3 class="anchored" data-anchor-id="khi-nào-cần-một-ứng-dụng">Khi nào cần một ứng dụng</h3>
+<p>Shiny nhúng mô hình viết bằng R vào giao diện web, để người dùng tự đặt giả định và chạy kịch bản mà không viết mã; với mô hình Markov thông thường mỗi lần chạy chỉ mất vài giây hoặc ít hơn <span class="citation" data-cites="smith2020making">(<a href="../m00-r-foundations/index.html#ref-smith2020making" role="doc-biblioref">R. Smith và Schneider 2020</a>)</span>. Nhóm phân tích, cán bộ chương trình chống lao và cơ quan chi trả cùng nhìn một con số, cùng thử một giả định (R với Shiny hay Excel: Bài 1, <span class="citation" data-cites="hart2020r">(<a href="../m00-r-foundations/index.html#ref-hart2020r" role="doc-biblioref">Hart và c.s. 2020</a>)</span>). Rủi ro: người dùng chọn tổ hợp cho ra kết quả mình muốn, và giao diện đẹp làm mô hình trông đáng tin hơn thực tế; hãy giới hạn đầu vào và trỏ tới báo cáo có phân tích bất định.</p>
+</section>
+<section id="cấu-trúc-của-một-ứng-dụng-shiny" class="level3">
+<h3 class="anchored" data-anchor-id="cấu-trúc-của-một-ứng-dụng-shiny">Cấu trúc của một ứng dụng Shiny</h3>
+<p>Ứng dụng viết bằng gói <code>shiny</code> có hai phần <span class="citation" data-cites="chang2026shiny wickham2021mastering">(<a href="../m00-r-foundations/index.html#ref-chang2026shiny" role="doc-biblioref">Chang và c.s. 2026</a>; <a href="../m00-r-foundations/index.html#ref-wickham2021mastering" role="doc-biblioref">Wickham 2021</a>)</span>: <code>ui</code> mô tả trang (đầu vào như thanh trượt, ô chọn; chỗ hiển thị đầu ra) và <code>server</code> là hàm nối chúng. Trong ứng dụng của module:</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>flowchart LR</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  I1["Giá thuốc ba phác đồ&lt;br/&gt;(% giá cơ sở)"] --&gt; PR["params()"]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  I3["Ngưỡng"] --&gt; PR</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  I4["Chiết khấu"] --&gt; PR</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  I5["Cách áp RR cho tử vong"] --&gt; PR</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  PR --&gt; MO["model()&lt;br/&gt;= run_model(params())"]</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  MO --&gt; O1["Câu kết luận&lt;br/&gt;(NMB cao nhất; BPaLM so với phác đồ ngắn)"]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  MO --&gt; O2["Bảng ba phác đồ&lt;br/&gt;và đường biên"]</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  MO --&gt; O3["Hình lợi ích ròng theo ngưỡng&lt;br/&gt;(nmb_by_wtp)"]</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  MO --&gt; O4["Phiên bản mô hình&lt;br/&gt;và mã tham số"]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  I1["Giá thuốc ba phác đồ&lt;br/&gt;(% giá cơ sở)"] --&gt; PR["params()"]
+  I3["Ngưỡng"] --&gt; PR
+  I4["Chiết khấu"] --&gt; PR
+  I5["Cách áp RR cho tử vong"] --&gt; PR
+  PR --&gt; MO["model()&lt;br/&gt;= run_model(params())"]
+  MO --&gt; O1["Câu kết luận&lt;br/&gt;(NMB cao nhất; BPaLM so với phác đồ ngắn)"]
+  MO --&gt; O2["Bảng ba phác đồ&lt;br/&gt;và đường biên"]
+  MO --&gt; O3["Hình lợi ích ròng theo ngưỡng&lt;br/&gt;(nmb_by_wtp)"]
+  MO --&gt; O4["Phiên bản mô hình&lt;br/&gt;và mã tham số"]
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p><code>params()</code> và <code>model()</code> là biểu thức phản ứng: Shiny nhớ kết quả và chỉ tính lại khi đầu vào của chúng đổi, nên bốn đầu ra dùng chung một lần chạy mô hình.</p>
+</section>
+<section id="nguyên-tắc-thiết-kế" class="level3">
+<h3 class="anchored" data-anchor-id="nguyên-tắc-thiết-kế">Nguyên tắc thiết kế</h3>
+<ol type="1">
+<li><strong>Không có logic mô hình trong ứng dụng</strong>: mọi phép tính đi qua hàm công khai của mô hình, nên sửa mô hình thì ứng dụng tự đúng theo.</li>
+<li><strong>Ít đầu vào, giới hạn lấy từ bảng tham số</strong>: ngưỡng và chiết khấu theo khoảng của <code>kb/_shared</code> (từ 0.5 đến 3 lần GDP bình quân đầu người; 0 đến 5%); giá thuốc không có khoảng nên thanh trượt tính theo phần trăm giá cơ sở, để 100% luôn đúng bằng phân tích cơ sở. Giả định cấu trúc quan trọng của M02 (cách áp RR cho tử vong) là ô chọn với ba lựa chọn định sẵn.</li>
+<li><strong>Minh bạch ngay trên màn hình</strong>: nguồn của giá và ngưỡng, số phiên bản mô hình (nhãn Git, Bài 3) và mã tham số, để ảnh chụp màn hình truy được nguồn gốc con số.</li>
+<li><strong>Nhanh.</strong> Một lần chạy mất vài phần trăm giây nên ứng dụng phản hồi tức thì; phân tích độ nhạy xác suất (PSA) hàng nghìn lần chạy thì không: tính trước.</li>
+</ol>
+</section>
+<section id="mô-hình-sống" class="level3">
+<h3 class="anchored" data-anchor-id="mô-hình-sống">Mô hình “sống”</h3>
+<p>Đánh giá công nghệ y tế thường làm một lần rồi lạc hậu. Thokala và cộng sự định nghĩa đánh giá công nghệ y tế “sống” (living HTA) là cập nhật định kỳ hoặc theo lịch, thủ công hoặc bán tự động, và lưu ý cách làm này không cần cho mọi đánh giá <span class="citation" data-cites="thokala2023living">(<a href="../m00-r-foundations/index.html#ref-thokala2023living" role="doc-biblioref">Thokala và c.s. 2023</a>)</span>. Smith và cộng sự minh họa bằng R: mô hình xây trên dữ liệu giả; dữ liệu thật nằm sau một API do bên giữ dữ liệu vận hành; quy trình tự động gọi API, nhận kết quả (không nhận dữ liệu), xuất báo cáo theo lịch hoặc khi dữ liệu hay mã đổi <span class="citation" data-cites="smith2022living">(<a href="../m00-r-foundations/index.html#ref-smith2022living" role="doc-biblioref">R. A. Smith, Schneider, và Mohammed 2022</a>)</span>.</p>
+<p>Nhưng tự động hóa cũng tự động hóa cả lỗi. Quy trình của module có ba cổng, bản qua cả ba mới được công bố: (1) <code>validate_params()</code> chấp nhận đầu vào; (2) toàn bộ kiểm thử đạt với tham số mới; (3) mô hình chạy và trả kết quả. Thực tế còn cổng thứ tư: người duyệt thay đổi (yêu cầu hợp nhất, Bài 3). Mỗi bản công bố được lưu dưới số phiên bản và mã tham số, để từ nhật ký hay ảnh chụp màn hình tìm lại đúng bảng và chạy lại đúng kết quả.</p>
+<p>GitHub Actions chạy các cổng này mỗi lần có thay đổi; <code>r-lib/actions</code> có sẵn các bước cài R, cài gói và chạy <code>R CMD check</code> <span class="citation" data-cites="rlib2026actions perezriverol2016ten">(<a href="../m00-r-foundations/index.html#ref-rlib2026actions" role="doc-biblioref">r-lib không ngày</a>; <a href="../m00-r-foundations/index.html#ref-perezriverol2016ten" role="doc-biblioref">Perez-Riverol và c.s. 2016</a>)</span>. Tệp quy trình minh họa (không chạy trong khóa học):</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode yaml code-with-copy"><code class="sourceCode yaml"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># .github/workflows/update-model.yaml  (illustrative)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">name</span><span class="kw">:</span><span class="at"> update-model</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">on</span><span class="kw">:</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">push</span><span class="kw">:</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">paths</span><span class="kw">:</span><span class="at"> </span><span class="kw">[</span><span class="st">"params/**"</span><span class="kw">,</span><span class="at"> </span><span class="st">"R/**"</span><span class="kw">,</span><span class="at"> </span><span class="st">"tests/**"</span><span class="kw">]</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">schedule</span><span class="kw">:</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="kw">-</span><span class="at"> </span><span class="fu">cron</span><span class="kw">:</span><span class="at"> </span><span class="st">"0 2 1 * *"</span><span class="co">          # 02:00 UTC on the first day of each month</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a><span class="fu">jobs</span><span class="kw">:</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="at">  </span><span class="fu">check-and-run</span><span class="kw">:</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">runs-on</span><span class="kw">:</span><span class="at"> ubuntu-latest</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="at">    </span><span class="fu">steps</span><span class="kw">:</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> actions/checkout@v7</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/setup-r@v2</span></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/setup-r-dependencies@v2</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">uses</span><span class="kw">:</span><span class="at"> r-lib/actions/check-r-package@v2</span><span class="co">   # R CMD check, including the tests</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a><span class="at">      </span><span class="kw">-</span><span class="at"> </span><span class="fu">run</span><span class="kw">:</span><span class="at"> Rscript code/run-update.R</span><span class="co">           # gates 1-3, then a draft report</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="thực-hành" class="level2">
+<h2 class="anchored" data-anchor-id="thực-hành">Thực hành</h2>
+<p>Nạp mô hình, <code>shiny</code>, <code>testthat</code> và bảng tham số đầy đủ; <code>shinyAppDir("app")</code> đọc ứng dụng mà không mở máy chủ web. Kiểm tra: không có lỗi. Để mở ứng dụng thật, chạy <code>shiny::runApp("app")</code> trong phiên R tương tác, từ thư mục module.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Vietnamese text in tables and figures needs a UTF-8 locale (Rscript may start in "C")</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">isTRUE</span>(<span class="fu">l10n_info</span>()[[<span class="st">"UTF-8"</span>]])) <span class="fu">invisible</span>(<span class="fu">Sys.setlocale</span>(<span class="st">"LC_CTYPE"</span>, <span class="st">"en_US.UTF-8"</span>))</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/helpers.R"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/vn_data.R"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(testthat)</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">set_reporter</span>(StopReporter<span class="sc">$</span><span class="fu">new</span>(<span class="at">praise =</span> <span class="cn">FALSE</span>)))   <span class="co"># quiet when tests pass</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="co"># The complete parameter table (M02 + kb/_shared); the app and default_params() read it</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>param_file <span class="ot">&lt;-</span> <span class="fu">write_param_table</span>(<span class="fu">assemble_params</span>(<span class="st">"../m02-cohort-markov/params/mdrtb.csv"</span>, <span class="st">"../_shared"</span>),</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                                <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"mdrtbvn-params.csv"</span>))</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">mdrtbvn.params =</span> param_file)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">read_param_file</span>(param_file)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>ptab <span class="ot">&lt;-</span> <span class="fu">attr</span>(p, <span class="st">"table"</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>app <span class="ot">&lt;-</span> <span class="fu">shinyAppDir</span>(<span class="st">"app"</span>)       <span class="co"># loads app/app.R without starting a web server</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>app_lines <span class="ot">&lt;-</span> <span class="fu">readLines</span>(<span class="st">"app/app.R"</span>)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>pct_max <span class="ot">&lt;-</span> <span class="dv">300</span>                  <span class="co"># PRICE_PCT_MAX in app/app.R: the price sliders end at 300% of the base price</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">any</span>(<span class="fu">grepl</span>(<span class="fu">paste0</span>(<span class="st">"^PRICE_PCT_MAX &lt;- "</span>, pct_max, <span class="st">"$"</span>), app_lines)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Phần chuẩn bị của ứng dụng (<code>app/app.R</code>): nạp mô hình và bảng tham số (các dòng ghi “module only” ghép bảng từ M02 và <code>kb/_shared</code>; trong gói, bảng đi kèm gói), lấy giới hạn thanh trượt từ bảng. Kiểm tra: không tham số nào gõ cứng; hằng <code>PRICE_PCT_MAX</code> là lựa chọn giao diện, không phải tham số.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(shiny)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../code/model.R"</span>, <span class="at">local =</span> <span class="cn">TRUE</span>)   <span class="co"># module only: the installed package provides these functions</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">is.null</span>(<span class="fu">getOption</span>(<span class="st">"mdrtbvn.params"</span>))) {   <span class="co"># module only: assemble M02's table + kb/_shared once</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  tab <span class="ot">&lt;-</span> <span class="fu">assemble_params</span>(<span class="st">"../../m02-cohort-markov/params/mdrtb.csv"</span>, <span class="st">"../../_shared"</span>)   <span class="co"># module only</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">options</span>(<span class="at">mdrtbvn.params =</span> <span class="fu">write_param_table</span>(tab, <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">".csv"</span>)))   <span class="co"># module only</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>}   <span class="co"># module only</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>p_base <span class="ot">&lt;-</span> <span class="fu">default_params</span>()</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>base_tab <span class="ot">&lt;-</span> <span class="fu">attr</span>(p_base, <span class="st">"table"</span>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Slider limits come from the parameter table (low, value, high). Drug prices have no range</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a><span class="co"># in the table, so their sliders are a percentage of the base price, from 0 to PRICE_PCT_MAX</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>PRICE_PCT_MAX <span class="ot">&lt;-</span> <span class="dv">300</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>range_of <span class="ot">&lt;-</span> <span class="cf">function</span>(nm, <span class="at">scale =</span> <span class="dv">1</span>) <span class="fu">as.numeric</span>(base_tab[base_tab<span class="sc">$</span>name <span class="sc">==</span> nm, <span class="fu">c</span>(<span class="st">"low"</span>, <span class="st">"value"</span>, <span class="st">"high"</span>)]) <span class="sc">*</span> scale</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>fmt_m <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">formatC</span>(x <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">format =</span> <span class="st">"f"</span>, <span class="at">digits =</span> <span class="dv">2</span>, <span class="at">big.mark =</span> <span class="st">","</span>)</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>regimen_vi <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">long =</span> <span class="st">"Phác đồ dài hạn"</span>, <span class="at">short =</span> <span class="st">"Phác đồ ngắn 9 tháng"</span>, <span class="at">bpalm =</span> <span class="st">"BPaLM"</span>)</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>status_vi <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">dominant =</span> <span class="st">"BPaLM chiếm ưu thế so với phác đồ ngắn (rẻ hơn và hiệu quả hơn)"</span>,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>               <span class="at">dominated =</span> <span class="st">"BPaLM bị lấn át bởi phác đồ ngắn (đắt hơn và kém hiệu quả hơn)"</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>               <span class="at">ne =</span> <span class="st">"BPaLM đắt hơn và hiệu quả hơn phác đồ ngắn"</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>               <span class="at">sw =</span> <span class="st">"BPaLM rẻ hơn nhưng kém hiệu quả hơn phác đồ ngắn"</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>               <span class="at">equivalent =</span> <span class="st">"BPaLM và phác đồ ngắn tương đương"</span>)</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>frontier_vi <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">frontier =</span> <span class="st">"trên đường biên"</span>, <span class="at">dominated =</span> <span class="st">"bị lấn át"</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>                 <span class="at">ext_dominated =</span> <span class="st">"bị lấn át mở rộng"</span>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>price_slider <span class="ot">&lt;-</span> <span class="cf">function</span>(id, regimen, param) {</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sliderInput</span>(id, <span class="fu">paste0</span>(<span class="st">"Giá thuốc "</span>, regimen_vi[[regimen]], <span class="st">" (% giá cơ sở "</span>,</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">fmt_m</span>(p_base[[param]]), <span class="st">" triệu VNĐ/tháng)"</span>),</span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>              <span class="at">min =</span> <span class="dv">0</span>, <span class="at">max =</span> PRICE_PCT_MAX, <span class="at">value =</span> <span class="dv">100</span>, <span class="at">step =</span> <span class="dv">5</span>)</span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Giao diện: sáu đầu vào ở thanh bên, bốn đầu ra ở phần chính. Kiểm tra: giới hạn thanh trượt ngưỡng và chiết khấu đến từ bảng.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>ui <span class="ot">&lt;-</span> <span class="fu">fluidPage</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">titlePanel</span>(<span class="st">"Lao đa kháng: ba phác đồ điều trị tại Việt Nam"</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">sidebarLayout</span>(</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">sidebarPanel</span>(</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>      <span class="fu">price_slider</span>(<span class="st">"price_bpalm"</span>, <span class="st">"bpalm"</span>, <span class="st">"c_drug_bpalm"</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>      <span class="fu">price_slider</span>(<span class="st">"price_short"</span>, <span class="st">"short"</span>, <span class="st">"c_drug_short"</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>      <span class="fu">price_slider</span>(<span class="st">"price_long"</span>, <span class="st">"long"</span>, <span class="st">"c_drug_long"</span>),</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sliderInput</span>(<span class="st">"wtp"</span>, <span class="st">"Ngưỡng chi phí-hiệu quả (triệu VNĐ/QALY)"</span>,</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>                  <span class="at">min =</span> <span class="fu">range_of</span>(<span class="st">"wtp"</span>, <span class="fl">1e-6</span>)[<span class="dv">1</span>], <span class="at">max =</span> <span class="fu">range_of</span>(<span class="st">"wtp"</span>, <span class="fl">1e-6</span>)[<span class="dv">3</span>],</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">value =</span> <span class="fu">range_of</span>(<span class="st">"wtp"</span>, <span class="fl">1e-6</span>)[<span class="dv">2</span>], <span class="at">step =</span> <span class="fl">0.25</span>),</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>      <span class="fu">sliderInput</span>(<span class="st">"disc_rate"</span>, <span class="st">"Tỷ lệ chiết khấu (%/năm)"</span>,</span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>                  <span class="at">min =</span> <span class="fu">range_of</span>(<span class="st">"disc_rate"</span>, <span class="dv">100</span>)[<span class="dv">1</span>], <span class="at">max =</span> <span class="fu">range_of</span>(<span class="st">"disc_rate"</span>, <span class="dv">100</span>)[<span class="dv">3</span>],</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>                  <span class="at">value =</span> <span class="fu">range_of</span>(<span class="st">"disc_rate"</span>, <span class="dv">100</span>)[<span class="dv">2</span>], <span class="at">step =</span> <span class="fl">0.5</span>),</span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">selectInput</span>(<span class="st">"bpalm_death_rule"</span>, <span class="st">"Cách áp RR cho tử vong khi điều trị BPaLM"</span>,</span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>                  <span class="at">choices =</span> <span class="fu">c</span>(<span class="st">"0: chỉ thất bại và bỏ điều trị (cơ sở)"</span> <span class="ot">=</span> <span class="st">"0"</span>,</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>                              <span class="st">"1: áp cho cả tử vong"</span> <span class="ot">=</span> <span class="st">"1"</span>,</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>                              <span class="st">"2: tỷ lệ tử vong như phác đồ ngắn"</span> <span class="ot">=</span> <span class="st">"2"</span>)),</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>      <span class="fu">helpText</span>(<span class="st">"Giá thuốc: Global Drug Facility; theo dõi: bảng giá BHYT; ngưỡng: 1 × GDP bình quân"</span>,</span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>               <span class="st">"đầu người (kb/_shared). Kết quả cho một người bệnh"</span>, p_base<span class="sc">$</span>age_start, <span class="st">"tuổi, có chiết khấu."</span>)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mainPanel</span>(</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>      <span class="fu">h4</span>(<span class="fu">textOutput</span>(<span class="st">"decision"</span>)),</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">tableOutput</span>(<span class="st">"results"</span>),</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>      <span class="fu">plotOutput</span>(<span class="st">"nmb_plot"</span>, <span class="at">height =</span> <span class="st">"300px"</span>),</span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>      <span class="fu">textOutput</span>(<span class="st">"version"</span>)</span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Phần máy chủ: đầu vào thành danh sách tham số, một lần chạy mô hình, bốn đầu ra. Kiểm tra: không dòng nào tự tính lợi ích ròng quy ra tiền (NMB); đường cong theo ngưỡng do <code>nmb_by_wtp()</code> trả về.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>server <span class="ot">&lt;-</span> <span class="cf">function</span>(input, output, session) {</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 1. Inputs -&gt; parameter list (the only place where the UI touches parameters)</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <span class="fu">reactive</span>({</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    p <span class="ot">&lt;-</span> p_base</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    p<span class="sc">$</span>c_drug_bpalm <span class="ot">&lt;-</span> p_base<span class="sc">$</span>c_drug_bpalm <span class="sc">*</span> input<span class="sc">$</span>price_bpalm <span class="sc">/</span> <span class="dv">100</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    p<span class="sc">$</span>c_drug_short <span class="ot">&lt;-</span> p_base<span class="sc">$</span>c_drug_short <span class="sc">*</span> input<span class="sc">$</span>price_short <span class="sc">/</span> <span class="dv">100</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    p<span class="sc">$</span>c_drug_long <span class="ot">&lt;-</span> p_base<span class="sc">$</span>c_drug_long <span class="sc">*</span> input<span class="sc">$</span>price_long <span class="sc">/</span> <span class="dv">100</span></span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    p<span class="sc">$</span>wtp <span class="ot">&lt;-</span> input<span class="sc">$</span>wtp <span class="sc">*</span> <span class="fl">1e6</span></span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>    p<span class="sc">$</span>disc_rate <span class="ot">&lt;-</span> input<span class="sc">$</span>disc_rate <span class="sc">/</span> <span class="dv">100</span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>    p<span class="sc">$</span>bpalm_death_rule <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(input<span class="sc">$</span>bpalm_death_rule)</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    p</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 2. One model run per change of input; every output reuses this result</span></span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  model <span class="ot">&lt;-</span> <span class="fu">reactive</span>(<span class="fu">run_model</span>(<span class="fu">params</span>()))</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>  <span class="co"># 3. Outputs</span></span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>decision <span class="ot">&lt;-</span> <span class="fu">renderText</span>({</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>    fr <span class="ot">&lt;-</span> <span class="fu">model</span>()<span class="sc">$</span>frontier</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    cmp <span class="ot">&lt;-</span> <span class="fu">model</span>()<span class="sc">$</span>comparison</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">paste0</span>(<span class="st">"NMB cao nhất: "</span>, regimen_vi[[fr<span class="sc">$</span>strategy[fr<span class="sc">$</span>optimal][<span class="dv">1</span>]]], <span class="st">". "</span>, status_vi[[cmp<span class="sc">$</span>status]],</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>           <span class="st">"; NMB gia tăng: "</span>, <span class="fu">fmt_m</span>(cmp<span class="sc">$</span>d_nmb), <span class="st">" triệu VNĐ/người."</span>)</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>results <span class="ot">&lt;-</span> <span class="fu">renderTable</span>({</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>    res <span class="ot">&lt;-</span> <span class="fu">model</span>()<span class="sc">$</span>results</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    fr <span class="ot">&lt;-</span> <span class="fu">model</span>()<span class="sc">$</span>frontier</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>    cmp <span class="ot">&lt;-</span> <span class="fu">model</span>()<span class="sc">$</span>comparison</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>    cell <span class="ot">&lt;-</span> <span class="cf">function</span>(g) <span class="fu">c</span>(<span class="fu">fmt_m</span>(res[g, <span class="st">"cost"</span>]), <span class="fu">sprintf</span>(<span class="st">"%.3f"</span>, res[g, <span class="st">"qaly"</span>]),</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>                          <span class="fu">fmt_m</span>(res[g, <span class="st">"nmb"</span>]), frontier_vi[[fr[g, <span class="st">"status"</span>]]])</span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">data.frame</span>(</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">Kết quả</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"Chi phí (triệu VNĐ)"</span>, <span class="st">"QALY"</span>, <span class="st">"NMB (triệu VNĐ)"</span>, <span class="st">"Đường biên hiệu quả"</span>),</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">Phác đồ dài hạn</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">cell</span>(<span class="st">"long"</span>),</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">Phác đồ ngắn 9 tháng</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">cell</span>(<span class="st">"short"</span>),</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">BPaLM =</span> <span class="fu">cell</span>(<span class="st">"bpalm"</span>),</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>      <span class="st">`</span><span class="at">BPaLM so với phác đồ ngắn</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="fu">fmt_m</span>(cmp<span class="sc">$</span>d_cost), <span class="fu">sprintf</span>(<span class="st">"%.3f"</span>, cmp<span class="sc">$</span>d_qaly), <span class="fu">fmt_m</span>(cmp<span class="sc">$</span>d_nmb), <span class="st">""</span>),</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>      <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>nmb_plot <span class="ot">&lt;-</span> <span class="fu">renderPlot</span>({</span>
+<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The curve comes from the model (nmb_by_wtp), over the slider's own threshold range</span></span>
+<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a>    grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fu">range_of</span>(<span class="st">"wtp"</span>)[<span class="dv">3</span>], <span class="at">length.out =</span> <span class="dv">61</span>)</span>
+<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    df <span class="ot">&lt;-</span> <span class="fu">nmb_by_wtp</span>(<span class="fu">model</span>()<span class="sc">$</span>comparison, grid)</span>
+<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    <span class="fu">ggplot</span>(df, <span class="fu">aes</span>(wtp <span class="sc">/</span> <span class="fl">1e6</span>, d_nmb <span class="sc">/</span> <span class="fl">1e6</span>)) <span class="sc">+</span></span>
+<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> input<span class="sc">$</span>wtp, <span class="at">linetype =</span> <span class="st">"22"</span>) <span class="sc">+</span></span>
+<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>      <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>, <span class="at">colour =</span> <span class="st">"#0072B2"</span>) <span class="sc">+</span></span>
+<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>      <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Ngưỡng (triệu VNĐ/QALY)"</span>, <span class="at">y =</span> <span class="st">"NMB gia tăng, BPaLM so với phác đồ ngắn (triệu VNĐ)"</span>) <span class="sc">+</span></span>
+<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>      <span class="fu">theme_minimal</span>(<span class="at">base_size =</span> <span class="dv">13</span>)</span>
+<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb6-48"><a href="#cb6-48" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Release number (the Git tag) and the id of the parameter set actually used</span></span>
+<span id="cb6-49"><a href="#cb6-49" aria-hidden="true" tabindex="-1"></a>  output<span class="sc">$</span>version <span class="ot">&lt;-</span> <span class="fu">renderText</span>(<span class="fu">paste0</span>(<span class="st">"Phiên bản mô hình: "</span>, <span class="fu">model</span>()<span class="sc">$</span>version,</span>
+<span id="cb6-50"><a href="#cb6-50" aria-hidden="true" tabindex="-1"></a>                                      <span class="st">" · mã bảng tham số: "</span>, <span class="fu">model</span>()<span class="sc">$</span>param_id))</span>
+<span id="cb6-51"><a href="#cb6-51" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Kiểm tra cấu trúc ứng dụng bằng code. Kiểm tra: đúng một lời gọi <code>run_model()</code>, không hàm nội bộ nào, không phép tính trên kết quả. Đây chỉ là phép thử thô, không loại trừ được logic chép từ mô hình.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The app is small and holds no model logic: it calls run_model() once, and none of</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># the model's internal functions. These greps are a crude proxy (they cannot prove the</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># absence of copied logic); the real protection is the testServer() comparison below.</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>n_app_code <span class="ot">&lt;-</span> <span class="fu">sum</span>(<span class="fu">nzchar</span>(<span class="fu">trimws</span>(app_lines)) <span class="sc">&amp;</span> <span class="sc">!</span><span class="fu">grepl</span>(<span class="st">"^</span><span class="sc">\\</span><span class="st">s*#"</span>, app_lines))</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>internal <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"prepare_inputs"</span>, <span class="st">"build_P"</span>, <span class="st">"run_trace"</span>, <span class="st">"summarise_regimen"</span>, <span class="st">"competing_probs"</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>              <span class="st">"cea_frontier"</span>, <span class="st">"compare_regimens"</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>uses_internal <span class="ot">&lt;-</span> <span class="fu">vapply</span>(internal, <span class="cf">function</span>(f) <span class="fu">any</span>(<span class="fu">grepl</span>(<span class="fu">paste0</span>(f, <span class="st">"("</span>), app_lines, <span class="at">fixed =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>                        <span class="fu">logical</span>(<span class="dv">1</span>))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Arithmetic on model outputs (a formula in the app) would look like d_qaly * ... or ... - d_cost</span></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>formula_like <span class="ot">&lt;-</span> <span class="fu">grepl</span>(<span class="st">"(d_qaly|d_cost|</span><span class="sc">\\</span><span class="st">$qaly|</span><span class="sc">\\</span><span class="st">$cost)</span><span class="sc">\\</span><span class="st">s*[-+*/]|[-+*/]</span><span class="sc">\\</span><span class="st">s*[a-z_$]*(d_qaly|d_cost)"</span>, app_lines)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">code_lines =</span> n_app_code, <span class="at">run_model_calls =</span> <span class="fu">sum</span>(<span class="fu">grepl</span>(<span class="st">"run_model("</span>, app_lines, <span class="at">fixed =</span> <span class="cn">TRUE</span>)),</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">internal_calls =</span> <span class="fu">sum</span>(uses_internal), <span class="at">formula_lines =</span> <span class="fu">sum</span>(formula_like))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     code_lines run_model_calls  internal_calls   formula_lines 
+            100               1               0               0 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">sum</span>(<span class="fu">grepl</span>(<span class="st">"run_model("</span>, app_lines, <span class="at">fixed =</span> <span class="cn">TRUE</span>)) <span class="sc">==</span> <span class="dv">1</span>, <span class="sc">!</span><span class="fu">any</span>(uses_internal), <span class="sc">!</span><span class="fu">any</span>(formula_like))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Ứng dụng chỉ có 100 dòng mã. Phép bảo vệ thật là so sánh với mô hình: <code>testServer()</code> đặt đầu vào bằng phân tích cơ sở, đọc kết quả, rồi kéo giá BPaLM tới 300% giá cơ sở. Kiểm tra: ứng dụng cho đúng lợi ích ròng quy ra tiền gia tăng (ΔNMB) của <code>run_model()</code>; ΔNMB giảm khi giá tăng; mã tham số trên màn hình đổi khi thanh trượt dịch chuyển.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test the server without a browser: set the inputs, then read reactives and outputs.</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># testServer() returns nothing, so results are stored in an environment we own.</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Prices are sliders in % of the base price of the table the app reads (`base`).</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>inputs_from <span class="ot">&lt;-</span> <span class="cf">function</span>(p, <span class="at">base =</span> p) {</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">price_bpalm =</span> <span class="dv">100</span> <span class="sc">*</span> p<span class="sc">$</span>c_drug_bpalm <span class="sc">/</span> base<span class="sc">$</span>c_drug_bpalm,</span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>       <span class="at">price_short =</span> <span class="dv">100</span> <span class="sc">*</span> p<span class="sc">$</span>c_drug_short <span class="sc">/</span> base<span class="sc">$</span>c_drug_short,</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>       <span class="at">price_long =</span> <span class="dv">100</span> <span class="sc">*</span> p<span class="sc">$</span>c_drug_long <span class="sc">/</span> base<span class="sc">$</span>c_drug_long,</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">wtp =</span> p<span class="sc">$</span>wtp <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">disc_rate =</span> <span class="dv">100</span> <span class="sc">*</span> p<span class="sc">$</span>disc_rate,</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>       <span class="at">bpalm_death_rule =</span> <span class="fu">as.character</span>(p<span class="sc">$</span>bpalm_death_rule))</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>captured <span class="ot">&lt;-</span> <span class="fu">new.env</span>()</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a><span class="fu">testServer</span>(app, {</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(session<span class="sc">$</span>setInputs, <span class="fu">inputs_from</span>(p))</span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assign</span>(<span class="st">"base"</span>, <span class="fu">model</span>()<span class="sc">$</span>comparison, <span class="at">envir =</span> captured)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assign</span>(<span class="st">"base_frontier"</span>, <span class="fu">model</span>()<span class="sc">$</span>frontier, <span class="at">envir =</span> captured)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assign</span>(<span class="st">"decision"</span>, output<span class="sc">$</span>decision, <span class="at">envir =</span> captured)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assign</span>(<span class="st">"version"</span>, output<span class="sc">$</span>version, <span class="at">envir =</span> captured)</span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  session<span class="sc">$</span><span class="fu">setInputs</span>(<span class="at">price_bpalm =</span> pct_max)             <span class="co"># move one slider to its maximum</span></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assign</span>(<span class="st">"high_price"</span>, <span class="fu">model</span>()<span class="sc">$</span>comparison, <span class="at">envir =</span> captured)</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assign</span>(<span class="st">"high_price_version"</span>, output<span class="sc">$</span>version, <span class="at">envir =</span> captured)</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>direct <span class="ot">&lt;-</span> <span class="fu">run_model</span>(p)</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">app_d_nmb_million =</span> captured<span class="sc">$</span>base<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">direct_d_nmb_million =</span> direct<span class="sc">$</span>comparison<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>  <span class="at">app_high_price_d_nmb_million =</span> captured<span class="sc">$</span>high_price<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           app_d_nmb_million         direct_d_nmb_million 
+                    66.80761                     66.80761 
+app_high_price_d_nmb_million 
+                    53.29552 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>captured<span class="sc">$</span>decision</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "NMB cao nhất: BPaLM. BPaLM chiếm ưu thế so với phác đồ ngắn (rẻ hơn và hiệu quả hơn); NMB gia tăng: 66.81 triệu VNĐ/người."</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>captured<span class="sc">$</span>version</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Phiên bản mô hình: 1.0.0 · mã bảng tham số: 8e7e2fa0"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">expect_equal</span>(captured<span class="sc">$</span>base<span class="sc">$</span>d_nmb, direct<span class="sc">$</span>comparison<span class="sc">$</span>d_nmb)   <span class="co"># app = model, same inputs</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">expect_lt</span>(captured<span class="sc">$</span>high_price<span class="sc">$</span>d_nmb, captured<span class="sc">$</span>base<span class="sc">$</span>d_nmb)    <span class="co"># dearer BPaLM, lower NMB</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># The screen carries the release number and the id of the parameters it used: the base</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># case has the id of the M02 table, and a moved slider gives another id</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="fu">expect_match</span>(captured<span class="sc">$</span>version, <span class="fu">paste0</span>(direct<span class="sc">$</span>version, <span class="st">" · mã bảng tham số: "</span>, direct<span class="sc">$</span>param_id), <span class="at">fixed =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a><span class="fu">expect_false</span>(<span class="fu">identical</span>(captured<span class="sc">$</span>version, captured<span class="sc">$</span>high_price_version))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Cùng đầu vào, ứng dụng và mô hình cùng cho ΔNMB của BPaLM so với phác đồ ngắn là 66.8 triệu VNĐ; ở giá BPaLM cao nhất của thanh trượt, ΔNMB còn 53.3. Màn hình ghi “NMB cao nhất: BPaLM. BPaLM chiếm ưu thế so với phác đồ ngắn (rẻ hơn và hiệu quả hơn); NMB gia tăng: 66.81 triệu VNĐ/người.” và, ở dòng cuối, “Phiên bản mô hình: 1.0.0 · mã bảng tham số: 8e7e2fa0”.</p>
+<p>Câu hỏi đằng sau thanh trượt giá: giá BPaLM mỗi tháng bằng bao nhiêu thì ΔNMB so với phác đồ ngắn bằng 0, và các mức giá GDF thật đã nằm ở đâu? Kiểm tra: ΔNMB giảm đều theo giá, bằng 0 tại giá ngưỡng; giá 9/2025 trùng giá cơ sở.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The question behind the price slider: at which monthly BPaLM price does the</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># incremental NMB versus the short regimen reach zero? And where were GDF's real prices?</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>d_nmb_at <span class="ot">&lt;-</span> <span class="cf">function</span>(price) {</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  q <span class="ot">&lt;-</span> p</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  q<span class="sc">$</span>c_drug_bpalm <span class="ot">&lt;-</span> price</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">run_model</span>(q)<span class="sc">$</span>comparison<span class="sc">$</span>d_nmb</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>price_zero <span class="ot">&lt;-</span> stats<span class="sc">::</span><span class="fu">uniroot</span>(d_nmb_at, <span class="at">lower =</span> <span class="dv">0</span>, <span class="at">upper =</span> <span class="dv">100</span> <span class="sc">*</span> p<span class="sc">$</span>c_drug_bpalm)<span class="sc">$</span>root</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>prices <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fl">1.2</span> <span class="sc">*</span> price_zero, <span class="at">length.out =</span> <span class="dv">25</span>)</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>curve <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">price_million =</span> prices <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>                    <span class="at">d_nmb_million =</span> <span class="fu">vapply</span>(prices, d_nmb_at, <span class="fu">numeric</span>(<span class="dv">1</span>)) <span class="sc">/</span> <span class="fl">1e6</span>)</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a><span class="co"># GDF prices of BPaLM since WHO's recommendation (module file, USD per 6-month course);</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a><span class="co"># the September 2025 price is the course price in kb/_shared</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>ctx <span class="ot">&lt;-</span> <span class="fu">vn_context</span>()</span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>gdf <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/gdf-prices.csv"</span>)</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>gdf_usd <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">`</span><span class="at">12/2022</span><span class="st">`</span> <span class="ot">=</span> gdf<span class="sc">$</span>gdf_bpalm_2022_12, <span class="st">`</span><span class="at">2/2025</span><span class="st">`</span> <span class="ot">=</span> gdf<span class="sc">$</span>gdf_bpalm_2025_02,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>             <span class="st">`</span><span class="at">4/2025</span><span class="st">`</span> <span class="ot">=</span> gdf<span class="sc">$</span>gdf_bpalm_2025_04, <span class="st">`</span><span class="at">9/2025</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">vn_prices</span>()<span class="sc">$</span>tb_regimen_bpalm_6m <span class="sc">/</span> ctx<span class="sc">$</span>fx_vnd_per_usd)</span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>gdf_month <span class="ot">&lt;-</span> gdf_usd <span class="sc">*</span> ctx<span class="sc">$</span>fx_vnd_per_usd <span class="sc">/</span> p<span class="sc">$</span>dur_bpalm      <span class="co"># VND per month at today's exchange rate</span></span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">threshold_price_million =</span> price_zero <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">ratio_to_base =</span> price_zero <span class="sc">/</span> p<span class="sc">$</span>c_drug_bpalm,</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>        <span class="at">ratio_to_2022_price =</span> price_zero <span class="sc">/</span> gdf_month[[<span class="st">"12/2022"</span>]]), <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>threshold_price_million           ratio_to_base     ratio_to_2022_price 
+                  12.87                   10.89                    5.26 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>outside_slider <span class="ot">&lt;-</span> price_zero <span class="sc">&gt;</span> pct_max <span class="sc">/</span> <span class="dv">100</span> <span class="sc">*</span> p<span class="sc">$</span>c_drug_bpalm</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(<span class="fu">d_nmb_at</span>(price_zero)) <span class="sc">&lt;</span> <span class="fl">1e3</span>, <span class="fu">all</span>(<span class="fu">diff</span>(curve<span class="sc">$</span>d_nmb_million) <span class="sc">&lt;</span> <span class="dv">0</span>),</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>          <span class="fu">abs</span>(gdf_month[[<span class="st">"9/2025"</span>]] <span class="sc">-</span> p<span class="sc">$</span>c_drug_bpalm) <span class="sc">&lt;</span> <span class="fl">1e-6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Hình dưới vẽ đường cong đó, các mức giá GDF từ 12/2022 (quy đổi bằng tỷ giá chung của khóa học) và khoảng của thanh trượt.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>gdf_pts <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">label =</span> <span class="fu">names</span>(gdf_month), <span class="at">price_million =</span> gdf_month <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">d_nmb_million =</span> <span class="fu">vapply</span>(gdf_month, d_nmb_at, <span class="fu">numeric</span>(<span class="dv">1</span>)) <span class="sc">/</span> <span class="fl">1e6</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Labels to the right of the points, spread vertically so that close prices stay readable</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>gdf_pts<span class="sc">$</span>label_x <span class="ot">&lt;-</span> <span class="fu">max</span>(gdf_pts<span class="sc">$</span>price_million) <span class="sc">+</span> <span class="fl">1.5</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>gdf_pts<span class="sc">$</span>label_y <span class="ot">&lt;-</span> <span class="fu">max</span>(gdf_pts<span class="sc">$</span>d_nmb_million) <span class="sc">+</span> <span class="dv">8</span> <span class="sc">-</span> <span class="dv">6</span> <span class="sc">*</span> (<span class="fu">rank</span>(<span class="sc">-</span>gdf_pts<span class="sc">$</span>d_nmb_million) <span class="sc">-</span> <span class="dv">1</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>fig_price <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(curve, <span class="fu">aes</span>(price_million, d_nmb_million)) <span class="sc">+</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"rect"</span>, <span class="at">xmin =</span> <span class="dv">0</span>, <span class="at">xmax =</span> pct_max <span class="sc">/</span> <span class="dv">100</span> <span class="sc">*</span> p<span class="sc">$</span>c_drug_bpalm <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">ymin =</span> <span class="sc">-</span><span class="cn">Inf</span>, <span class="at">ymax =</span> <span class="cn">Inf</span>,</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>           <span class="at">fill =</span> pal_course[<span class="dv">5</span>], <span class="at">alpha =</span> <span class="fl">0.25</span>) <span class="sc">+</span></span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">colour =</span> <span class="st">"grey50"</span>) <span class="sc">+</span></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> price_zero <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">linetype =</span> <span class="st">"22"</span>, <span class="at">colour =</span> pal_course[<span class="dv">2</span>]) <span class="sc">+</span></span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour =</span> pal_course[<span class="dv">1</span>], <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_segment</span>(<span class="at">data =</span> gdf_pts, <span class="fu">aes</span>(<span class="at">xend =</span> label_x, <span class="at">yend =</span> label_y), <span class="at">colour =</span> <span class="st">"grey60"</span>, <span class="at">linewidth =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> gdf_pts, <span class="at">colour =</span> pal_course[<span class="dv">2</span>], <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="at">data =</span> gdf_pts, <span class="fu">aes</span>(<span class="at">x =</span> label_x, <span class="at">y =</span> label_y, <span class="at">label =</span> <span class="fu">paste</span>(<span class="st">"GDF"</span>, label)),</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>            <span class="at">hjust =</span> <span class="sc">-</span><span class="fl">0.1</span>, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Giá thuốc BPaLM (triệu VNĐ/tháng)"</span>, <span class="at">y =</span> <span class="st">"NMB gia tăng so với phác đồ ngắn (triệu VNĐ)"</span>,</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Giá thuốc BPaLM để NMB gia tăng bằng 0"</span>,</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Điểm: giá GDF từ 12/2022 đến 9/2025; vùng tô: khoảng thanh trượt; đường đứt: giá ngưỡng"</span>) <span class="sc">+</span></span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_price, <span class="st">"l05-price-nmb.png"</span>, <span class="at">width =</span> <span class="fl">6.5</span>, <span class="at">height =</span> <span class="fl">4.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l05-price-nmb.png" class="img-fluid figure-img"></p>
+<figcaption>ΔNMB của BPaLM so với phác đồ ngắn theo giá thuốc mỗi tháng</figcaption>
+</figure>
+</div>
+<p>Giá ngưỡng khoảng 12.9 triệu VNĐ mỗi tháng, gấp 10.9 lần giá GDF hiện tại và 5.3 lần giá 12/2022 <span class="citation" data-cites="eatg2025pretomanid">(<a href="../m00-r-foundations/index.html#ref-eatg2025pretomanid" role="doc-biblioref">European AIDS Treatment Group 2025</a>)</span>, nên nằm ngoài khoảng thanh trượt và ứng dụng không hiện con số này: câu hỏi “đến giá nào thì không còn đáng” cần phân tích ngưỡng riêng (M01, M03). Mọi mức giá GDF đã có đều cho ΔNMB dương: với các giả định của M02, kết luận về BPaLM không phụ thuộc vào đợt giảm giá nào.</p>
+<p>Quy trình cập nhật của mô hình “sống”: áp lần lượt ba bản cập nhật trong <code>params/</code> (giá bedaquiline giảm, bảng giá BHYT 2026, và một bản có lỗi gõ), mỗi bản qua ba cổng; bản được công bố nhận số phiên bản MINOR mới và được lưu theo phiên bản và mã tham số. Kiểm tra: hai bản đầu được công bố; bản thứ ba (23 thay vì 0.23) bị chặn ở cổng 1; mỗi dòng công bố tìm lại được bảng đã lưu và chạy lại cho đúng ΔNMB trong nhật ký.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A "living" model in miniature. Each evidence update passes three gates before its</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># results are published: (1) valid inputs, (2) every test passes on the updated</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="co"># parameters, (3) the model runs. A rejected update leaves the published version as is.</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Each published table is stored under its release number and parameter id, so that a</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="co"># result can be traced back to its inputs (in practice this folder lives in Git, Lesson 3).</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>model_env <span class="ot">&lt;-</span> <span class="fu">new.env</span>()</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="fu">sys.source</span>(<span class="st">"code/model.R"</span>, <span class="at">envir =</span> model_env)</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>registry <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"published"</span>)</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a><span class="fu">unlink</span>(registry, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(registry)</span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>next_minor <span class="ot">&lt;-</span> <span class="cf">function</span>(v) {                 <span class="co"># evidence update = MINOR step (Lesson 3)</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  x <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">strsplit</span>(v, <span class="st">"."</span>, <span class="at">fixed =</span> <span class="cn">TRUE</span>)[[<span class="dv">1</span>]])</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">paste</span>(<span class="fu">c</span>(x[<span class="dv">1</span>], x[<span class="dv">2</span>] <span class="sc">+</span> <span class="dv">1</span>, <span class="dv">0</span>), <span class="at">collapse =</span> <span class="st">"."</span>)</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>publish <span class="ot">&lt;-</span> <span class="cf">function</span>(tab, version) {</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>  id <span class="ot">&lt;-</span> <span class="fu">param_fingerprint</span>(<span class="fu">params_from_table</span>(tab))</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>  utils<span class="sc">::</span><span class="fu">write.csv</span>(tab, <span class="fu">file.path</span>(registry, <span class="fu">paste0</span>(<span class="st">"v"</span>, version, <span class="st">"_"</span>, id, <span class="st">".csv"</span>)),</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>                   <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">na =</span> <span class="st">""</span>, <span class="at">fileEncoding =</span> <span class="st">"UTF-8"</span>)</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>check_update <span class="ot">&lt;-</span> <span class="cf">function</span>(tab, version, update_file) {</span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  upd <span class="ot">&lt;-</span> utils<span class="sc">::</span><span class="fu">read.csv</span>(update_file, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>, <span class="at">encoding =</span> <span class="st">"UTF-8"</span>)</span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>  new_tab <span class="ot">&lt;-</span> <span class="fu">apply_updates</span>(tab, upd)</span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  p_new <span class="ot">&lt;-</span> <span class="fu">params_from_table</span>(new_tab)</span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>  row <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">update =</span> <span class="fu">basename</span>(update_file), <span class="at">param_id =</span> <span class="fu">param_fingerprint</span>(p_new),</span>
+<span id="cb21-25"><a href="#cb21-25" aria-hidden="true" tabindex="-1"></a>                    <span class="at">valid =</span> <span class="cn">FALSE</span>, <span class="at">tests =</span> <span class="cn">NA_character_</span>, <span class="at">d_nmb_million =</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb21-26"><a href="#cb21-26" aria-hidden="true" tabindex="-1"></a>                    <span class="at">published =</span> <span class="cn">FALSE</span>, <span class="at">version =</span> <span class="cn">NA_character_</span>, <span class="at">problem =</span> <span class="st">""</span>)</span>
+<span id="cb21-27"><a href="#cb21-27" aria-hidden="true" tabindex="-1"></a>  gate1 <span class="ot">&lt;-</span> <span class="fu">tryCatch</span>({ <span class="fu">validate_params</span>(p_new); <span class="st">""</span> }, <span class="at">error =</span> conditionMessage)    <span class="co"># gate 1</span></span>
+<span id="cb21-28"><a href="#cb21-28" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">nzchar</span>(gate1)) {</span>
+<span id="cb21-29"><a href="#cb21-29" aria-hidden="true" tabindex="-1"></a>    row<span class="sc">$</span>problem <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"^.*</span><span class="sc">\n</span><span class="st">- "</span>, <span class="st">""</span>, gate1)</span>
+<span id="cb21-30"><a href="#cb21-30" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">row =</span> row, <span class="at">tab =</span> tab, <span class="at">version =</span> version))</span>
+<span id="cb21-31"><a href="#cb21-31" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-32"><a href="#cb21-32" aria-hidden="true" tabindex="-1"></a>  row<span class="sc">$</span>valid <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb21-33"><a href="#cb21-33" aria-hidden="true" tabindex="-1"></a>  f <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">".csv"</span>)                                                 <span class="co"># gate 2</span></span>
+<span id="cb21-34"><a href="#cb21-34" aria-hidden="true" tabindex="-1"></a>  utils<span class="sc">::</span><span class="fu">write.csv</span>(new_tab, f, <span class="at">row.names =</span> <span class="cn">FALSE</span>, <span class="at">na =</span> <span class="st">""</span>, <span class="at">fileEncoding =</span> <span class="st">"UTF-8"</span>)</span>
+<span id="cb21-35"><a href="#cb21-35" aria-hidden="true" tabindex="-1"></a>  old <span class="ot">&lt;-</span> <span class="fu">options</span>(<span class="at">mdrtbvn.params =</span> f)</span>
+<span id="cb21-36"><a href="#cb21-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">on.exit</span>(<span class="fu">options</span>(old))</span>
+<span id="cb21-37"><a href="#cb21-37" aria-hidden="true" tabindex="-1"></a>  r <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">test_dir</span>(<span class="st">"tests/testthat"</span>, <span class="at">env =</span> model_env, <span class="at">reporter =</span> <span class="st">"silent"</span>,</span>
+<span id="cb21-38"><a href="#cb21-38" aria-hidden="true" tabindex="-1"></a>                              <span class="at">stop_on_failure =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb21-39"><a href="#cb21-39" aria-hidden="true" tabindex="-1"></a>  n_pass <span class="ot">&lt;-</span> <span class="fu">sum</span>(r<span class="sc">$</span>failed <span class="sc">==</span> <span class="dv">0</span> <span class="sc">&amp;</span> <span class="sc">!</span>r<span class="sc">$</span>error)</span>
+<span id="cb21-40"><a href="#cb21-40" aria-hidden="true" tabindex="-1"></a>  row<span class="sc">$</span>tests <span class="ot">&lt;-</span> <span class="fu">paste0</span>(n_pass, <span class="st">"/"</span>, <span class="fu">nrow</span>(r))</span>
+<span id="cb21-41"><a href="#cb21-41" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (n_pass <span class="sc">&lt;</span> <span class="fu">nrow</span>(r)) {</span>
+<span id="cb21-42"><a href="#cb21-42" aria-hidden="true" tabindex="-1"></a>    row<span class="sc">$</span>problem <span class="ot">&lt;-</span> <span class="st">"kiểm thử không đạt"</span></span>
+<span id="cb21-43"><a href="#cb21-43" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">row =</span> row, <span class="at">tab =</span> tab, <span class="at">version =</span> version))</span>
+<span id="cb21-44"><a href="#cb21-44" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb21-45"><a href="#cb21-45" aria-hidden="true" tabindex="-1"></a>  row<span class="sc">$</span>d_nmb_million <span class="ot">&lt;-</span> <span class="fu">run_model</span>(p_new)<span class="sc">$</span>comparison<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>                   <span class="co"># gate 3</span></span>
+<span id="cb21-46"><a href="#cb21-46" aria-hidden="true" tabindex="-1"></a>  row<span class="sc">$</span>published <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb21-47"><a href="#cb21-47" aria-hidden="true" tabindex="-1"></a>  row<span class="sc">$</span>version <span class="ot">&lt;-</span> <span class="fu">next_minor</span>(version)</span>
+<span id="cb21-48"><a href="#cb21-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">publish</span>(new_tab, row<span class="sc">$</span>version)</span>
+<span id="cb21-49"><a href="#cb21-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">row =</span> row, <span class="at">tab =</span> new_tab, <span class="at">version =</span> row<span class="sc">$</span>version)</span>
+<span id="cb21-50"><a href="#cb21-50" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-51"><a href="#cb21-51" aria-hidden="true" tabindex="-1"></a>published <span class="ot">&lt;-</span> utils<span class="sc">::</span><span class="fu">read.csv</span>(param_file, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>, <span class="at">encoding =</span> <span class="st">"UTF-8"</span>)</span>
+<span id="cb21-52"><a href="#cb21-52" aria-hidden="true" tabindex="-1"></a>version <span class="ot">&lt;-</span> MODEL_VERSION</span>
+<span id="cb21-53"><a href="#cb21-53" aria-hidden="true" tabindex="-1"></a><span class="fu">publish</span>(published, version)</span>
+<span id="cb21-54"><a href="#cb21-54" aria-hidden="true" tabindex="-1"></a>log_rows <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">update =</span> <span class="st">"(phân tích cơ sở: M02 + kb/_shared)"</span>, <span class="at">param_id =</span> <span class="fu">param_fingerprint</span>(p),</span>
+<span id="cb21-55"><a href="#cb21-55" aria-hidden="true" tabindex="-1"></a>                       <span class="at">valid =</span> <span class="cn">TRUE</span>, <span class="at">tests =</span> <span class="cn">NA_character_</span>, <span class="at">d_nmb_million =</span> direct<span class="sc">$</span>comparison<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb21-56"><a href="#cb21-56" aria-hidden="true" tabindex="-1"></a>                       <span class="at">published =</span> <span class="cn">TRUE</span>, <span class="at">version =</span> version, <span class="at">problem =</span> <span class="st">""</span>)</span>
+<span id="cb21-57"><a href="#cb21-57" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (f <span class="cf">in</span> <span class="fu">sort</span>(<span class="fu">list.files</span>(<span class="st">"params"</span>, <span class="at">pattern =</span> <span class="st">"^update-.*</span><span class="sc">\\</span><span class="st">.csv$"</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span>))) {</span>
+<span id="cb21-58"><a href="#cb21-58" aria-hidden="true" tabindex="-1"></a>  step <span class="ot">&lt;-</span> <span class="fu">check_update</span>(published, version, f)</span>
+<span id="cb21-59"><a href="#cb21-59" aria-hidden="true" tabindex="-1"></a>  published <span class="ot">&lt;-</span> step<span class="sc">$</span>tab                      <span class="co"># unchanged if the update was rejected</span></span>
+<span id="cb21-60"><a href="#cb21-60" aria-hidden="true" tabindex="-1"></a>  version <span class="ot">&lt;-</span> step<span class="sc">$</span>version</span>
+<span id="cb21-61"><a href="#cb21-61" aria-hidden="true" tabindex="-1"></a>  log_rows <span class="ot">&lt;-</span> <span class="fu">rbind</span>(log_rows, step<span class="sc">$</span>row)</span>
+<span id="cb21-62"><a href="#cb21-62" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb21-63"><a href="#cb21-63" aria-hidden="true" tabindex="-1"></a>yes_no <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">ifelse</span>(x, <span class="st">"có"</span>, <span class="st">"không"</span>)</span>
+<span id="cb21-64"><a href="#cb21-64" aria-hidden="true" tabindex="-1"></a>log_show <span class="ot">&lt;-</span> log_rows</span>
+<span id="cb21-65"><a href="#cb21-65" aria-hidden="true" tabindex="-1"></a>log_show<span class="sc">$</span>valid <span class="ot">&lt;-</span> <span class="fu">yes_no</span>(log_show<span class="sc">$</span>valid)</span>
+<span id="cb21-66"><a href="#cb21-66" aria-hidden="true" tabindex="-1"></a>log_show<span class="sc">$</span>published <span class="ot">&lt;-</span> <span class="fu">yes_no</span>(log_show<span class="sc">$</span>published)</span>
+<span id="cb21-67"><a href="#cb21-67" aria-hidden="true" tabindex="-1"></a>log_show<span class="sc">$</span>tests[<span class="fu">is.na</span>(log_show<span class="sc">$</span>tests)] <span class="ot">&lt;-</span> <span class="st">"—"</span></span>
+<span id="cb21-68"><a href="#cb21-68" aria-hidden="true" tabindex="-1"></a>log_show<span class="sc">$</span>version[<span class="fu">is.na</span>(log_show<span class="sc">$</span>version)] <span class="ot">&lt;-</span> <span class="st">"—"</span></span>
+<span id="cb21-69"><a href="#cb21-69" aria-hidden="true" tabindex="-1"></a>log_show<span class="sc">$</span>d_nmb_million <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(log_show<span class="sc">$</span>d_nmb_million), <span class="st">"—"</span>, <span class="fu">fmt_num</span>(log_show<span class="sc">$</span>d_nmb_million, <span class="dv">2</span>))</span>
+<span id="cb21-70"><a href="#cb21-70" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(log_show[, <span class="fu">c</span>(<span class="st">"update"</span>, <span class="st">"param_id"</span>, <span class="st">"valid"</span>, <span class="st">"tests"</span>, <span class="st">"d_nmb_million"</span>, <span class="st">"published"</span>, <span class="st">"version"</span>, <span class="st">"problem"</span>)],</span>
+<span id="cb21-71"><a href="#cb21-71" aria-hidden="true" tabindex="-1"></a>             <span class="at">align =</span> <span class="st">"llllrlll"</span>,</span>
+<span id="cb21-72"><a href="#cb21-72" aria-hidden="true" tabindex="-1"></a>             <span class="at">col.names =</span> <span class="fu">c</span>(<span class="st">"Bản cập nhật"</span>, <span class="st">"Mã tham số"</span>, <span class="st">"Cổng 1: hợp lệ"</span>, <span class="st">"Cổng 2: kiểm thử"</span>,</span>
+<span id="cb21-73"><a href="#cb21-73" aria-hidden="true" tabindex="-1"></a>                           <span class="st">"ΔNMB (triệu VNĐ)"</span>, <span class="st">"Công bố"</span>, <span class="st">"Phiên bản"</span>, <span class="st">"Lý do bị chặn"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top table table-sm table-striped small">
+<colgroup>
+<col style="width: 24%">
+<col style="width: 7%">
+<col style="width: 10%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 5%">
+<col style="width: 6%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Bản cập nhật</th>
+<th style="text-align: left;">Mã tham số</th>
+<th style="text-align: left;">Cổng 1: hợp lệ</th>
+<th style="text-align: left;">Cổng 2: kiểm thử</th>
+<th style="text-align: right;">ΔNMB (triệu VNĐ)</th>
+<th style="text-align: left;">Công bố</th>
+<th style="text-align: left;">Phiên bản</th>
+<th style="text-align: left;">Lý do bị chặn</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">(phân tích cơ sở: M02 + kb/_shared)</td>
+<td style="text-align: left;">8e7e2fa0</td>
+<td style="text-align: left;">có</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: right;">66.81</td>
+<td style="text-align: left;">có</td>
+<td style="text-align: left;">1.0.0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">update-01-price.csv</td>
+<td style="text-align: left;">1346c1ec</td>
+<td style="text-align: left;">có</td>
+<td style="text-align: left;">54/54</td>
+<td style="text-align: right;">66.18</td>
+<td style="text-align: left;">có</td>
+<td style="text-align: left;">1.1.0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">update-02-monitoring.csv</td>
+<td style="text-align: left;">831a09ab</td>
+<td style="text-align: left;">có</td>
+<td style="text-align: left;">54/54</td>
+<td style="text-align: right;">66.25</td>
+<td style="text-align: left;">có</td>
+<td style="text-align: left;">1.2.0</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">update-03-typo.csv</td>
+<td style="text-align: left;">56296303</td>
+<td style="text-align: left;">không</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: left;">không</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">ae_bpalm = 23 is outside [0, 1]</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">identical</span>(log_rows<span class="sc">$</span>published, <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="cn">TRUE</span>, <span class="cn">FALSE</span>)))</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># The published parameters after the run are those of the last accepted update</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(published<span class="sc">$</span>value[published<span class="sc">$</span>name <span class="sc">==</span> <span class="st">"ae_bpalm"</span>] <span class="sc">==</span> p<span class="sc">$</span>ae_bpalm)</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Traceability: every published row resolves to a stored table that reproduces its result</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>ok <span class="ot">&lt;-</span> log_rows[log_rows<span class="sc">$</span>published, ]</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">vapply</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(ok)), <span class="cf">function</span>(i) {</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  hit <span class="ot">&lt;-</span> <span class="fu">list.files</span>(registry, <span class="at">pattern =</span> <span class="fu">paste0</span>(<span class="st">"^v"</span>, ok<span class="sc">$</span>version[i], <span class="st">"_"</span>, ok<span class="sc">$</span>param_id[i], <span class="st">"</span><span class="sc">\\</span><span class="st">.csv$"</span>))</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">length</span>(hit) <span class="sc">!=</span> <span class="dv">1</span>) <span class="cn">NA_character_</span> <span class="cf">else</span> hit</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>}, <span class="fu">character</span>(<span class="dv">1</span>))</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>rerun <span class="ot">&lt;-</span> <span class="fu">vapply</span>(files, <span class="cf">function</span>(f) {</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">run_model</span>(<span class="fu">params_from_table</span>(utils<span class="sc">::</span><span class="fu">read.csv</span>(<span class="fu">file.path</span>(registry, f), <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">encoding =</span> <span class="st">"UTF-8"</span>)))<span class="sc">$</span>comparison<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>}, <span class="fu">numeric</span>(<span class="dv">1</span>))</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">stored_file =</span> files, <span class="at">rerun_d_nmb_million =</span> <span class="fu">round</span>(rerun, <span class="dv">2</span>), <span class="at">row.names =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          stored_file rerun_d_nmb_million
+1 v1.0.0_8e7e2fa0.csv               66.81
+2 v1.1.0_1346c1ec.csv               66.18
+3 v1.2.0_831a09ab.csv               66.25</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="sc">!</span><span class="fu">anyNA</span>(files), <span class="fu">all</span>(<span class="fu">abs</span>(rerun <span class="sc">-</span> ok<span class="sc">$</span>d_nmb_million) <span class="sc">&lt;</span> <span class="fl">1e-6</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Bản cập nhật lỗi không đến được bảng kết quả: nhật ký ghi lý do, và phiên bản đang công bố vẫn là bản hợp lệ cuối. Trong quy trình thật, công bố là một commit kèm nhãn như Bài 3 (ghi luôn số phiên bản vào <code>MODEL_VERSION</code>); ở đây thư mục lưu tạm đóng vai kho Git.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Mẹo thực hành">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mẹo thực hành
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Viết mô hình và kiểm thử trước, ứng dụng sau cùng; đặt phân tích cơ sở làm giá trị mặc định của mọi đầu vào.</li>
+<li>In số phiên bản và mã tham số trên giao diện; ảnh chụp màn hình truy được nếu bảng tương ứng được lưu.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Lỗi thường gặp">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lỗi thường gặp
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Chép công thức vào <code>server</code></strong> “cho nhanh”, hoặc <strong>cho đổi mọi tham số bằng thanh trượt không giới hạn</strong>: ứng dụng lệch mô hình ở lần sửa đầu tiên, và sinh ra các tổ hợp vô nghĩa.</li>
+<li><strong>Đọc tham số từ đường dẫn cố định</strong>: bảng cập nhật rồi mà ứng dụng vẫn hiện kết quả cũ (bài tập 2).</li>
+<li><strong>Tự động công bố không qua cổng nào</strong>, hoặc <strong>công bố mà không lưu bảng tham số</strong>: lỗi gõ đi thẳng tới người ra quyết định, và mã tham số trên màn hình không tra lại được.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="bài-tập" class="level2">
+<h2 class="anchored" data-anchor-id="bài-tập">Bài tập</h2>
+<ol type="1">
+<li><strong>(Dễ)</strong> Dùng <code>testServer()</code> chọn cách áp RR số 2 (tỷ lệ tử vong tích lũy như phác đồ ngắn). Chênh lệch năm sống điều chỉnh theo chất lượng (ΔQALY) của BPaLM so với phác đồ ngắn đổi thế nào, và có khớp <code>run_model()</code> không?</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 1: the structural scenario through the app. Rule 2 (BPaLM keeps the cumulative</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># death share of the short regimen) should lower the QALY gain.</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">testServer</span>(app, {</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(session<span class="sc">$</span>setInputs, <span class="fu">inputs_from</span>(p))</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>  session<span class="sc">$</span><span class="fu">setInputs</span>(<span class="at">bpalm_death_rule =</span> <span class="st">"2"</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assign</span>(<span class="st">"rule2"</span>, <span class="fu">model</span>()<span class="sc">$</span>comparison, <span class="at">envir =</span> captured)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>p_rule2 <span class="ot">&lt;-</span> p</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>p_rule2<span class="sc">$</span>bpalm_death_rule <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">base_d_qaly =</span> captured<span class="sc">$</span>base<span class="sc">$</span>d_qaly, <span class="at">rule2_d_qaly =</span> captured<span class="sc">$</span>rule2<span class="sc">$</span>d_qaly)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> base_d_qaly rule2_d_qaly 
+   0.4791266    0.2106872 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">expect_equal</span>(captured<span class="sc">$</span>rule2<span class="sc">$</span>d_qaly, <span class="fu">run_model</span>(p_rule2)<span class="sc">$</span>comparison<span class="sc">$</span>d_qaly)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">expect_lt</span>(captured<span class="sc">$</span>rule2<span class="sc">$</span>d_qaly, captured<span class="sc">$</span>base<span class="sc">$</span>d_qaly)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>ΔQALY giảm từ 0.479 xuống 0.211, khớp <code>run_model()</code>: chỉ một giả định về tử vong đã làm lợi ích sức khỏe giảm 56%, nên nó đáng có mặt trên giao diện (M02 Bài 5 bàn kịch bản này).</p>
+</div>
+</div>
+</div>
+<ol start="2" type="1">
+<li><strong>(Vừa)</strong> Ứng dụng có tái tạo được các bản đã công bố không? Thử với bản cập nhật 1 (chỉ đổi giá thuốc), giải thích vì sao bản 2 thì không, rồi sửa.</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 2: can the app reproduce the published versions? Update 1 only changes drug</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># prices (app inputs); update 2 changes costs the app does not expose.</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>tab_1 <span class="ot">&lt;-</span> <span class="fu">apply_updates</span>(utils<span class="sc">::</span><span class="fu">read.csv</span>(param_file, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>, <span class="at">encoding =</span> <span class="st">"UTF-8"</span>),</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>                       utils<span class="sc">::</span><span class="fu">read.csv</span>(<span class="st">"params/update-01-price.csv"</span>, <span class="at">stringsAsFactors =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">encoding =</span> <span class="st">"UTF-8"</span>))</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>p_1 <span class="ot">&lt;-</span> <span class="fu">params_from_table</span>(tab_1)</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a><span class="fu">testServer</span>(app, {</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(session<span class="sc">$</span>setInputs, <span class="fu">inputs_from</span>(p_1, <span class="at">base =</span> p))</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assign</span>(<span class="st">"v1_1"</span>, <span class="fu">model</span>()<span class="sc">$</span>comparison, <span class="at">envir =</span> captured)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">app_million =</span> captured<span class="sc">$</span>v1_1<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">pipeline_million =</span> log_rows<span class="sc">$</span>d_nmb_million[<span class="dv">2</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     app_million pipeline_million 
+        66.18406         66.18406 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">expect_equal</span>(captured<span class="sc">$</span>v1_1<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>, log_rows<span class="sc">$</span>d_nmb_million[<span class="dv">2</span>])</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Update 2 cannot be reproduced while the app starts from M02's table: its slider values</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co"># are those of update 1, but c_monitor and c_eot come from the file the app reads.</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>p_2 <span class="ot">&lt;-</span> <span class="fu">params_from_table</span>(published)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">testServer</span>(app, {</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(session<span class="sc">$</span>setInputs, <span class="fu">inputs_from</span>(p_2, <span class="at">base =</span> p))</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assign</span>(<span class="st">"v1_2_old_table"</span>, <span class="fu">model</span>()<span class="sc">$</span>comparison, <span class="at">envir =</span> captured)</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Fix: point the app at the latest published table (the option is read when the app loads)</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>latest <span class="ot">&lt;-</span> <span class="fu">file.path</span>(registry, <span class="fu">list.files</span>(registry, <span class="at">pattern =</span> <span class="fu">paste0</span>(<span class="st">"^v"</span>, version, <span class="st">"_"</span>)))</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>old_opt <span class="ot">&lt;-</span> <span class="fu">options</span>(<span class="at">mdrtbvn.params =</span> latest)</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>app_latest <span class="ot">&lt;-</span> <span class="fu">shinyAppDir</span>(<span class="st">"app"</span>)</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="fu">testServer</span>(app_latest, {</span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">do.call</span>(session<span class="sc">$</span>setInputs, <span class="fu">inputs_from</span>(p_2, <span class="at">base =</span> p_2))   <span class="co"># the app's base is now p_2</span></span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assign</span>(<span class="st">"v1_2_latest_table"</span>, <span class="fu">model</span>()<span class="sc">$</span>comparison, <span class="at">envir =</span> captured)</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">assign</span>(<span class="st">"v1_2_version"</span>, output<span class="sc">$</span>version, <span class="at">envir =</span> captured)</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(old_opt)</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">app_old_table =</span> captured<span class="sc">$</span>v1_2_old_table<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">app_latest_table =</span> captured<span class="sc">$</span>v1_2_latest_table<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">pipeline =</span> log_rows<span class="sc">$</span>d_nmb_million[<span class="dv">3</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   app_old_table app_latest_table         pipeline 
+        66.18406         66.24797         66.24797 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">expect_false</span>(<span class="fu">isTRUE</span>(<span class="fu">all.equal</span>(captured<span class="sc">$</span>v1_2_old_table<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>, log_rows<span class="sc">$</span>d_nmb_million[<span class="dv">3</span>])))</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">expect_equal</span>(captured<span class="sc">$</span>v1_2_latest_table<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>, log_rows<span class="sc">$</span>d_nmb_million[<span class="dv">3</span>])</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>captured<span class="sc">$</span>v1_2_version</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Phiên bản mô hình: 1.0.0 · mã bảng tham số: 831a09ab"</code></pre>
+</div>
+</div>
+<p>Bản 1 chỉ đổi giá thuốc của hai phác đồ, có trên thanh trượt, nên ứng dụng khớp. Bản 2 đổi chi phí theo dõi, đánh giá cuối điều trị và trạng thái Thất bại, không có trên giao diện, trong khi ứng dụng đọc bảng cơ sở. Cách sửa: trỏ ứng dụng tới bảng đang công bố qua tùy chọn <code>mdrtbvn.params</code>; ΔNMB khớp nhật ký, và màn hình mang mã tham số của bản công bố.</p>
+</div>
+</div>
+</div>
+<ol start="3" type="1">
+<li><strong>(Khó)</strong> Đưa ứng dụng vào gói <code>mdrtbvn</code> của Bài 4: chuyển vào <code>inst/app/</code>, thay <code>source()</code> bằng <code>library(mdrtbvn)</code>, viết <code>run_app()</code>, dựng, kiểm tra, cài gói vào thư viện tạm, rồi thử ứng dụng <em>đã cài</em> trong một phiên R sạch ở thư mục khác.</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 3: ship the app inside the package, and prove that the INSTALLED package works.</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Build "mdrtbvn" in a temporary folder as in Lesson 4 (without its tests): the model in</span></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="co"># R/, the table in inst/extdata/, the app in inst/app/, and a function run_app().</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>work <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"pkg-app"</span>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">unlink</span>(work, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>pkg <span class="ot">&lt;-</span> <span class="fu">file.path</span>(work, <span class="st">"mdrtbvn"</span>)</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (d <span class="cf">in</span> <span class="fu">c</span>(<span class="st">"R"</span>, <span class="st">"inst/extdata"</span>, <span class="st">"inst/app"</span>)) <span class="fu">dir.create</span>(<span class="fu">file.path</span>(pkg, d), <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">file.copy</span>(<span class="st">"code/model.R"</span>, <span class="fu">file.path</span>(pkg, <span class="st">"R"</span>, <span class="st">"model.R"</span>)))</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">file.copy</span>(param_file, <span class="fu">file.path</span>(pkg, <span class="st">"inst"</span>, <span class="st">"extdata"</span>, <span class="st">"mdrtbvn-params.csv"</span>)))</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a><span class="co"># The app: the same file, with the lines marked "module only" replaced by library(mdrtbvn)</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>pkg_app <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"^source</span><span class="sc">\\</span><span class="st">(</span><span class="sc">\"</span><span class="st">../code/model.R</span><span class="sc">\"</span><span class="st">, local = TRUE</span><span class="sc">\\</span><span class="st">).*$"</span>, <span class="st">"library(mdrtbvn)"</span>, app_lines)</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>pkg_app <span class="ot">&lt;-</span> pkg_app[<span class="sc">!</span><span class="fu">grepl</span>(<span class="st">"# module only"</span>, pkg_app)]</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">parse</span>(<span class="at">text =</span> pkg_app))                     <span class="co"># still valid R code</span></span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(pkg_app, <span class="fu">file.path</span>(pkg, <span class="st">"inst"</span>, <span class="st">"app"</span>, <span class="st">"app.R"</span>))</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">c</span>(</span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#' Open the interactive app"</span>,</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#'"</span>,</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#' @return Nothing; the app runs until it is closed."</span>,</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>  <span class="st">"#' @export"</span>,</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>  <span class="st">"run_app &lt;- function() {"</span>,</span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>  <span class="st">"  if (!requireNamespace(</span><span class="sc">\"</span><span class="st">ggplot2</span><span class="sc">\"</span><span class="st">, quietly = TRUE)) stop(</span><span class="sc">\"</span><span class="st">The app needs the package ggplot2.</span><span class="sc">\"</span><span class="st">)"</span>,</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>  <span class="st">"  app_dir &lt;- system.file(</span><span class="sc">\"</span><span class="st">app</span><span class="sc">\"</span><span class="st">, package = </span><span class="sc">\"</span><span class="st">mdrtbvn</span><span class="sc">\"</span><span class="st">)"</span>,</span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>  <span class="st">"  if (!nzchar(app_dir)) stop(</span><span class="sc">\"</span><span class="st">The app is not installed: reinstall mdrtbvn.</span><span class="sc">\"</span><span class="st">)"</span>,</span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>  <span class="st">"  shiny::runApp(app_dir)"</span>,</span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>  <span class="st">"}"</span>), <span class="fu">file.path</span>(pkg, <span class="st">"R"</span>, <span class="st">"run_app.R"</span>))</span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">c</span>(<span class="st">"Package: mdrtbvn"</span>, <span class="st">"Title: Cohort Model of MDR/RR-TB Regimens in Viet Nam"</span>,</span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>             <span class="fu">paste0</span>(<span class="st">"Version: "</span>, MODEL_VERSION),</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Authors@R: person(</span><span class="sc">\"</span><span class="st">HEM</span><span class="sc">\"</span><span class="st">, </span><span class="sc">\"</span><span class="st">Course</span><span class="sc">\"</span><span class="st">, email = </span><span class="sc">\"</span><span class="st">hem-course@example.org</span><span class="sc">\"</span><span class="st">, role = c(</span><span class="sc">\"</span><span class="st">aut</span><span class="sc">\"</span><span class="st">, </span><span class="sc">\"</span><span class="st">cre</span><span class="sc">\"</span><span class="st">))"</span>,</span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Description: Teaching package with an interactive app for a cohort model of three MDR/RR-TB regimens."</span>,</span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>             <span class="st">"License: MIT + file LICENSE"</span>, <span class="st">"Encoding: UTF-8"</span>, <span class="st">"Imports: shiny, stats, tools, utils"</span>,</span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>             <span class="st">"Suggests: ggplot2"</span>, <span class="st">"Roxygen: list(markdown = TRUE)"</span>,</span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>             <span class="fu">paste0</span>(<span class="st">"RoxygenNote: "</span>, utils<span class="sc">::</span><span class="fu">packageVersion</span>(<span class="st">"roxygen2"</span>))), <span class="fu">file.path</span>(pkg, <span class="st">"DESCRIPTION"</span>))</span>
+<span id="cb34-33"><a href="#cb34-33" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(<span class="fu">c</span>(<span class="st">"YEAR: 2026"</span>, <span class="st">"COPYRIGHT HOLDER: mdrtbvn authors"</span>), <span class="fu">file.path</span>(pkg, <span class="st">"LICENSE"</span>))</span>
+<span id="cb34-34"><a href="#cb34-34" aria-hidden="true" tabindex="-1"></a>r_cmd <span class="ot">&lt;-</span> <span class="cf">function</span>(args) {</span>
+<span id="cb34-35"><a href="#cb34-35" aria-hidden="true" tabindex="-1"></a>  old <span class="ot">&lt;-</span> <span class="fu">setwd</span>(work)</span>
+<span id="cb34-36"><a href="#cb34-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">on.exit</span>(<span class="fu">setwd</span>(old))</span>
+<span id="cb34-37"><a href="#cb34-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">system2</span>(<span class="fu">file.path</span>(<span class="fu">R.home</span>(<span class="st">"bin"</span>), <span class="st">"R"</span>), <span class="fu">c</span>(<span class="st">"CMD"</span>, args), <span class="at">stdout =</span> <span class="cn">TRUE</span>, <span class="at">stderr =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb34-38"><a href="#cb34-38" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb34-39"><a href="#cb34-39" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">system2</span>(<span class="fu">file.path</span>(<span class="fu">R.home</span>(<span class="st">"bin"</span>), <span class="st">"Rscript"</span>),</span>
+<span id="cb34-40"><a href="#cb34-40" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">c</span>(<span class="st">"-e"</span>, <span class="fu">shQuote</span>(<span class="fu">paste0</span>(<span class="st">"roxygen2::roxygenise('"</span>, pkg, <span class="st">"')"</span>))), <span class="at">stdout =</span> <span class="cn">TRUE</span>, <span class="at">stderr =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb34-41"><a href="#cb34-41" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="st">"export(run_app)"</span> <span class="sc">%in%</span> <span class="fu">readLines</span>(<span class="fu">file.path</span>(pkg, <span class="st">"NAMESPACE"</span>)))</span>
+<span id="cb34-42"><a href="#cb34-42" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">r_cmd</span>(<span class="fu">c</span>(<span class="st">"build"</span>, <span class="st">"--no-build-vignettes"</span>, <span class="st">"--no-manual"</span>, <span class="st">"mdrtbvn"</span>)))</span>
+<span id="cb34-43"><a href="#cb34-43" aria-hidden="true" tabindex="-1"></a>tarball <span class="ot">&lt;-</span> <span class="fu">list.files</span>(work, <span class="at">pattern =</span> <span class="st">"</span><span class="sc">\\</span><span class="st">.tar</span><span class="sc">\\</span><span class="st">.gz$"</span>)</span>
+<span id="cb34-44"><a href="#cb34-44" aria-hidden="true" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="st">"_R_CHECK_SYSTEM_CLOCK_"</span> <span class="ot">=</span> <span class="st">"0"</span>)</span>
+<span id="cb34-45"><a href="#cb34-45" aria-hidden="true" tabindex="-1"></a>check_out <span class="ot">&lt;-</span> <span class="fu">r_cmd</span>(<span class="fu">c</span>(<span class="st">"check"</span>, <span class="st">"--no-manual"</span>, <span class="st">"--no-tests"</span>, tarball))</span>
+<span id="cb34-46"><a href="#cb34-46" aria-hidden="true" tabindex="-1"></a>check_status <span class="ot">&lt;-</span> <span class="fu">sub</span>(<span class="st">"^Status: "</span>, <span class="st">""</span>, check_out[<span class="fu">grepl</span>(<span class="st">"^Status:"</span>, check_out)])</span>
+<span id="cb34-47"><a href="#cb34-47" aria-hidden="true" tabindex="-1"></a>check_status</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "OK"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>lib <span class="ot">&lt;-</span> <span class="fu">file.path</span>(work, <span class="st">"lib"</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(lib)</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="fu">invisible</span>(<span class="fu">r_cmd</span>(<span class="fu">c</span>(<span class="st">"INSTALL"</span>, <span class="st">"-l"</span>, <span class="fu">shQuote</span>(lib), tarball)))</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Run the installed app in a CLEAN R process started in another folder: no relative path</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="co"># and no object of this session can help it</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>child <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">".libPaths(c(Sys.getenv('MDRTBVN_LIB'), .libPaths()))"</span>,</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"library(shiny)"</span>,</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"pp &lt;- mdrtbvn::default_params()"</span>,</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  <span class="st">"app &lt;- shinyAppDir(system.file('app', package = 'mdrtbvn'))"</span>,</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  <span class="st">"out &lt;- NULL"</span>,</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  <span class="st">"testServer(app, {"</span>,</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>  <span class="st">"  session$setInputs(price_bpalm = 100, price_short = 100, price_long = 100,"</span>,</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>  <span class="st">"                    wtp = pp$wtp / 1e6, disc_rate = 100 * pp$disc_rate, bpalm_death_rule = '0')"</span>,</span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>  <span class="st">"  out &lt;&lt;- model()$comparison$d_nmb"</span>,</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>  <span class="st">"})"</span>,</span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>  <span class="st">"cat(sprintf('%.6f', out), 'run_app' %in% getNamespaceExports('mdrtbvn'))"</span>)</span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>child_file <span class="ot">&lt;-</span> <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">".R"</span>)</span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a><span class="fu">writeLines</span>(child, child_file)</span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>old_wd <span class="ot">&lt;-</span> <span class="fu">setwd</span>(<span class="fu">tempdir</span>())</span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>child_out <span class="ot">&lt;-</span> <span class="fu">system2</span>(<span class="fu">file.path</span>(<span class="fu">R.home</span>(<span class="st">"bin"</span>), <span class="st">"Rscript"</span>), child_file, <span class="at">stdout =</span> <span class="cn">TRUE</span>, <span class="at">stderr =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>                     <span class="at">env =</span> <span class="fu">paste0</span>(<span class="st">"MDRTBVN_LIB="</span>, lib))</span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a><span class="fu">setwd</span>(old_wd)</span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>child_out</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "66807607.107450 TRUE"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>parts <span class="ot">&lt;-</span> <span class="fu">strsplit</span>(<span class="fu">tail</span>(child_out, <span class="dv">1</span>), <span class="st">" "</span>)[[<span class="dv">1</span>]]</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">installed_app_d_nmb_million =</span> <span class="fu">as.numeric</span>(parts[<span class="dv">1</span>]) <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">module_d_nmb_million =</span> direct<span class="sc">$</span>comparison<span class="sc">$</span>d_nmb <span class="sc">/</span> <span class="fl">1e6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>installed_app_d_nmb_million        module_d_nmb_million 
+                   66.80761                    66.80761 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(check_status <span class="sc">==</span> <span class="st">"OK"</span>, <span class="fu">abs</span>(<span class="fu">as.numeric</span>(parts[<span class="dv">1</span>]) <span class="sc">-</span> direct<span class="sc">$</span>comparison<span class="sc">$</span>d_nmb) <span class="sc">&lt;</span> <span class="fl">1e-3</span>, parts[<span class="dv">2</span>] <span class="sc">==</span> <span class="st">"TRUE"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Phiên R sạch không có đối tượng nào của bài học và chạy ở thư mục khác, nên chỉ gói đã cài giúp được nó: ΔNMB trùng ΔNMB của module, và <code>run_app()</code> là hàm công khai. <code>R CMD check</code> (bỏ qua kiểm thử, đã chạy ở Bài 4) báo “OK”. Sau đó người dùng chỉ cần <code>mdrtbvn::run_app()</code>.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="tài-liệu-tham-khảo" class="level2">
+<h2 class="anchored" data-anchor-id="tài-liệu-tham-khảo">Tài liệu tham khảo</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-byt2026qd1519" class="csl-entry" role="listitem">
+Bộ Y tế. 2026. <span>“Quyết định số 1519/<span>QĐ-BYT</span> ngày 26/5/2026 về giá dịch vụ khám bệnh, chữa bệnh áp dụng tại Bệnh viện Bạch Mai”</span>. 26 Tháng Năm 2026. <a href="https://apicms.bachmai.gov.vn/documents/0/0/qd-1519-qd-byt-phe-duyet-gia-dv-kbcb-ap-dung-tai-bv-bach-mai.pdf/4ec8b49c-b674-4c72-97d6-21b36a17cce4">https://apicms.bachmai.gov.vn/documents/0/0/qd-1519-qd-byt-phe-duyet-gia-dv-kbcb-ap-dung-tai-bv-bach-mai.pdf/4ec8b49c-b674-4c72-97d6-21b36a17cce4</a>.
+</div>
+<div id="ref-chang2026shiny" class="csl-entry" role="listitem">
+Chang, Winston, Joe Cheng, JJ Allaire, Carson Sievert, Barret Schloerke, Garrick Aden-Buie, Yihui Xie, và c.s. 2026. <em>shiny: Web Application Framework for <span>R</span></em>. <a href="https://doi.org/10.32614/CRAN.package.shiny">https://doi.org/10.32614/CRAN.package.shiny</a>.
+</div>
+<div id="ref-gso2026gdp2025" class="csl-entry" role="listitem">
+Cục Thống kê (Bộ Tài chính). 2026. <span>“Họp báo công bố tình hình kinh tế – xã hội quý <span>IV</span> và năm 2025”</span>. 5 Tháng Giêng 2026. <a href="https://www.nso.gov.vn/?p=59699">https://www.nso.gov.vn/?p=59699</a>.
+</div>
+<div id="ref-eatg2025pretomanid" class="csl-entry" role="listitem">
+European AIDS Treatment Group. 2025. <span>“Global Drug Facility announces 25% reduction in the price of pretomanid”</span>. 17 Tháng Tư 2025. <a href="https://www.eatg.org/hiv-news/global-drug-facility-announces-25-reduction-in-the-price-of-pretomanid/">https://www.eatg.org/hiv-news/global-drug-facility-announces-25-reduction-in-the-price-of-pretomanid/</a>.
+</div>
+<div id="ref-hart2020r" class="csl-entry" role="listitem">
+Hart, Rose, Darren Burns, Bram Ramaekers, Shijie Ren, Daniel Gladwell, Will Sullivan, Niall Davison, và c.s. 2020. <span>“<span>R</span> and <span>Shiny</span> for cost-effectiveness analyses: why and when? <span>A</span> hypothetical case study”</span>. <em>PharmacoEconomics</em> 38 (7): 765–76. <a href="https://doi.org/10.1007/s40273-020-00903-9">https://doi.org/10.1007/s40273-020-00903-9</a>.
+</div>
+<div id="ref-nhadautu2025pho" class="csl-entry" role="listitem">
+Nhadautu.vn. 2025. <span>“Tô phở 30.000 đồng dần biến mất, hàng ăn lập mặt bằng giá mới”</span>. 28 Tháng Tám 2025. <a href="https://nhadautu.vn/to-pho-30000-dong-dan-bien-mat-hang-an-lap-mat-bang-gia-moi-d98663.html">https://nhadautu.vn/to-pho-30000-dong-dan-bien-mat-hang-an-lap-mat-bang-gia-moi-d98663.html</a>.
+</div>
+<div id="ref-perezriverol2016ten" class="csl-entry" role="listitem">
+Perez-Riverol, Yasset, Laurent Gatto, Rui Wang, Timo Sachsenberg, Julian Uszkoreit, Felipe da Veiga Leprevost, Christian Fufezan, và c.s. 2016. <span>“Ten simple rules for taking advantage of <span>Git</span> and <span>GitHub</span>”</span>. <em>PLoS Computational Biology</em> 12 (7): e1004947. <a href="https://doi.org/10.1371/journal.pcbi.1004947">https://doi.org/10.1371/journal.pcbi.1004947</a>.
+</div>
+<div id="ref-posit2026servertesting" class="csl-entry" role="listitem">
+Posit. không ngày. <span>“Server function testing”</span>. Truy cập 8 Tháng Mười 2026. <a href="https://shiny.posit.co/r/articles/improve/server-function-testing/">https://shiny.posit.co/r/articles/improve/server-function-testing/</a>.
+</div>
+<div id="ref-rlib2026actions" class="csl-entry" role="listitem">
+r-lib. không ngày. <span>“<span>GitHub</span> Actions for the <span>R</span> language”</span>. Truy cập 8 Tháng Mười 2026. <a href="https://github.com/r-lib/actions">https://github.com/r-lib/actions</a>.
+</div>
+<div id="ref-smith2022living" class="csl-entry" role="listitem">
+Smith, Robert A., Paul P. Schneider, và Wael Mohammed. 2022. <span>“Living <span>HTA</span>: automating health economic evaluation with <span>R</span>”</span>. <em>Wellcome Open Research</em> 7: 194. <a href="https://doi.org/10.12688/wellcomeopenres.17933.2">https://doi.org/10.12688/wellcomeopenres.17933.2</a>.
+</div>
+<div id="ref-smith2020making" class="csl-entry" role="listitem">
+Smith, Robert, và Paul Schneider. 2020. <span>“Making health economic models <span>Shiny</span>: a tutorial”</span>. <em>Wellcome Open Research</em> 5: 69. <a href="https://doi.org/10.12688/wellcomeopenres.15807.2">https://doi.org/10.12688/wellcomeopenres.15807.2</a>.
+</div>
+<div id="ref-thokala2023living" class="csl-entry" role="listitem">
+Thokala, Praveen, Tushar Srivastava, Robert Smith, Shijie Ren, Melanie D. Whittington, Jamie Elvidge, Ruth Wong, và Lesley Uttley. 2023. <span>“Living health technology assessment: issues, challenges and opportunities”</span>. <em>PharmacoEconomics</em> 41 (3): 227–37. <a href="https://doi.org/10.1007/s40273-022-01229-4">https://doi.org/10.1007/s40273-022-01229-4</a>.
+</div>
+<div id="ref-wickham2021mastering" class="csl-entry" role="listitem">
+Wickham, Hadley. 2021. <em>Mastering <span>Shiny</span></em>. O’Reilly Media. <a href="https://mastering-shiny.org/">https://mastering-shiny.org/</a>.
+</div>
+<div id="ref-woods2016country" class="csl-entry" role="listitem">
+Woods, Beth, Paul Revill, Mark Sculpher, và Karl Claxton. 2016. <span>“Country-Level Cost-Effectiveness Thresholds: Initial Estimates and the Need for Further Research”</span>. <em>Value in health : the journal of the International Society for Pharmacoeconomics and Outcomes Research</em> 19 (8): 929–35. <a href="https://doi.org/10.1016/j.jval.2016.02.017">https://doi.org/10.1016/j.jval.2016.02.017</a>.
+</div>
+</div>
+<div class="video-script">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Kịch bản video (~13 phút)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Slide</th>
+<th>Lời giảng chính</th>
+<th>Hình/Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Vì sao cần ứng dụng</td>
+<td>người ra quyết định thử giả định; rủi ro chọn số theo ý muốn</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>ui và server</td>
+<td>đầu vào, đầu ra, biểu thức phản ứng</td>
+<td>sơ đồ Mermaid</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Mã của ứng dụng</td>
+<td>100 dòng; chỉ gọi hàm của mô hình</td>
+<td>chunk <code>app-server</code></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Nguyên tắc thiết kế</td>
+<td>không logic mô hình; giới hạn từ bảng tham số; ghi phiên bản</td>
+<td>—</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>testServer()</td>
+<td>đặt đầu vào, đọc kết quả, không cần trình duyệt; phiên bản + mã tham số trên màn hình</td>
+<td>chunk <code>l05-testserver</code></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Câu hỏi về giá</td>
+<td>giá ngưỡng so với các mức giá GDF thật</td>
+<td><code>figs/l05-price-nmb.png</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Mô hình “sống”</td>
+<td>cập nhật theo lịch hoặc khi có bằng chứng mới</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Ba cổng</td>
+<td>hợp lệ, kiểm thử, chạy; và người duyệt</td>
+<td>chunk <code>l05-living</code></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Bản cập nhật lỗi và truy vết</td>
+<td>23 thay 0.23 bị chặn; bản công bố lưu theo phiên bản + mã tham số</td>
+<td>bảng nhật ký</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>GitHub Actions</td>
+<td>chạy R CMD check và quy trình mỗi lần thay đổi</td>
+<td>khối YAML</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Tổng kết module</td>
+<td>cấu trúc → kiểm thử → phiên bản → gói → ứng dụng → sống</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../kb/m11-software-engineering/l04-r-package.html" class="pagination-link" aria-label="Bài 4: Đóng gói mô hình thành gói R">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../kb/glossary.html" class="pagination-link" aria-label="Bảng thuật ngữ Anh–Việt">
+        <span class="nav-page-text"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

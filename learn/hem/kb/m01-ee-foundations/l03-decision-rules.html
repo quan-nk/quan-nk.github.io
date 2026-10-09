@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="vi" xml:lang="vi"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB – Mô hình Kinh tế Y tế với R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../kb/m01-ee-foundations/l04-thresholds.html" rel="next">
+<link href="../../kb/m01-ee-foundations/l02-health-outcomes.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-9e7f0c659d5fa2cace8548cb57964278.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c18d72663580ed8ca19ce2a2f99af51b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m01-ee-foundations/index.html">M01 · Nền tảng đánh giá kinh tế và cây quyết định</a></li><li class="breadcrumb-item"><a href="../../kb/m01-ee-foundations/l03-decision-rules.html"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Mô hình Kinh tế Y tế với R</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lời mở đầu</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m00-r-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M00 · R cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l01-reproducible-workflow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Quy trình làm việc tái lập với R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m01-ee-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M01 · Nền tảng đánh giá kinh tế và cây quyết định</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l01-evaluation-types.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại đánh giá kinh tế, quan điểm, khung thời gian và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l03-decision-rules.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l05-decision-tree.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Xây cây quyết định từ đầu trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m02-cohort-markov/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M02 · Mô hình chuyển trạng thái đoàn hệ (Markov)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l01-state-transition.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao cần mô hình chuyển trạng thái</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l02-rates-probabilities.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tỷ suất, xác suất và độ dài chu kỳ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l03-cohort-trace.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vết đoàn hệ, giá trị gắn với trạng thái và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l04-time-dependence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Phụ thuộc thời gian: lão hóa, trạng thái đường hầm và mảng 3 chiều</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l05-results-verification.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị gắn với lần chuyển, đường biên hiệu quả và xác minh mô hình</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m03-uncertainty-voi/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M03 · Bất định, phân tích độ nhạy và giá trị thông tin</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l01-deterministic-sa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại bất định và phân tích độ nhạy tất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l02-distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Chọn phân phối cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l03-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích độ nhạy xác suất (PSA) trong R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l04-ceac-reporting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: CEAC, CEAF, tổn thất kỳ vọng và cách báo cáo bất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l05-voi.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị thông tin: EVPI, EVPPI và EVSI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m04-microsimulation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M04 · Mô phỏng vi mô (microsimulation)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l01-why-microsimulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Khi mô hình đoàn hệ không đủ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l02-microsim-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô phỏng vi mô bằng vòng lặp trong R cơ bản</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l03-vectorisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vectơ hóa theo cá thể và đo hiệu năng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l04-parallel-rcpp.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tính toán song song và Rcpp cho vòng lặp nóng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l05-mc-error-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bao nhiêu cá thể là đủ? Sai số Monte Carlo, PSA và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m05-dynamic-transmission/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M05 · Mô hình lây truyền động</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l01-static-vs-dynamic.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Mô hình tĩnh và mô hình lây truyền động</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l02-sir-seir-desolve.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình SIR và SEIR trong R với deSolve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m06-amr-economics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M06 · Kinh tế học kháng kháng sinh (AMR)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l01-amr-burden.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Kinh tế học kháng kháng sinh: ngoại ứng, gánh nặng và kịch bản phản thực</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l03-ward-transmission.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m07-survival-psm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M07 · Phân tích sống còn cho mô hình quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l03-extrapolation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l05-partitioned-survival.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m08-calibration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M08 · Hiệu chuẩn mô hình (calibration)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l01-why-calibrate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao phải hiệu chuẩn mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l02-search-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tìm kiếm tham số: ngẫu nhiên, siêu khối Latin và Nelder–Mead</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l03-bayes-sir.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hiệu chuẩn Bayes và thuật toán SIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l04-psa-validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đưa kết quả hiệu chuẩn vào PSA, thẩm định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m09-inputs-vietnam/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M09 · Dữ liệu đầu vào cho Việt Nam và LMIC</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l01-costing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ước tính chi phí cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l02-cost-adjustment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Điều chỉnh chi phí về một năm tham chiếu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l03-outcome-inputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Đầu vào về kết cục sức khỏe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l04-evidence-synthesis.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tổng hợp bằng chứng cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l05-decision-context.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bối cảnh ra quyết định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m10-policy-bia-equity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l04-communicating-hta.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Truyền đạt kết quả cho người ra quyết định và quy trình HTA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m11-software-engineering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l01-code-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Cấu trúc mã cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l02-testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Xác minh và kiểm thử mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l03-version-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l04-r-package.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/glossary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Trong bài</h2>
+   
+  <ul class="collapse">
+  <li><a href="#mục-tiêu-học-tập" id="toc-mục-tiêu-học-tập" class="nav-link active" data-scroll-target="#mục-tiêu-học-tập">Mục tiêu học tập</a></li>
+  <li><a href="#ý-chính" id="toc-ý-chính" class="nav-link" data-scroll-target="#ý-chính">Ý chính</a></li>
+  <li><a href="#nội-dung" id="toc-nội-dung" class="nav-link" data-scroll-target="#nội-dung">Nội dung</a></li>
+  <li><a href="#thực-hành" id="toc-thực-hành" class="nav-link" data-scroll-target="#thực-hành">Thực hành</a></li>
+  <li><a href="#bài-tập" id="toc-bài-tập" class="nav-link" data-scroll-target="#bài-tập">Bài tập</a></li>
+  <li><a href="#tài-liệu-tham-khảo" id="toc-tài-liệu-tham-khảo" class="nav-link" data-scroll-target="#tài-liệu-tham-khảo">Tài liệu tham khảo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m01-ee-foundations/index.html">M01 · Nền tảng đánh giá kinh tế và cây quyết định</a></li><li class="breadcrumb-item"><a href="../../kb/m01-ee-foundations/l03-decision-rules.html"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></h1>
+<p class="subtitle lead">So sánh đúng khi có từ ba chiến lược trở lên, và đọc kết quả bằng lợi ích ròng</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-important callout-titled" title="Vì sao bạn nên quan tâm?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Vì sao bạn nên quan tâm?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Hội đồng thuốc và điều trị của một bệnh viện tuyến trung ương họp để chọn cách xử trí người bệnh ICU nghi nhiễm khuẩn Gram âm. Một ngày colistin có giá khoảng 3.64 triệu VNĐ, bằng khoảng 15 ngày lương tối thiểu vùng I; một ngày ceftazidim/avibactam khoảng 8.6 triệu VNĐ <span class="citation" data-cites="thainguyen2023thau cuchi2024thau chinhphu2025nd293">(<a href="../m00-r-foundations/index.html#ref-thainguyen2023thau" role="doc-biblioref">Bệnh viện Trung ương Thái Nguyên 2023</a>; <a href="../m00-r-foundations/index.html#ref-cuchi2024thau" role="doc-biblioref">Bệnh viện Đa khoa khu vực Củ Chi 2024</a>; <a href="../m00-r-foundations/index.html#ref-chinhphu2025nd293" role="doc-biblioref">Chính phủ 2025</a>)</span>. Phủ colistin cho mọi ca nghĩa là người không kháng cũng có thể phải dùng thuốc không cần thiết trong lúc chờ kháng sinh đồ: nếu chờ 3 ngày (giả định minh họa), mỗi người tốn thêm khoảng 10.9 triệu VNĐ, kèm nguy cơ độc thận. Trên bàn có bốn phương án, và nếu so từng phương án với thường quy, cả ba phương án mới đều trông “đáng tiền”. Bài này giúp bạn chọn đúng một phương án khi có nhiều lựa chọn cùng lúc.</p>
+</div>
+</div>
+<section id="mục-tiêu-học-tập" class="level2">
+<h2 class="anchored" data-anchor-id="mục-tiêu-học-tập">Mục tiêu học tập</h2>
+<p>Sau bài này, bạn có thể:</p>
+<ol type="1">
+<li>Tính và diễn giải ICER giữa hai chiến lược, và đọc bốn góc phần tư của mặt phẳng chi phí-hiệu quả.</li>
+<li>Nhận diện lấn át tuyệt đối (dominance) và lấn át mở rộng (extended dominance), rồi dựng đường biên hiệu quả (efficiency frontier) cho từ ba chiến lược trở lên.</li>
+<li>Tính lợi ích ròng quy ra tiền (NMB) và lợi ích sức khỏe ròng (NHB), và chứng minh chúng chọn cùng chiến lược với quy tắc đường biên.</li>
+<li>Kiểm tra hàm đường biên bằng <code>stopifnot()</code>.</li>
+</ol>
+</section>
+<section id="ý-chính" class="level2">
+<h2 class="anchored" data-anchor-id="ý-chính">Ý chính</h2>
+<ul>
+<li><span class="math inline">\(\text{ICER} = \Delta C / \Delta E\)</span>: chi phí phải bỏ thêm cho mỗi đơn vị sức khỏe có thêm. ICER chỉ diễn giải được khi <span class="math inline">\(\Delta C\)</span> và <span class="math inline">\(\Delta E\)</span> cùng dấu: ở góc Đông Bắc, chấp nhận khi ICER &lt; <span class="math inline">\(\lambda\)</span>; ở góc Tây Nam (rẻ hơn, kém hơn), chấp nhận phương án rẻ hơn khi ICER &gt; <span class="math inline">\(\lambda\)</span>.</li>
+<li><strong>Lấn át tuyệt đối</strong>: một chiến lược đắt hơn mà không hiệu quả hơn một chiến lược khác thì bị loại.</li>
+<li><strong>Lấn át mở rộng</strong>: một chiến lược bị loại khi phối hợp hai chiến lược lân cận cho cùng hiệu quả với chi phí thấp hơn. Dấu hiệu: ICER của nó cao hơn ICER của chiến lược hiệu quả hơn kế tiếp <span class="citation" data-cites="cantor1994costeffectiveness">(<a href="../m00-r-foundations/index.html#ref-cantor1994costeffectiveness" role="doc-biblioref">Cantor 1994</a>)</span>.</li>
+<li>Khi có từ ba chiến lược trở lên, <strong>không</strong> so từng chiến lược với thường quy. Phải dựng đường biên hiệu quả rồi tính ICER giữa các chiến lược kề nhau trên đường biên.</li>
+<li>Ở ngưỡng <span class="math inline">\(\lambda\)</span>, chọn chiến lược có <span class="math inline">\(\text{NMB} = \lambda E - C\)</span> lớn nhất, hoặc tương đương <span class="math inline">\(\text{NHB} = E - C/\lambda\)</span> lớn nhất <span class="citation" data-cites="stinnett1998net">(<a href="../m00-r-foundations/index.html#ref-stinnett1998net" role="doc-biblioref">Stinnett và Mullahy 1998</a>)</span>.</li>
+<li>Không báo cáo ICER âm: một ICER âm có thể là “rẻ hơn và tốt hơn” hoặc “đắt hơn và tệ hơn”. Hãy gọi đúng tên lấn át, hoặc dùng NMB <span class="citation" data-cites="paulden2020calculating">(<a href="../m00-r-foundations/index.html#ref-paulden2020calculating" role="doc-biblioref">Paulden 2020</a>)</span>.</li>
+<li>Trong ví dụ, mọi chiến lược đều có ICER so với thường quy dưới ngưỡng của khóa học. Dù vậy, đường biên chỉ gồm thường quy và xét nghiệm nhanh kèm AMS.</li>
+</ul>
+</section>
+<section id="nội-dung" class="level2">
+<h2 class="anchored" data-anchor-id="nội-dung">Nội dung</h2>
+<section id="icer-và-mặt-phẳng-chi-phí-hiệu-quả" class="level3">
+<h3 class="anchored" data-anchor-id="icer-và-mặt-phẳng-chi-phí-hiệu-quả">ICER và mặt phẳng chi phí-hiệu quả</h3>
+<p>Đặt chênh lệch hiệu quả <span class="math inline">\(\Delta E\)</span> trên trục hoành và chênh lệch chi phí <span class="math inline">\(\Delta C\)</span> trên trục tung, ta có mặt phẳng chi phí-hiệu quả (cost-effectiveness plane) với bốn góc phần tư:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Góc</th>
+<th><span class="math inline">\(\Delta E\)</span></th>
+<th><span class="math inline">\(\Delta C\)</span></th>
+<th>Kết luận</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Đông Nam</td>
+<td>&gt; 0</td>
+<td>&lt; 0</td>
+<td>Phương án mới lấn át: tốt hơn và rẻ hơn</td>
+</tr>
+<tr class="even">
+<td>Tây Bắc</td>
+<td>&lt; 0</td>
+<td>&gt; 0</td>
+<td>Phương án mới bị lấn át: tệ hơn và đắt hơn</td>
+</tr>
+<tr class="odd">
+<td>Đông Bắc</td>
+<td>&gt; 0</td>
+<td>&gt; 0</td>
+<td>Cần ICER và ngưỡng</td>
+</tr>
+<tr class="even">
+<td>Tây Nam</td>
+<td>&lt; 0</td>
+<td>&lt; 0</td>
+<td>Rẻ hơn nhưng tệ hơn; cần ICER và ngưỡng (đọc ngược chiều)</td>
+</tr>
+</tbody>
+</table>
+<p>ICER là độ dốc của đoạn thẳng nối hai chiến lược. Từ năm 1977, tỷ số chi phí ròng trên lợi ích sức khỏe ròng đã được dùng làm chỉ số để xếp thứ tự ưu tiên <span class="citation" data-cites="weinstein1977foundations">(<a href="../m00-r-foundations/index.html#ref-weinstein1977foundations" role="doc-biblioref">Weinstein và Stason 1977</a>)</span>.</p>
+</section>
+<section id="cái-bẫy-khi-có-nhiều-chiến-lược" class="level3">
+<h3 class="anchored" data-anchor-id="cái-bẫy-khi-có-nhiều-chiến-lược">Cái bẫy khi có nhiều chiến lược</h3>
+<p>Ví dụ có bốn chiến lược. Nếu so từng chiến lược với thường quy, ta có ba ICER: xét nghiệm nhanh 2.36 triệu VNĐ/QALY, xét nghiệm nhanh kèm AMS 1.76 triệu, phủ kháng carbapenem (CR) cho mọi ca 33.33 triệu. Cả ba đều dưới ngưỡng của khóa học, 125.5 triệu VNĐ/QALY (1 lần GDP bình quân đầu người, Bài 4). Nhưng mỗi người bệnh chỉ nhận <strong>một</strong> chiến lược: câu hỏi đúng là chiến lược nào đáng bỏ thêm tiền <strong>so với chiến lược tốt kế tiếp</strong>.</p>
+</section>
+<section id="dựng-đường-biên-hiệu-quả" class="level3">
+<h3 class="anchored" data-anchor-id="dựng-đường-biên-hiệu-quả">Dựng đường biên hiệu quả</h3>
+<p>Thuật toán gồm bốn bước:</p>
+<ol type="1">
+<li>Sắp xếp các chiến lược theo chi phí tăng dần.</li>
+<li>Loại chiến lược <strong>bị lấn át tuyệt đối</strong>: có chiến lược khác rẻ hơn (hoặc bằng) mà hiệu quả hơn (hoặc bằng). Phủ CR cho mọi ca đắt hơn xét nghiệm nhanh kèm AMS (107.46 so với 100.23 triệu VNĐ) nhưng ít QALY hơn. Nguyên nhân là toàn bộ 69.8% người bệnh không kháng carbapenem cũng phải dùng colistin và chịu nguy cơ độc thận. Kết luận này phụ thuộc chất lượng xét nghiệm: phủ CR cho mọi ca chỉ còn bị lấn át tuyệt đối khi độ nhạy hiệu dụng của xét nghiệm (<code>cov_cr</code> × độ nhạy) trên 0.58; mức cơ sở là 0.95 (chunk <code>l03-cover-all</code>).</li>
+<li>Tính ICER giữa các chiến lược còn lại, kề nhau. Nếu ICER <strong>giảm</strong> khi đi sang chiến lược đắt hơn, chiến lược ở giữa bị <strong>lấn át mở rộng</strong>. Loại nó, rồi tính lại.</li>
+<li>Các chiến lược còn lại tạo thành đường biên hiệu quả. ICER tăng dần dọc theo đường biên.</li>
+</ol>
+<p>Xét nghiệm nhanh đơn thuần bị lấn át mở rộng. Nếu áp dụng xét nghiệm nhanh kèm AMS cho 63.2% người bệnh và thường quy cho số còn lại, ta đạt đúng số QALY của xét nghiệm nhanh đơn thuần. Chi phí của phương án phối hợp chỉ là 99.98 triệu VNĐ, thay vì 100.13 triệu. Kết luận này phụ thuộc hai xác suất hành động minh họa (<code>act_no_ams</code>, <code>act_ams</code>; Bài tập 2), nên đây là ví dụ phương pháp, không phải khuyến nghị chính sách. Chiều hướng, tức AMS làm xét nghiệm có lợi hơn, cùng hướng với tổng quan trên nhiễm khuẩn huyết nói chung: lợi ích tử vong của xét nghiệm phân tử nhanh rõ khi có chương trình quản lý sử dụng kháng sinh, chưa chứng minh được khi không có <span class="citation" data-cites="timbrook2017effect">(<a href="../m00-r-foundations/index.html#ref-timbrook2017effect" role="doc-biblioref">Timbrook và c.s. 2017</a>)</span>.</p>
+<p>Lấn át mở rộng giả định có thể “chia” chiến lược cho các nhóm người bệnh, tức một phần người bệnh nhận chăm sóc kém hơn: một đánh đổi về công bằng <span class="citation" data-cites="cantor1994costeffectiveness">(<a href="../m00-r-foundations/index.html#ref-cantor1994costeffectiveness" role="doc-biblioref">Cantor 1994</a>)</span>.</p>
+<p>Sau hai bước loại, đường biên chỉ còn thường quy và xét nghiệm nhanh kèm AMS. ICER đúng của xét nghiệm nhanh kèm AMS là 1.76 triệu VNĐ/QALY (<a href="#fig-l03-frontier" class="quarto-xref">Hình&nbsp;<span>10.1</span></a>).</p>
+</section>
+<section id="lợi-ích-ròng-nmb-và-nhb" class="level3">
+<h3 class="anchored" data-anchor-id="lợi-ích-ròng-nmb-và-nhb">Lợi ích ròng: NMB và NHB</h3>
+<p>Biết ngưỡng <span class="math inline">\(\lambda\)</span>, ta có thể quy mỗi chiến lược về một con số:</p>
+<p><span class="math display">\[
+\text{NMB} = \lambda \cdot E - C, \qquad \text{NHB} = E - \frac{C}{\lambda}.
+\]</span></p>
+<p>NMB đo bằng tiền, NHB đo bằng QALY; NHB là NMB chia cho <span class="math inline">\(\lambda\)</span>. Chiến lược tốt nhất là chiến lược có NMB (hay NHB) lớn nhất. Không cần sắp xếp hay loại trừ, và không gặp vấn đề ICER âm <span class="citation" data-cites="stinnett1998net paulden2020calculating">(<a href="../m00-r-foundations/index.html#ref-stinnett1998net" role="doc-biblioref">Stinnett và Mullahy 1998</a>; <a href="../m00-r-foundations/index.html#ref-paulden2020calculating" role="doc-biblioref">Paulden 2020</a>)</span>. Ở ngưỡng của khóa học, xét nghiệm nhanh kèm AMS có NMB cao nhất (880.1 triệu VNĐ). Quy tắc đường biên cũng chọn đúng chiến lược này: đó là chiến lược có ICER lớn nhất mà vẫn dưới ngưỡng. NMB còn là nền tảng của phân tích bất định ở M03.</p>
+<p>NMB tuyệt đối không có ý nghĩa riêng; chỉ <strong>chênh lệch</strong> NMB giữa các chiến lược mới quan trọng.</p>
+</section>
+</section>
+<section id="thực-hành" class="level2">
+<h2 class="anchored" data-anchor-id="thực-hành">Thực hành</h2>
+<p>Nạp mô hình; in chi phí và QALY kỳ vọng.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">isTRUE</span>(<span class="fu">l10n_info</span>()[[<span class="st">"UTF-8"</span>]])) <span class="fu">invisible</span>(<span class="fu">Sys.setlocale</span>(<span class="st">"LC_CTYPE"</span>, <span class="st">"en_US.UTF-8"</span>))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/helpers.R"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/vn_data.R"</span>)   <span class="co"># course-wide values: threshold, life table, CPI, prices</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">load_params</span>()                   <span class="co"># module parameters + shared values, costs in 2025 VND</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">run_tree</span>(p)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">data.frame</span>(<span class="at">cost_million =</span> res<span class="sc">$</span>cost <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">qaly =</span> res<span class="sc">$</span>qaly, <span class="at">row.names =</span> res<span class="sc">$</span>strategy), <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          cost_million   qaly
+usual          99.5408 7.4190
+rdt           100.1265 7.6667
+rdt_ams       100.2321 7.8112
+cover_all     107.4580 7.6566</code></pre>
+</div>
+</div>
+<p>Cách làm sai: so từng chiến lược với thường quy. Kết quả <code>TRUE</code> ở dòng cuối là cái bẫy.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The tempting mistake: compare every strategy with usual care only</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pairwise <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">strategy =</span> STRATEGIES[<span class="sc">-</span><span class="dv">1</span>], <span class="at">d_cost =</span> <span class="cn">NA_real_</span>, <span class="at">d_qaly =</span> <span class="cn">NA_real_</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(pairwise))) {</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">incremental</span>(res, pairwise<span class="sc">$</span>strategy[k], <span class="st">"usual"</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  pairwise<span class="sc">$</span>d_cost[k] <span class="ot">&lt;-</span> d[[<span class="st">"cost"</span>]]</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  pairwise<span class="sc">$</span>d_qaly[k] <span class="ot">&lt;-</span> d[[<span class="st">"qaly"</span>]]</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>pairwise<span class="sc">$</span>icer_vs_usual <span class="ot">&lt;-</span> pairwise<span class="sc">$</span>d_cost <span class="sc">/</span> pairwise<span class="sc">$</span>d_qaly</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>pairwise<span class="sc">$</span>d_cost <span class="ot">&lt;-</span> pairwise<span class="sc">$</span>d_cost <span class="sc">/</span> <span class="fl">1e6</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>pairwise<span class="sc">$</span>icer_vs_usual <span class="ot">&lt;-</span> pairwise<span class="sc">$</span>icer_vs_usual <span class="sc">/</span> <span class="fl">1e6</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>pairwise[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(pairwise[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">3</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>pairwise</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   strategy d_cost d_qaly icer_vs_usual
+1       rdt  0.586  0.248         2.364
+2   rdt_ams  0.691  0.392         1.762
+3 cover_all  7.917  0.238        33.326</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># All three look "below the threshold" when each is compared only with usual care</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>all_below <span class="ot">&lt;-</span> <span class="fu">all</span>(pairwise<span class="sc">$</span>icer_vs_usual <span class="sc">*</span> <span class="fl">1e6</span> <span class="sc">&lt;</span> p<span class="sc">$</span>wtp)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>all_below</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(all_below)   <span class="co"># the prose says so; fail loudly if parameters change this</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Hàm <code>efficiency_frontier()</code> trong <code>code/model.R</code> làm đúng bốn bước ở trên: vòng lặp đôi kiểm tra lấn át tuyệt đối, vòng <code>repeat</code> loại lấn át mở rộng cho đến khi ICER tăng dần. Các kiểm tra cuối chunk độc lập với hàm: trên lưới ngưỡng rất mịn, các chiến lược từng có NMB cao nhất đúng bằng tập trên đường biên; và một “xét nghiệm” miễn phí có độ nhạy 1, độ đặc hiệu 0 phải cho đúng kết quả của phủ CR cho mọi ca.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The correct procedure: drop strongly dominated, then extendedly dominated</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="co"># strategies, then compute ICERs between neighbours on the frontier</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>fr <span class="ot">&lt;-</span> <span class="fu">efficiency_frontier</span>(res<span class="sc">$</span>strategy, res<span class="sc">$</span>cost, res<span class="sc">$</span>qaly)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>fr_print <span class="ot">&lt;-</span> fr</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>fr_print<span class="sc">$</span>cost <span class="ot">&lt;-</span> <span class="fu">round</span>(fr_print<span class="sc">$</span>cost <span class="sc">/</span> <span class="fl">1e6</span>, <span class="dv">3</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>fr_print<span class="sc">$</span>effect <span class="ot">&lt;-</span> <span class="fu">round</span>(fr_print<span class="sc">$</span>effect, <span class="dv">4</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>fr_print<span class="sc">$</span>icer <span class="ot">&lt;-</span> <span class="fu">round</span>(fr_print<span class="sc">$</span>icer <span class="sc">/</span> <span class="fl">1e6</span>, <span class="dv">3</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>fr_print</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   strategy    cost effect        status  icer
+1     usual  99.541 7.4190      frontier    NA
+2       rdt 100.127 7.6667 ext_dominated    NA
+3   rdt_ams 100.232 7.8112      frontier 1.762
+4 cover_all 107.458 7.6566     dominated    NA</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Frontier checks. (1) Statuses the prose relies on. (2) Independent test: over a fine</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># grid of thresholds, the strategies that ever maximize NMB are exactly the frontier set.</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(fr<span class="sc">$</span>status[fr<span class="sc">$</span>strategy <span class="sc">==</span> <span class="st">"cover_all"</span>] <span class="sc">==</span> <span class="st">"dominated"</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>          fr<span class="sc">$</span>status[fr<span class="sc">$</span>strategy <span class="sc">==</span> <span class="st">"rdt"</span>] <span class="sc">==</span> <span class="st">"ext_dominated"</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The prose compares cover-all with rapid test + AMS: dearer and fewer QALYs</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(res[<span class="st">"cover_all"</span>, <span class="st">"cost"</span>] <span class="sc">&gt;</span> res[<span class="st">"rdt_ams"</span>, <span class="st">"cost"</span>], res[<span class="st">"cover_all"</span>, <span class="st">"qaly"</span>] <span class="sc">&lt;</span> res[<span class="st">"rdt_ams"</span>, <span class="st">"qaly"</span>])</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>k_check <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">5</span> <span class="sc">*</span> p<span class="sc">$</span>wtp, <span class="at">length.out =</span> <span class="dv">2001</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>ever_best <span class="ot">&lt;-</span> <span class="fu">unique</span>(<span class="fu">sapply</span>(k_check, <span class="cf">function</span>(k) <span class="fu">best_strategy</span>(res, k)))</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>frontier_set <span class="ot">&lt;-</span> fr<span class="sc">$</span>strategy[fr<span class="sc">$</span>status <span class="sc">==</span> <span class="st">"frontier"</span>]</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">ever_best =</span> <span class="fu">paste</span>(<span class="fu">sort</span>(ever_best), <span class="at">collapse =</span> <span class="st">", "</span>), <span class="at">frontier =</span> <span class="fu">paste</span>(<span class="fu">sort</span>(frontier_set), <span class="at">collapse =</span> <span class="st">", "</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       ever_best         frontier 
+"rdt_ams, usual" "rdt_ams, usual" </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">setequal</span>(ever_best, frontier_set))</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (3) Black-box test: a "test" with sensitivity 1, specificity 0, acted on always, free,</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="co"># is the cover-all strategy</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>q_bb <span class="ot">&lt;-</span> <span class="fu">modifyList</span>(p, <span class="fu">list</span>(<span class="at">sens_rdt =</span> <span class="dv">1</span>, <span class="at">cov_cr =</span> <span class="dv">1</span>, <span class="at">spec_rdt =</span> <span class="dv">0</span>, <span class="at">act_no_ams =</span> <span class="dv">1</span>, <span class="at">c_test =</span> <span class="dv">0</span>))</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>r_bb <span class="ot">&lt;-</span> <span class="fu">run_tree</span>(q_bb)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>cols_bb <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"cost"</span>, <span class="st">"qaly"</span>, <span class="st">"death"</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">abs</span>(<span class="fu">unlist</span>(r_bb[<span class="st">"rdt"</span>, cols_bb]) <span class="sc">-</span> <span class="fu">unlist</span>(r_bb[<span class="st">"cover_all"</span>, cols_bb])) <span class="sc">&lt;</span> <span class="fl">1e-6</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Chunk sau chứng minh bằng số rằng phối hợp hai chiến lược lân cận rẻ hơn xét nghiệm nhanh đơn thuần ở cùng QALY.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Why "rdt" is extendedly dominated: treating a fraction f of patients with</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># rapid test + AMS and the rest with usual care buys the same QALYs more cheaply</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>f_mix <span class="ot">&lt;-</span> (res[<span class="st">"rdt"</span>, <span class="st">"qaly"</span>] <span class="sc">-</span> res[<span class="st">"usual"</span>, <span class="st">"qaly"</span>]) <span class="sc">/</span> (res[<span class="st">"rdt_ams"</span>, <span class="st">"qaly"</span>] <span class="sc">-</span> res[<span class="st">"usual"</span>, <span class="st">"qaly"</span>])</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>cost_mix <span class="ot">&lt;-</span> res[<span class="st">"usual"</span>, <span class="st">"cost"</span>] <span class="sc">+</span> f_mix <span class="sc">*</span> (res[<span class="st">"rdt_ams"</span>, <span class="st">"cost"</span>] <span class="sc">-</span> res[<span class="st">"usual"</span>, <span class="st">"cost"</span>])</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">f_mix =</span> f_mix, <span class="at">cost_mix_million =</span> cost_mix <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>        <span class="at">cost_rdt_million =</span> res[<span class="st">"rdt"</span>, <span class="st">"cost"</span>] <span class="sc">/</span> <span class="fl">1e6</span>), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           f_mix cost_mix_million cost_rdt_million 
+           0.632           99.977          100.127 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(cost_mix <span class="sc">&lt;</span> res[<span class="st">"rdt"</span>, <span class="st">"cost"</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Mặt phẳng chi phí-hiệu quả với chi phí và QALY tuyệt đối. Đường liền là đường biên; đường đứt là phép so sánh gây hiểu lầm giữa xét nghiệm nhanh đơn thuần và thường quy.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Cost-effectiveness plane: absolute costs and QALYs, frontier as a line</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>plane <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">strategy =</span> res<span class="sc">$</span>strategy, <span class="at">label =</span> res<span class="sc">$</span>label,</span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">cost =</span> res<span class="sc">$</span>cost <span class="sc">/</span> <span class="fl">1e6</span>, <span class="at">qaly =</span> res<span class="sc">$</span>qaly,</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">status =</span> fr<span class="sc">$</span>status[<span class="fu">match</span>(res<span class="sc">$</span>strategy, fr<span class="sc">$</span>strategy)])</span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>status_vi <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">frontier =</span> <span class="st">"Trên đường biên"</span>, <span class="at">ext_dominated =</span> <span class="st">"Lấn át mở rộng"</span>,</span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>               <span class="at">dominated =</span> <span class="st">"Lấn át tuyệt đối"</span>)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>plane<span class="sc">$</span>status_vi <span class="ot">&lt;-</span> <span class="fu">factor</span>(status_vi[plane<span class="sc">$</span>status], <span class="at">levels =</span> status_vi)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>front_line <span class="ot">&lt;-</span> plane[plane<span class="sc">$</span>status <span class="sc">==</span> <span class="st">"frontier"</span>, ]</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>front_line <span class="ot">&lt;-</span> front_line[<span class="fu">order</span>(front_line<span class="sc">$</span>cost), ]</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>fig_plane <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(plane, <span class="fu">aes</span>(qaly, cost)) <span class="sc">+</span></span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> front_line, <span class="at">colour =</span> pal_course[<span class="dv">1</span>], <span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># dashed: the misleading pairwise comparison of "rdt" with usual care</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"segment"</span>, <span class="at">x =</span> res[<span class="st">"usual"</span>, <span class="st">"qaly"</span>], <span class="at">y =</span> res[<span class="st">"usual"</span>, <span class="st">"cost"</span>] <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>           <span class="at">xend =</span> res[<span class="st">"rdt"</span>, <span class="st">"qaly"</span>], <span class="at">yend =</span> res[<span class="st">"rdt"</span>, <span class="st">"cost"</span>] <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>           <span class="at">linetype =</span> <span class="st">"22"</span>, <span class="at">colour =</span> <span class="st">"grey55"</span>) <span class="sc">+</span></span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">colour =</span> status_vi), <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> label), <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">1.1</span>, <span class="at">size =</span> <span class="fl">3.4</span>) <span class="sc">+</span></span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> pal_course[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">4</span>, <span class="dv">2</span>)], <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="fl">0.15</span>, <span class="fl">0.3</span>))) <span class="sc">+</span></span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fl">0.12</span>)) <span class="sc">+</span></span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"QALY kỳ vọng mỗi người bệnh"</span>, <span class="at">y =</span> <span class="st">"Chi phí kỳ vọng (triệu VNĐ, 2025)"</span>,</span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Mặt phẳng chi phí-hiệu quả và đường biên hiệu quả"</span>,</span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Độ dốc mỗi đoạn trên đường biên là ICER"</span>) <span class="sc">+</span></span>
+<span id="cb16-24"><a href="#cb16-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb16-25"><a href="#cb16-25" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_plane, <span class="st">"l03-frontier.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="fig-l03-frontier" class="quarto-float quarto-figure quarto-figure-center anchored">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-l03-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figs/l03-frontier.png" class="img-fluid figure-img" style="width:85.0%">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-l03-frontier-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Hình&nbsp;1: Mặt phẳng chi phí-hiệu quả: chỉ hai chiến lược nằm trên đường biên. Độ dốc đường đứt (ICER của xét nghiệm nhanh so với thường quy) lớn hơn độ dốc đường biên.
+</figcaption>
+</figure>
+</div>
+<p>Tính NMB và NHB ở ngưỡng của khóa học; ba cách chọn (NMB, NHB, đường biên) phải cho cùng một chiến lược.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Net benefit at the course threshold (1 x GDP per capita): one number per strategy, pick the largest</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>nb_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">strategy =</span> res<span class="sc">$</span>strategy,</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">nmb_million =</span> res<span class="sc">$</span>nmb <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>                     <span class="at">nhb_qaly =</span> res<span class="sc">$</span>nhb)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>nb_tab[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(nb_tab[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">4</span>)</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>nb_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   strategy nmb_million nhb_qaly
+1     usual    831.5457   6.6259
+2       rdt    862.0483   6.8689
+3   rdt_ams    880.0776   7.0126
+4 cover_all    853.4427   6.8003</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>best_nmb <span class="ot">&lt;-</span> res<span class="sc">$</span>strategy[<span class="fu">which.max</span>(res<span class="sc">$</span>nmb)]</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>best_nhb <span class="ot">&lt;-</span> res<span class="sc">$</span>strategy[<span class="fu">which.max</span>(res<span class="sc">$</span>nhb)]</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Frontier rule: the frontier strategy with the largest ICER still below the threshold</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>fr_ok <span class="ot">&lt;-</span> fr[fr<span class="sc">$</span>status <span class="sc">==</span> <span class="st">"frontier"</span> <span class="sc">&amp;</span> (<span class="fu">is.na</span>(fr<span class="sc">$</span>icer) <span class="sc">|</span> fr<span class="sc">$</span>icer <span class="sc">&lt;=</span> p<span class="sc">$</span>wtp), ]</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>best_frontier <span class="ot">&lt;-</span> fr_ok<span class="sc">$</span>strategy[<span class="fu">nrow</span>(fr_ok)]</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">nmb =</span> best_nmb, <span class="at">nhb =</span> best_nhb, <span class="at">frontier =</span> best_frontier)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      nmb       nhb  frontier 
+"rdt_ams" "rdt_ams" "rdt_ams" </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(best_nmb <span class="sc">==</span> best_nhb, best_nmb <span class="sc">==</span> best_frontier, best_nmb <span class="sc">==</span> <span class="st">"rdt_ams"</span>)   <span class="co"># the prose names rapid test + AMS</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Tìm độ nhạy hiệu dụng mà dưới đó phủ CR cho mọi ca thôi bị lấn át tuyệt đối (QALY hai chiến lược bằng nhau).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># How good must the test be before cover-all stops being strongly dominated? Cover-all is</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># dominated by rapid test + AMS while its QALYs are lower; find the effective sensitivity</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co"># (cov_cr x sens_rdt) at which the two QALYs are equal</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>qaly_gap <span class="ot">&lt;-</span> <span class="cf">function</span>(se_eff) {</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  q <span class="ot">&lt;-</span> <span class="fu">modifyList</span>(p, <span class="fu">list</span>(<span class="at">cov_cr =</span> <span class="dv">1</span>, <span class="at">sens_rdt =</span> se_eff))</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  r <span class="ot">&lt;-</span> <span class="fu">run_tree</span>(q)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  r[<span class="st">"rdt_ams"</span>, <span class="st">"qaly"</span>] <span class="sc">-</span> r[<span class="st">"cover_all"</span>, <span class="st">"qaly"</span>]</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>se_cover_all <span class="ot">&lt;-</span> <span class="fu">uniroot</span>(qaly_gap, <span class="at">lower =</span> <span class="fl">0.3</span>, <span class="at">upper =</span> <span class="fl">0.999</span>, <span class="at">tol =</span> <span class="fl">1e-10</span>)<span class="sc">$</span>root</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">effective_sensitivity_base =</span> p<span class="sc">$</span>cov_cr <span class="sc">*</span> p<span class="sc">$</span>sens_rdt, <span class="at">threshold =</span> se_cover_all), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>effective_sensitivity_base                  threshold 
+                     0.950                      0.577 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(p<span class="sc">$</span>cov_cr <span class="sc">*</span> p<span class="sc">$</span>sens_rdt <span class="sc">&gt;</span> se_cover_all)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Mẹo thực hành">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mẹo thực hành
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Vẽ mặt phẳng chi phí-hiệu quả trước khi đọc bảng ICER: mắt phát hiện lấn át nhanh hơn bảng số.</li>
+<li>Trình bày bảng theo chi phí tăng dần, có cột “trạng thái” (trên đường biên, lấn át tuyệt đối, lấn át mở rộng).</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Lỗi thường gặp">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lỗi thường gặp
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>So mọi chiến lược với một chiến lược nền</strong> rồi chọn ICER thấp nhất. Cách phát hiện: chiến lược được chọn có nằm trên đường biên không?</li>
+<li><strong>Báo cáo ICER âm</strong> như một con số bình thường. Hàm tính ICER nên trả <code>NA</code> kèm nhãn “lấn át” khi <span class="math inline">\(\Delta C\)</span> và <span class="math inline">\(\Delta E\)</span> trái dấu.</li>
+<li><strong>Chọn ICER thấp nhất</strong> thay vì ICER lớn nhất mà vẫn dưới ngưỡng. ICER thấp chỉ cho biết đáng tiền, chưa cho biết tốt nhất.</li>
+<li><strong>Quên tính lại sau khi loại một chiến lược lấn át mở rộng</strong>: lặp đến khi ICER tăng đều.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="bài-tập" class="level2">
+<h2 class="anchored" data-anchor-id="bài-tập">Bài tập</h2>
+<p><strong>Bài 1 (dễ).</strong> Dựng đường biên với kết cục là số ca tử vong tránh được. Chi phí cho mỗi ca tránh được của xét nghiệm nhanh kèm AMS là bao nhiêu?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Trạng thái các chiến lược không đổi. ICER là 21.8 triệu VNĐ cho mỗi ca tránh được: dễ truyền đạt cho bác sĩ, nhưng không so được giữa các bệnh.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 1: frontier with deaths averted as the effect (cost per death averted)</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>fr_death <span class="ot">&lt;-</span> <span class="fu">efficiency_frontier</span>(res<span class="sc">$</span>strategy, res<span class="sc">$</span>cost, <span class="sc">-</span>res<span class="sc">$</span>death)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Same statuses as with QALYs (the prose says so)</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">identical</span>(fr_death<span class="sc">$</span>status[<span class="fu">match</span>(fr<span class="sc">$</span>strategy, fr_death<span class="sc">$</span>strategy)], fr<span class="sc">$</span>status))</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>fr_death<span class="sc">$</span>icer <span class="ot">&lt;-</span> <span class="fu">round</span>(fr_death<span class="sc">$</span>icer <span class="sc">/</span> <span class="fl">1e6</span>, <span class="dv">2</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>fr_death[, <span class="fu">c</span>(<span class="st">"strategy"</span>, <span class="st">"status"</span>, <span class="st">"icer"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   strategy        status  icer
+1     usual      frontier    NA
+2       rdt ext_dominated    NA
+3   rdt_ams      frontier 21.83
+4 cover_all     dominated    NA</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Bài 2 (trung bình).</strong> Giả sử bác sĩ hành động theo 90% kết quả dương tính ngay cả khi không có AMS. Xét nghiệm nhanh đơn thuần có còn bị lấn át mở rộng không?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Không. Xét nghiệm nhanh đơn thuần lên đường biên với ICER 1.33 triệu VNĐ/QALY so với thường quy; xét nghiệm nhanh kèm AMS có ICER 9.62 triệu so với xét nghiệm nhanh đơn thuần. Trạng thái lấn át phụ thuộc tham số, nên phải kiểm tra lại đường biên trong mọi phân tích độ nhạy.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 2: if clinicians acted on 90% of positive results without AMS support</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>q <span class="ot">&lt;-</span> p</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>q<span class="sc">$</span>act_no_ams <span class="ot">&lt;-</span> <span class="fl">0.90</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>res_q <span class="ot">&lt;-</span> <span class="fu">run_tree</span>(q)</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>fr_q <span class="ot">&lt;-</span> <span class="fu">efficiency_frontier</span>(res_q<span class="sc">$</span>strategy, res_q<span class="sc">$</span>cost, res_q<span class="sc">$</span>qaly)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="co"># With 90% action, rapid test alone is no longer extendedly dominated (the prose says so)</span></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(fr_q<span class="sc">$</span>status[fr_q<span class="sc">$</span>strategy <span class="sc">==</span> <span class="st">"rdt"</span>] <span class="sc">==</span> <span class="st">"frontier"</span>)</span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>fr_q<span class="sc">$</span>icer <span class="ot">&lt;-</span> <span class="fu">round</span>(fr_q<span class="sc">$</span>icer <span class="sc">/</span> <span class="fl">1e6</span>, <span class="dv">3</span>)</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>fr_q[, <span class="fu">c</span>(<span class="st">"strategy"</span>, <span class="st">"status"</span>, <span class="st">"icer"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   strategy    status  icer
+1     usual  frontier    NA
+2       rdt  frontier 1.326
+3   rdt_ams  frontier 9.621
+4 cover_all dominated    NA</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Bài 3 (khó).</strong> Lặp lại phân tích với DALY tránh được làm kết cục. Thứ hạng có đổi không? Vì sao ICER theo DALY thấp hơn theo QALY (gợi ý: Bài 2)?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Thứ hạng giữ nguyên. ICER là 1.14 triệu VNĐ/DALY tránh được, thấp hơn ICER theo QALY vì mẫu số lớn hơn: DALY của mô hình không trừ chất lượng sống sau ra viện (Bài 2).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 3: the same ranking with DALYs averted as the effect</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>fr_daly <span class="ot">&lt;-</span> <span class="fu">efficiency_frontier</span>(res<span class="sc">$</span>strategy, res<span class="sc">$</span>cost, <span class="sc">-</span>res<span class="sc">$</span>daly)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Same statuses as with QALYs (the prose says so), and a lower ICER per DALY than per QALY</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">identical</span>(fr_daly<span class="sc">$</span>status[<span class="fu">match</span>(fr<span class="sc">$</span>strategy, fr_daly<span class="sc">$</span>strategy)], fr<span class="sc">$</span>status),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>          fr_daly<span class="sc">$</span>icer[fr_daly<span class="sc">$</span>strategy <span class="sc">==</span> <span class="st">"rdt_ams"</span>] <span class="sc">&lt;</span> fr<span class="sc">$</span>icer[fr<span class="sc">$</span>strategy <span class="sc">==</span> <span class="st">"rdt_ams"</span>])</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>fr_daly<span class="sc">$</span>icer <span class="ot">&lt;-</span> <span class="fu">round</span>(fr_daly<span class="sc">$</span>icer <span class="sc">/</span> <span class="fl">1e6</span>, <span class="dv">3</span>)</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>fr_daly[, <span class="fu">c</span>(<span class="st">"strategy"</span>, <span class="st">"status"</span>, <span class="st">"icer"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   strategy        status  icer
+1     usual      frontier    NA
+2       rdt ext_dominated    NA
+3   rdt_ams      frontier 1.138
+4 cover_all     dominated    NA</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="tài-liệu-tham-khảo" class="level2">
+<h2 class="anchored" data-anchor-id="tài-liệu-tham-khảo">Tài liệu tham khảo</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-cuchi2024thau" class="csl-entry" role="listitem">
+Bệnh viện Đa khoa khu vực Củ Chi. 2024. <span>“Danh mục giá thầu thuốc bệnh viện 2024 (Lần 2)”</span>. 2024. <a href="https://bvdkkvcuchi.vn/wp-content/uploads/2024/12/DANH-MUC-THUOC-DANG-WEBSITE-BV-nam-2024-lan-2.pdf">https://bvdkkvcuchi.vn/wp-content/uploads/2024/12/DANH-MUC-THUOC-DANG-WEBSITE-BV-nam-2024-lan-2.pdf</a>.
+</div>
+<div id="ref-thainguyen2023thau" class="csl-entry" role="listitem">
+Bệnh viện Trung ương Thái Nguyên. 2023. <span>“Danh mục thuốc trúng thầu tại Bệnh viện Trung ương Thái Nguyên (áp dụng từ ngày 17/10/2023 theo Quyết định số 1580/<span>QĐ-BVTWTN</span>)”</span>. 17 Tháng Mười 2023. <a href="https://bvdktuthainguyen.gov.vn/uploads/media/tai%20lieu/danh%20muc%20thuoc/thuoc%202022-2023/DM%20thu%E1%BB%91c%20tr%C3%BAng%20th%E1%BA%A7u%202023%20BVTW%20TN%20(1).xlsx">https://bvdktuthainguyen.gov.vn/uploads/media/tai%20lieu/danh%20muc%20thuoc/thuoc%202022-2023/DM%20thu%E1%BB%91c%20tr%C3%BAng%20th%E1%BA%A7u%202023%20BVTW%20TN%20(1).xlsx</a>.
+</div>
+<div id="ref-cantor1994costeffectiveness" class="csl-entry" role="listitem">
+Cantor, S B. 1994. <span>“Cost-effectiveness analysis, extended dominance, and ethics: a quantitative assessment”</span>. <em>Medical decision making : an international journal of the Society for Medical Decision Making</em> 14 (3): 259–65. <a href="https://doi.org/10.1177/0272989X9401400308">https://doi.org/10.1177/0272989X9401400308</a>.
+</div>
+<div id="ref-chinhphu2025nd293" class="csl-entry" role="listitem">
+Chính phủ. 2025. <span>“Nghị định 293/2025/<span>NĐ-CP</span> quy định mức lương tối thiểu đối với người lao động làm việc theo hợp đồng lao động (hiệu lực từ 1/1/2026)”</span>. 2025. <a href="https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026">https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026</a>.
+</div>
+<div id="ref-paulden2020calculating" class="csl-entry" role="listitem">
+Paulden, Mike. 2020. <span>“Calculating and Interpreting ICERs and Net Benefit”</span>. <em>PharmacoEconomics</em> 38 (8): 785–807. <a href="https://doi.org/10.1007/s40273-020-00914-6">https://doi.org/10.1007/s40273-020-00914-6</a>.
+</div>
+<div id="ref-stinnett1998net" class="csl-entry" role="listitem">
+Stinnett, A A, và J Mullahy. 1998. <span>“Net health benefits: a new framework for the analysis of uncertainty in cost-effectiveness analysis”</span>. <em>Medical decision making : an international journal of the Society for Medical Decision Making</em> 18 (2 Suppl): S68–80. <a href="https://doi.org/10.1177/0272989X98018002S09">https://doi.org/10.1177/0272989X98018002S09</a>.
+</div>
+<div id="ref-timbrook2017effect" class="csl-entry" role="listitem">
+Timbrook, Tristan T, Jacob B Morton, Kevin W McConeghy, Aisling R Caffrey, Eleftherios Mylonakis, và Kerry L LaPlante. 2017. <span>“The Effect of Molecular Rapid Diagnostic Testing on Clinical Outcomes in Bloodstream Infections: A Systematic Review and Meta-analysis”</span>. <em>Clinical infectious diseases : an official publication of the Infectious Diseases Society of America</em> 64 (1): 15–23. <a href="https://doi.org/10.1093/cid/ciw649">https://doi.org/10.1093/cid/ciw649</a>.
+</div>
+<div id="ref-weinstein1977foundations" class="csl-entry" role="listitem">
+Weinstein, M C, và W B Stason. 1977. <span>“Foundations of cost-effectiveness analysis for health and medical practices”</span>. <em>The New England journal of medicine</em> 296 (13): 716–21. <a href="https://doi.org/10.1056/NEJM197703312961304">https://doi.org/10.1056/NEJM197703312961304</a>.
+</div>
+</div>
+<div class="video-script">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Kịch bản video (~14 phút)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Slide</th>
+<th>Lời giảng chính</th>
+<th>Hình/Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Từ hai đến nhiều chiến lược</td>
+<td>Hội đồng thuốc và điều trị: colistin, ceftazidim/avibactam, xét nghiệm nhanh; hiếm khi chỉ có “mới” và “cũ”</td>
+<td>Hộp “Vì sao bạn nên quan tâm?”</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>ICER</td>
+<td>ΔC/ΔE; độ dốc; chỉ dùng ở góc Đông Bắc và Tây Nam</td>
+<td>Công thức</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Mặt phẳng chi phí-hiệu quả</td>
+<td>Bốn góc phần tư; lấn át tuyệt đối</td>
+<td>Bảng góc phần tư</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Cái bẫy</td>
+<td>Ba ICER so với thường quy đều “dưới ngưỡng”</td>
+<td>Chunk <code>l03-pairwise</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Lấn át tuyệt đối</td>
+<td>Phủ CR cho mọi ca: đắt hơn và ít QALY hơn</td>
+<td>Chunk <code>l03-frontier</code></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Lấn át mở rộng</td>
+<td>Phối hợp hai chiến lược lân cận rẻ hơn ở cùng QALY</td>
+<td>Chunk <code>l03-extended-mix</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Đường biên hiệu quả</td>
+<td>Bốn bước; ICER tăng dần; vẽ hình</td>
+<td><code>figs/l03-frontier.png</code></td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Ví dụ phương pháp, không phải khuyến nghị</td>
+<td>Kết luận phụ thuộc xác suất bác sĩ hành động và độ nhạy; công bằng khi phối hợp</td>
+<td>Chunk <code>l03-cover-all</code></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>NMB và NHB</td>
+<td>Một con số cho mỗi chiến lược; chọn lớn nhất</td>
+<td>Chunk <code>l03-nmb</code></td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Lỗi thường gặp</td>
+<td>ICER âm; chọn ICER thấp nhất; quên tính lại</td>
+<td>Hộp lỗi thường gặp</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="pagination-link" aria-label="Bài 2: Năm sống, QALY và DALY">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="pagination-link" aria-label="Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam">
+        <span class="nav-page-text"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

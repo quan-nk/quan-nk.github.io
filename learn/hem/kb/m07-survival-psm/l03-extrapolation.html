@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="vi" xml:lang="vi"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bài 3: Ngoại suy sống còn – Mô hình Kinh tế Y tế với R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" rel="next">
+<link href="../../kb/m07-survival-psm/l02-parametric-models.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-9e7f0c659d5fa2cace8548cb57964278.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c18d72663580ed8ca19ce2a2f99af51b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m07-survival-psm/index.html">M07 · Phân tích sống còn cho mô hình quyết định</a></li><li class="breadcrumb-item"><a href="../../kb/m07-survival-psm/l03-extrapolation.html"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Mô hình Kinh tế Y tế với R</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lời mở đầu</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m00-r-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M00 · R cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l01-reproducible-workflow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Quy trình làm việc tái lập với R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m01-ee-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M01 · Nền tảng đánh giá kinh tế và cây quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l01-evaluation-types.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại đánh giá kinh tế, quan điểm, khung thời gian và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l03-decision-rules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l05-decision-tree.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Xây cây quyết định từ đầu trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m02-cohort-markov/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M02 · Mô hình chuyển trạng thái đoàn hệ (Markov)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l01-state-transition.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao cần mô hình chuyển trạng thái</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l02-rates-probabilities.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tỷ suất, xác suất và độ dài chu kỳ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l03-cohort-trace.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vết đoàn hệ, giá trị gắn với trạng thái và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l04-time-dependence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Phụ thuộc thời gian: lão hóa, trạng thái đường hầm và mảng 3 chiều</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l05-results-verification.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị gắn với lần chuyển, đường biên hiệu quả và xác minh mô hình</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m03-uncertainty-voi/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M03 · Bất định, phân tích độ nhạy và giá trị thông tin</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l01-deterministic-sa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại bất định và phân tích độ nhạy tất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l02-distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Chọn phân phối cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l03-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích độ nhạy xác suất (PSA) trong R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l04-ceac-reporting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: CEAC, CEAF, tổn thất kỳ vọng và cách báo cáo bất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l05-voi.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị thông tin: EVPI, EVPPI và EVSI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m04-microsimulation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M04 · Mô phỏng vi mô (microsimulation)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l01-why-microsimulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Khi mô hình đoàn hệ không đủ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l02-microsim-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô phỏng vi mô bằng vòng lặp trong R cơ bản</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l03-vectorisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vectơ hóa theo cá thể và đo hiệu năng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l04-parallel-rcpp.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tính toán song song và Rcpp cho vòng lặp nóng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l05-mc-error-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bao nhiêu cá thể là đủ? Sai số Monte Carlo, PSA và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m05-dynamic-transmission/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M05 · Mô hình lây truyền động</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l01-static-vs-dynamic.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Mô hình tĩnh và mô hình lây truyền động</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l02-sir-seir-desolve.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình SIR và SEIR trong R với deSolve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m06-amr-economics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M06 · Kinh tế học kháng kháng sinh (AMR)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l01-amr-burden.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Kinh tế học kháng kháng sinh: ngoại ứng, gánh nặng và kịch bản phản thực</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l03-ward-transmission.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m07-survival-psm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M07 · Phân tích sống còn cho mô hình quyết định</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l03-extrapolation.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l05-partitioned-survival.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m08-calibration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M08 · Hiệu chuẩn mô hình (calibration)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l01-why-calibrate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao phải hiệu chuẩn mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l02-search-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tìm kiếm tham số: ngẫu nhiên, siêu khối Latin và Nelder–Mead</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l03-bayes-sir.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hiệu chuẩn Bayes và thuật toán SIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l04-psa-validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đưa kết quả hiệu chuẩn vào PSA, thẩm định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m09-inputs-vietnam/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M09 · Dữ liệu đầu vào cho Việt Nam và LMIC</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l01-costing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ước tính chi phí cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l02-cost-adjustment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Điều chỉnh chi phí về một năm tham chiếu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l03-outcome-inputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Đầu vào về kết cục sức khỏe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l04-evidence-synthesis.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tổng hợp bằng chứng cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l05-decision-context.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bối cảnh ra quyết định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m10-policy-bia-equity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l04-communicating-hta.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Truyền đạt kết quả cho người ra quyết định và quy trình HTA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m11-software-engineering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l01-code-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Cấu trúc mã cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l02-testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Xác minh và kiểm thử mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l03-version-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l04-r-package.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/glossary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Trong bài</h2>
+   
+  <ul class="collapse">
+  <li><a href="#mục-tiêu-học-tập" id="toc-mục-tiêu-học-tập" class="nav-link active" data-scroll-target="#mục-tiêu-học-tập">Mục tiêu học tập</a></li>
+  <li><a href="#ý-chính" id="toc-ý-chính" class="nav-link" data-scroll-target="#ý-chính">Ý chính</a></li>
+  <li><a href="#nội-dung" id="toc-nội-dung" class="nav-link" data-scroll-target="#nội-dung">Nội dung</a></li>
+  <li><a href="#thực-hành" id="toc-thực-hành" class="nav-link" data-scroll-target="#thực-hành">Thực hành</a></li>
+  <li><a href="#bài-tập" id="toc-bài-tập" class="nav-link" data-scroll-target="#bài-tập">Bài tập</a></li>
+  <li><a href="#tài-liệu-tham-khảo" id="toc-tài-liệu-tham-khảo" class="nav-link" data-scroll-target="#tài-liệu-tham-khảo">Tài liệu tham khảo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m07-survival-psm/index.html">M07 · Phân tích sống còn cho mô hình quyết định</a></li><li class="breadcrumb-item"><a href="../../kb/m07-survival-psm/l03-extrapolation.html"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></h1>
+<p class="subtitle lead">Thêm tử vong nền, dùng spline và mô hình khỏi bệnh, rồi kiểm tra ngoại suy với đường cong thật</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-important callout-titled" title="Vì sao bạn nên quan tâm?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Vì sao bạn nên quan tâm?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Một người bệnh 35 tuổi ở An Giang vừa hoàn thành 6 tháng điều trị lao và tiếp tục uống ARV ở phòng khám ngoại trú. Theo bảng sống WHO 2023, một người Việt Nam 35 tuổi còn trung bình 41.9 năm để sống <span class="citation" data-cites="who2026lifetables">(<a href="../m00-r-foundations/index.html#ref-who2026lifetables" role="doc-biblioref">World Health Organization 2026</a>)</span>; người đang điều trị ARV có tỷ suất tử vong cao hơn khoảng 2.2 lần, nên còn khoảng 34.0 năm. Thử nghiệm chỉ theo dõi 36 tháng, vậy mà với mô hình log-chuẩn có tử vong nền, 89% số năm sống của nhánh chăm sóc chuẩn nằm sau mốc đó. Mỗi năm ARV chỉ tốn khoảng 800,000 VNĐ tiền thuốc <span class="citation" data-cites="globalfund2026ppmarv">(<a href="../m00-r-foundations/index.html#ref-globalfund2026ppmarv" role="doc-biblioref">The Global Fund 2026</a>)</span>, nhưng nhân với 18 năm sống nằm ngoài dữ liệu thì riêng tiền thuốc đã khoảng 15,000,000 VNĐ mỗi người (chưa chiết khấu), bằng khoảng 3 tháng lương tối thiểu vùng I <span class="citation" data-cites="chinhphu2025nd293">(<a href="../m00-r-foundations/index.html#ref-chinhphu2025nd293" role="doc-biblioref">Chính phủ 2025</a>)</span>. Bài này giúp bạn chọn cách ngoại suy và kiểm tra nó với bảng sống và dữ liệu ngoài.</p>
+</div>
+</div>
+<section id="mục-tiêu-học-tập" class="level2">
+<h2 class="anchored" data-anchor-id="mục-tiêu-học-tập">Mục tiêu học tập</h2>
+<p>Sau bài này, bạn có thể:</p>
+<ol type="1">
+<li>Kết hợp đường cong đã khớp với tử vong nền từ bảng sống và tỷ số tử vong chuẩn hóa (SMR).</li>
+<li>Khớp spline Royston–Parmar, và mô hình khỏi bệnh có tử vong nền bằng <code>optim()</code>.</li>
+<li>Đánh giá ngoại suy bằng dữ liệu ngoài.</li>
+<li>Tách sai số mẫu khỏi sai số cấu trúc khi so với đường cong thật.</li>
+</ol>
+</section>
+<section id="ý-chính" class="level2">
+<h2 class="anchored" data-anchor-id="ý-chính">Ý chính</h2>
+<ul>
+<li>Phần lớn năm sống nằm <strong>sau</strong> thời gian theo dõi, nên ngoại suy là quyết định mô hình hóa quan trọng nhất.</li>
+<li>Nguy cơ của đoàn hệ không được thấp hơn tử vong nền: mỗi tháng lấy max(nguy cơ mô hình, nguy cơ nền × SMR).</li>
+<li>Spline Royston–Parmar ngoại suy như Weibull sau nút cuối. Mô hình khỏi bệnh hợp với nguy cơ cao lúc đầu rồi về mức nền, nhưng tỷ lệ khỏi bệnh khó ước lượng.</li>
+<li>Một thử nghiệm là một lần rút mẫu: chênh lệch với đường cong thật gồm sai số mẫu cộng sai số cấu trúc.</li>
+<li>Không phương pháp nào luôn đúng: dùng dữ liệu ngoài và chuyên gia để loại ngoại suy phi lý.</li>
+</ul>
+</section>
+<section id="nội-dung" class="level2">
+<h2 class="anchored" data-anchor-id="nội-dung">Nội dung</h2>
+<section id="ngoại-suy-quyết-định-kết-quả" class="level3">
+<h3 class="anchored" data-anchor-id="ngoại-suy-quyết-định-kết-quả">Ngoại suy quyết định kết quả</h3>
+<p>Với log-chuẩn có tử vong nền, 89% thời gian sống trung bình giới hạn (RMST) của nhánh chăm sóc chuẩn nằm sau tháng 36, tức ngoài dữ liệu. Vì dữ liệu là mô phỏng, ta có thứ thực tế không bao giờ có: <strong>đường cong thật</strong>, tính từ một đoàn hệ mô phỏng lớn không bị kiểm duyệt. Nó cho thấy ngay rằng thử nghiệm 300 người mỗi nhánh có sai số mẫu trước khi ta khớp mô hình nào: ở tháng 33, KM là 0.687, thấp hơn giá trị thật 0.706, và KTC 95% chứa giá trị thật ở các mốc kiểm tra.</p>
+</section>
+<section id="tử-vong-nền-và-smr" class="level3">
+<h3 class="anchored" data-anchor-id="tử-vong-nền-và-smr">Tử vong nền và SMR</h3>
+<p>Gọi <span class="math inline">\(\mu(a)\)</span> là tỷ suất tử vong năm ở tuổi <span class="math inline">\(a\)</span> và <span class="math inline">\(a_0\)</span> = 35 là tuổi khởi đầu. <span class="math inline">\(\mu(a)\)</span> lấy từ bảng sống WHO 2023 của Việt Nam, hai giới, dùng chung cho cả khóa học <span class="citation" data-cites="who2026lifetables">(<a href="../m00-r-foundations/index.html#ref-who2026lifetables" role="doc-biblioref">World Health Organization 2026</a>)</span>. Trên lưới tháng của mô hình, bảng này cho người 35 tuổi kỳ vọng sống còn lại 41.8 năm (bảng WHO: 41.9 năm; mô hình dừng ở 95 tuổi). Người bắt đầu điều trị ARV (ART) ở nước thu nhập thấp-trung bình vẫn có tuổi thọ thấp hơn người không nhiễm HIV cùng tuổi và giới <span class="citation" data-cites="johnson2013life">(<a href="../m00-r-foundations/index.html#ref-johnson2013life" role="doc-biblioref">Johnson và c.s. 2013</a>)</span>, nên cần tỷ số tử vong chuẩn hóa (SMR). Trong đoàn hệ TREAT Asia, có cơ sở ở Hà Nội, người đã điều trị ARV trên 5 năm tử vong 0.56 trên 100 người-năm <span class="citation" data-cites="bijker2020survival">(<a href="../m00-r-foundations/index.html#ref-bijker2020survival" role="doc-biblioref">Bijker và c.s. 2020</a>)</span>; chia cho tỷ suất tử vong chung của Việt Nam ở tuổi 40 cho SMR ≈ 2.2. Với SMR = 2.2, kỳ vọng sống còn lại giảm xuống 34.0 năm. Hai cách kết hợp:</p>
+<ul>
+<li><strong>Sàn nguy cơ</strong> (dùng trong bài): với <span class="math inline">\(t\)</span> tính bằng tháng, <span class="math inline">\(h(t) = \max\{h_{\text{mô hình}}(t),\ \text{SMR}\cdot\mu(a_0 + t/12)/12\}\)</span>. Mô hình khớp trên tử vong mọi nguyên nhân đã chứa tử vong nền trong thời gian theo dõi, nên lấy max để không đếm hai lần.</li>
+<li><strong>Sống còn tương đối</strong> (relative survival): <span class="math inline">\(S(t) = S^*(t)\cdot R(t)\)</span>, cần nguy cơ nền của từng người khi khớp <span class="citation" data-cites="lambert2007estimating">(<a href="../m00-r-foundations/index.html#ref-lambert2007estimating" role="doc-biblioref">Lambert và c.s. 2007</a>)</span>.</li>
+</ul>
+<p>Nguy cơ của Weibull rơi xuống dưới mức nền sau khoảng 25 năm, của log-chuẩn sau khoảng 17 năm. Sàn nguy cơ đưa RMST của log-chuẩn từ 28.0 xuống 20.0 năm. SMR của mô hình ở đây bằng SMR thật của mô phỏng, trên cùng bảng sống, nên các mô hình có nền được lợi thế (Bài tập 1 đổi SMR).</p>
+</section>
+<section id="spline-roystonparmar" class="level3">
+<h3 class="anchored" data-anchor-id="spline-roystonparmar">Spline Royston–Parmar</h3>
+<p>Mô hình này coi log nguy cơ tích lũy là spline bậc ba tự nhiên của log thời gian, <span class="math inline">\(\log H(t) = s(\log t;\gamma)\)</span> với <span class="math inline">\(k\)</span> nút bên trong <span class="citation" data-cites="royston2002flexible">(<a href="../m00-r-foundations/index.html#ref-royston2002flexible" role="doc-biblioref">Royston và Parmar 2002</a>)</span>. Với <span class="math inline">\(k = 0\)</span> nó là Weibull. Spline tự nhiên tuyến tính ở hai đầu, nên sau nút ngoài cùng phần ngoại suy lại là một Weibull <span class="citation" data-cites="latimer2022extrapolation">(<a href="../m00-r-foundations/index.html#ref-latimer2022extrapolation" role="doc-biblioref">Latimer và Adler 2022</a>)</span>. AIC của mô hình 1, 2, 3 nút là 882.4, 884.2, 886.1, không tốt hơn log-chuẩn (880.5). Spline hữu ích khi nguy cơ có hình dạng phức tạp <span class="citation" data-cites="rutherford2020flexible">(<a href="../m00-r-foundations/index.html#ref-rutherford2020flexible" role="doc-biblioref">Rutherford và c.s. 2020</a>)</span>.</p>
+</section>
+<section id="mô-hình-hỗn-hợp-khỏi-bệnh" class="level3">
+<h3 class="anchored" data-anchor-id="mô-hình-hỗn-hợp-khỏi-bệnh">Mô hình hỗn hợp khỏi bệnh</h3>
+<p>Trong dữ liệu mô phỏng, tử vong dồn vào những tháng đầu; người qua được giai đoạn đó có nguy cơ gần mức nền. Mô hình hỗn hợp khỏi bệnh (mixture cure model) mô tả đúng ý này <span class="citation" data-cites="othus2012cure lambert2007estimating">(<a href="../m00-r-foundations/index.html#ref-othus2012cure" role="doc-biblioref">Othus và c.s. 2012</a>; <a href="../m00-r-foundations/index.html#ref-lambert2007estimating" role="doc-biblioref">Lambert và c.s. 2007</a>)</span>:</p>
+<p><span class="math display">\[
+S(t) = S^*(t)\,\big[\pi + (1-\pi)\,S_u(t)\big],
+\]</span></p>
+<p>với <span class="math inline">\(\pi\)</span> là tỷ lệ khỏi bệnh (cure fraction), <span class="math inline">\(S^*\)</span> là sống còn nền (bảng sống × SMR), <span class="math inline">\(S_u\)</span> là sống còn Weibull của nhóm chưa khỏi. Người <span class="math inline">\(i\)</span> đóng góp <span class="math inline">\(d_i \log\{h^*_i + h_r(t_i)\} + \log R(t_i) - H^*_i\)</span> vào log hàm hợp lý, với <span class="math inline">\(R = \pi + (1-\pi)S_u\)</span>, <span class="math inline">\(h_r = -\tfrac{d}{dt}\log R\)</span> và <span class="math inline">\(H^*_i\)</span> là nguy cơ nền tích lũy trong thời gian theo dõi. <span class="math inline">\(H^*_i\)</span> không chứa tham số nên <code>optim()</code> bỏ qua được, nhưng phải cộng lại khi báo cáo log-likelihood và AIC; thiếu nó, AIC không so được với AIC của <code>flexsurv</code>.</p>
+<p>Tỷ lệ khỏi bệnh ước lượng là 0.63 (KTC 95%: 0.51–0.74); nhóm nguy cơ thấp thật chiếm 72%, nằm trong khoảng này. AIC đầy đủ của mô hình khỏi bệnh là 883.8 so với 880.5 của log-chuẩn, tức không tốt hơn. Bỏ tử vong nền thì đường cong đi ngang mãi, RMST lên tới 37.7 năm.</p>
+</section>
+<section id="so-với-đường-cong-thật-và-với-dữ-liệu-ngoài" class="level3">
+<h3 class="anchored" data-anchor-id="so-với-đường-cong-thật-và-với-dữ-liệu-ngoài">So với đường cong thật và với dữ liệu ngoài</h3>
+<p>RMST thật (cùng giới hạn 60 năm) là 20.9 năm. Ở thử nghiệm này, gần nhất là “Gamma tổng quát + nền”; Weibull có nền thấp hơn thật 3.5 năm, mô hình khỏi bệnh có nền cao hơn thật 1.2 năm, còn hai mô hình bỏ qua tử vong nền sai nhiều nhất.</p>
+<p>Đó mới là một lần rút mẫu. Lặp lại trên 100 thử nghiệm mới, sai số trung bình (phần cấu trúc) là -2.5 năm với Weibull, 0.0 với log-chuẩn, -0.6 với spline và 1.3 với mô hình khỏi bệnh (đều có nền). Sai số từng thử nghiệm thì rộng: log-chuẩn từ -4.1 tới 2.7 năm, tỷ lệ khỏi bệnh ước lượng từ 0.01 tới 0.75 (thật 0.72). Thứ hạng ở một thử nghiệm vì vậy phụ thuộc cả cơ chế sinh dữ liệu lẫn mẫu ngẫu nhiên; bài học là quy trình, không phải một phân phối “luôn đúng”.</p>
+<p>Thực tế chỉ có <strong>dữ liệu ngoài</strong>. Một phân tích gộp ước tính người bắt đầu ART ở tuổi 35 tại các nước thu nhập thấp-trung bình sống thêm 25.6 (KTC 95%: 22.1–29.2) năm <span class="citation" data-cites="teeraananchai2017life">(<a href="../m00-r-foundations/index.html#ref-teeraananchai2017life" role="doc-biblioref">Teeraananchai và c.s. 2017</a>)</span>. Tuổi khởi đầu trùng với đoàn hệ của module, nhưng quần thể đó nhẹ hơn (không phải ai cũng mắc lao hay có CD4 thấp), nên chỉ là mức trần thô; RMST bị cắt ở 60 năm còn làm phép kiểm dễ qua hơn. Chỉ “Khỏi bệnh, bỏ qua nền” vượt cận trên. “Log-chuẩn, bỏ qua nền” sai 7.1 năm so với đường cong thật mà vẫn thấp hơn cận trên 1.2 năm: một mức trần chỉ loại được những ngoại suy phi lý nhất. <span class="citation" data-cites="jackson2017extrapolating">Jackson và c.s. (<a href="../m00-r-foundations/index.html#ref-jackson2017extrapolating" role="doc-biblioref">2017</a>)</span> tổng quan cách đưa dữ liệu ngoài vào ngoại suy. Quy trình gọn <span class="citation" data-cites="latimer2013survival latimer2022extrapolation">(<a href="../m00-r-foundations/index.html#ref-latimer2013survival" role="doc-biblioref">Latimer 2013</a>; <a href="../m00-r-foundations/index.html#ref-latimer2022extrapolation" role="doc-biblioref">Latimer và Adler 2022</a>)</span>: khớp nhiều mô hình; thêm tử vong nền có SMR; so với dữ liệu ngoài và ý kiến chuyên gia về tỷ lệ sống ở 5, 10, 20 năm; chọn phân tích cơ sở và giữ các mô hình hợp lý khác cho kịch bản.</p>
+</section>
+</section>
+<section id="thực-hành" class="level2">
+<h2 class="anchored" data-anchor-id="thực-hành">Thực hành</h2>
+<p>Nạp hàm, tham số, thử nghiệm và khớp bốn phân phối của Bài 2 cho nhánh chuẩn, khung 720 tháng.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">isTRUE</span>(<span class="fu">l10n_info</span>()[[<span class="st">"UTF-8"</span>]])) <span class="fu">invisible</span>(<span class="fu">Sys.setlocale</span>(<span class="st">"LC_CTYPE"</span>, <span class="st">"en_US.UTF-8"</span>))</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/helpers.R"</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/vn_data.R"</span>)   <span class="co"># course-wide context, unit prices and life table</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>({</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(survival)</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">library</span>(flexsurv)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>ps <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/sim_truth.csv"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>pm <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/model_inputs.csv"</span>)</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>cfg <span class="ot">&lt;-</span> <span class="fu">read_params</span>(<span class="st">"params/lesson_settings.csv"</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>ctx <span class="ot">&lt;-</span> <span class="fu">vn_context</span>()               <span class="co"># course-wide: discount rate, threshold, exchange rate, wages</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>pr <span class="ot">&lt;-</span> <span class="fu">vn_prices</span>()                 <span class="co"># course-wide unit prices (BHYT fees, tests, ART, bed-days)</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>inp <span class="ot">&lt;-</span> <span class="fu">build_inputs</span>(pm, ctx, pr)  <span class="co"># decision-model inputs: module values + shared values and prices</span></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>lt <span class="ot">&lt;-</span> <span class="fu">vn_lifetable</span>(<span class="st">"both"</span>)        <span class="co"># WHO life table, Viet Nam 2023, both sexes</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>trial <span class="ot">&lt;-</span> <span class="fu">simulate_trial</span>(ps, lt, <span class="at">seed =</span> SEED_TRIAL)</span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>d_soc <span class="ot">&lt;-</span> <span class="fu">endpoint_data</span>(trial, <span class="st">"os"</span>, <span class="st">"soc"</span>)</span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>n_months <span class="ot">&lt;-</span> pm<span class="sc">$</span>horizon_years <span class="sc">*</span> <span class="dv">12</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>months <span class="ot">&lt;-</span> <span class="dv">0</span><span class="sc">:</span>n_months</span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>fits <span class="ot">&lt;-</span> <span class="fu">fit_dists</span>(d_soc, <span class="fu">c</span>(<span class="st">"weibull"</span>, <span class="st">"llogis"</span>, <span class="st">"lnorm"</span>, <span class="st">"gengamma"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>So KM với đường cong thật ở ba mốc; <code>truth_in_ci</code> cho biết giá trị thật có nằm trong KTC 95% của KM không.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The simulation lets us compute the TRUE survival curve of standard care: a very large</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="co"># uncensored cohort with the trial's age mix. Compare the Kaplan-Meier curve of our one</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 300-person trial with it: the gap is sampling error, before any model is fitted.</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>truth <span class="ot">&lt;-</span> <span class="fu">true_curves</span>(ps, lt, n_months, <span class="at">seed =</span> SEED_TRUTH)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>S_true <span class="ot">&lt;-</span> truth<span class="sc">$</span>os[truth<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"soc"</span>]</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>km_soc <span class="ot">&lt;-</span> <span class="fu">km_by_hand</span>(d_soc<span class="sc">$</span>time, d_soc<span class="sc">$</span>status)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>check_months <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">12</span>, <span class="dv">24</span>, ps<span class="sc">$</span>study_months <span class="sc">-</span> <span class="dv">3</span>)    <span class="co"># month 33 still has enough people at risk</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>sf_soc <span class="ot">&lt;-</span> <span class="fu">summary</span>(<span class="fu">survfit</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d_soc), <span class="at">times =</span> check_months)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>km_vs_truth <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">month =</span> check_months, <span class="at">n_risk =</span> sf_soc<span class="sc">$</span>n.risk, <span class="at">KM =</span> sf_soc<span class="sc">$</span>surv,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                          <span class="at">lower =</span> sf_soc<span class="sc">$</span>lower, <span class="at">upper =</span> sf_soc<span class="sc">$</span>upper, <span class="at">truth =</span> S_true[check_months <span class="sc">+</span> <span class="dv">1</span>])</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>km_vs_truth<span class="sc">$</span>gap <span class="ot">&lt;-</span> km_vs_truth<span class="sc">$</span>KM <span class="sc">-</span> km_vs_truth<span class="sc">$</span>truth</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>km_vs_truth<span class="sc">$</span>truth_in_ci <span class="ot">&lt;-</span> km_vs_truth<span class="sc">$</span>truth <span class="sc">&gt;=</span> km_vs_truth<span class="sc">$</span>lower <span class="sc">&amp;</span> km_vs_truth<span class="sc">$</span>truth <span class="sc">&lt;=</span> km_vs_truth<span class="sc">$</span>upper</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(km_vs_truth, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  month n_risk    KM lower upper truth    gap truth_in_ci
+1    12    227 0.766 0.719 0.815 0.782 -0.016           1
+2    24    204 0.714 0.665 0.768 0.731 -0.017           1
+3    33     51 0.687 0.633 0.745 0.706 -0.019           1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: my KM at these months equals the hand-written one</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">abs</span>(km_vs_truth<span class="sc">$</span>KM <span class="sc">-</span> <span class="fu">km_at</span>(km_soc, check_months)) <span class="sc">&lt;</span> <span class="fl">1e-12</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Kiểm tra bảng sống dùng chung (hàm bậc thang của module trùng <code>vn_mx()</code>), tính lại SMR từ tỷ suất tử vong đã công bố, so kỳ vọng sống trên lưới tháng với cột <code>ex</code> của WHO, rồi tính nguy cơ nền mỗi tháng và năm mà nguy cơ mô hình rơi dưới mức nền.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Background mortality = the WHO life table for Viet Nam (2023, both sexes). Check that the</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># model's step function gives exactly the shared vn_mx() rates at every adult age</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">abs</span>(<span class="fu">mx_at</span>(<span class="dv">18</span><span class="sc">:</span><span class="dv">100</span>, lt) <span class="sc">-</span> <span class="fu">vn_mx</span>(<span class="dv">18</span><span class="sc">:</span><span class="dv">100</span>)) <span class="sc">&lt;</span> <span class="fl">1e-12</span>))</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="co"># SMR: published death rate after 5 years on ART (Asian cohort) / Vietnamese rate at that age</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>smr_derived <span class="ot">&lt;-</span> <span class="fu">smr_from_rate</span>(pm<span class="sc">$</span>mort_lt_art, pm<span class="sc">$</span>age_cohort <span class="sc">+</span> pm<span class="sc">$</span>smr_ref_years, lt)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">mx_ref_age =</span> <span class="fu">mx_at</span>(pm<span class="sc">$</span>age_cohort <span class="sc">+</span> pm<span class="sc">$</span>smr_ref_years, lt), <span class="at">smr_derived =</span> smr_derived, <span class="at">smr_csv =</span> pm<span class="sc">$</span>smr_bg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> mx_ref_age smr_derived     smr_csv 
+0.002590167 2.162022758 2.200000000 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(smr_derived <span class="sc">-</span> pm<span class="sc">$</span>smr_bg) <span class="sc">&lt;</span> <span class="fl">0.1</span>, pm<span class="sc">$</span>smr_bg <span class="sc">==</span> ps<span class="sc">$</span>smr_true)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Background hazard for the model cohort (age_cohort at entry), general population x SMR</span></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>h_pop <span class="ot">&lt;-</span> <span class="fu">bg_hazard_monthly</span>(pm<span class="sc">$</span>age_cohort, n_months, lt, <span class="at">smr =</span> <span class="dv">1</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>h_bg <span class="ot">&lt;-</span> <span class="fu">bg_hazard_monthly</span>(pm<span class="sc">$</span>age_cohort, n_months, lt, <span class="at">smr =</span> pm<span class="sc">$</span>smr_bg)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>S_bg <span class="ot">&lt;-</span> <span class="fu">bg_surv</span>(pm<span class="sc">$</span>age_cohort, n_months, lt, <span class="at">smr =</span> pm<span class="sc">$</span>smr_bg)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>le_pop <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, <span class="fu">bg_surv</span>(pm<span class="sc">$</span>age_cohort, n_months, lt, <span class="dv">1</span>)) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>le_bg <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, S_bg) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">life_expectancy_population =</span> le_pop, <span class="at">who_ex_at_age =</span> lt<span class="sc">$</span>ex[lt<span class="sc">$</span>age <span class="sc">==</span> pm<span class="sc">$</span>age_cohort], <span class="at">life_expectancy_smr =</span> le_bg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>life_expectancy_population              who_ex_at_age 
+                  41.76014                   41.90334 
+       life_expectancy_smr 
+                  34.00609 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: without SMR the model grid reproduces the WHO remaining life expectancy at that age</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (within a year; the horizon stops at age_cohort + horizon_years)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(pm<span class="sc">$</span>age_cohort <span class="sc">%in%</span> lt<span class="sc">$</span>age, <span class="fu">abs</span>(le_pop <span class="sc">-</span> lt<span class="sc">$</span>ex[lt<span class="sc">$</span>age <span class="sc">==</span> pm<span class="sc">$</span>age_cohort]) <span class="sc">&lt;</span> <span class="dv">1</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Monthly hazards of two fits against the background: where do they cross?</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>mid <span class="ot">&lt;-</span> months[<span class="sc">-</span><span class="dv">1</span>] <span class="sc">-</span> <span class="fl">0.5</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>hz_cmp <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">year =</span> mid <span class="sc">/</span> <span class="dv">12</span>, <span class="at">hazard =</span> <span class="fu">fit_curve</span>(fits<span class="sc">$</span>weibull, mid, <span class="st">"hazard"</span>), <span class="at">curve =</span> <span class="st">"Weibull"</span>),</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">year =</span> mid <span class="sc">/</span> <span class="dv">12</span>, <span class="at">hazard =</span> <span class="fu">fit_curve</span>(fits<span class="sc">$</span>lnorm, mid, <span class="st">"hazard"</span>), <span class="at">curve =</span> <span class="st">"Log-chuẩn"</span>),</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">year =</span> mid <span class="sc">/</span> <span class="dv">12</span>, <span class="at">hazard =</span> h_bg, <span class="at">curve =</span> <span class="st">"Tử vong nền × SMR"</span>)</span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>cross_year <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">weibull =</span> mid[<span class="fu">which</span>(<span class="fu">fit_curve</span>(fits<span class="sc">$</span>weibull, mid, <span class="st">"hazard"</span>) <span class="sc">&lt;</span> h_bg)[<span class="dv">1</span>]] <span class="sc">/</span> <span class="dv">12</span>,</span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">lnorm =</span> mid[<span class="fu">which</span>(<span class="fu">fit_curve</span>(fits<span class="sc">$</span>lnorm, mid, <span class="st">"hazard"</span>) <span class="sc">&lt;</span> h_bg)[<span class="dv">1</span>]] <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>cross_year</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> weibull    lnorm 
+25.04167 16.70833 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="sc">!</span><span class="fu">anyNA</span>(cross_year))   <span class="co"># prose claim: both fitted hazards eventually fall below background</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>fig_bg <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(hz_cmp, <span class="fu">aes</span>(year, hazard, <span class="at">colour =</span> curve)) <span class="sc">+</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.9</span>) <span class="sc">+</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_log10</span>(<span class="at">breaks =</span> <span class="fu">c</span>(<span class="fl">0.0003</span>, <span class="fl">0.001</span>, <span class="fl">0.003</span>, <span class="fl">0.01</span>, <span class="fl">0.03</span>),</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>                <span class="at">labels =</span> scales<span class="sc">::</span><span class="fu">label_number</span>(<span class="at">accuracy =</span> <span class="fl">0.0001</span>, <span class="at">big.mark =</span> <span class="st">","</span>, <span class="at">decimal.mark =</span> <span class="st">"."</span>)) <span class="sc">+</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> pal_course[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">8</span>)], <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Năm kể từ khi vào nghiên cứu"</span>, <span class="at">y =</span> <span class="st">"Nguy cơ tức thời mỗi tháng (thang log)"</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Nguy cơ tức thời của mô hình giảm dần</span><span class="sc">\n</span><span class="st">rồi rơi xuống dưới tử vong nền"</span>) <span class="sc">+</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_bg, <span class="st">"l03-background.png"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l03-background.png" class="img-fluid figure-img"></p>
+<figcaption>Nguy cơ tức thời của mô hình so với tử vong nền × SMR</figcaption>
+</figure>
+</div>
+<p>Áp sàn nguy cơ bằng <code>add_bg_max()</code>. Kiểm tra: mỗi tháng đường mới mất ít nhất bằng nguy cơ nền.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply the floor: month by month, hazard = max(fitted hazard, background hazard)</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>bg_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">dist =</span> <span class="fu">names</span>(fits), <span class="at">label =</span> DIST_LABELS[<span class="fu">names</span>(fits)],</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">rmst_no_bg =</span> <span class="cn">NA</span>, <span class="at">rmst_with_bg =</span> <span class="cn">NA</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>curves_bg <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(fits)) {</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  S <span class="ot">&lt;-</span> <span class="fu">fit_curve</span>(fits[[i]], months)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  S_adj <span class="ot">&lt;-</span> <span class="fu">add_bg_max</span>(S, h_bg)</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check: in every month the floored curve loses at least the background hazard</span></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="sc">-</span><span class="fu">diff</span>(<span class="fu">log</span>(S_adj)) <span class="sc">&gt;=</span> h_bg <span class="sc">-</span> <span class="fl">1e-12</span>))</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  bg_tab<span class="sc">$</span>rmst_no_bg[i] <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, S) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  bg_tab<span class="sc">$</span>rmst_with_bg[i] <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, S_adj) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  curves_bg[[<span class="fu">names</span>(fits)[i]]] <span class="ot">&lt;-</span> S_adj</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>bg_tab[, <span class="sc">-</span><span class="dv">1</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                   label rmst_no_bg rmst_with_bg
+weibull          Weibull   21.79469     17.39025
+llogis      Log-logistic   25.64979     18.89816
+lnorm          Log-chuẩn   27.99247     20.00743
+gengamma Gamma tổng quát   29.14381     20.44959</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Share of the log-normal restricted mean that lies beyond the follow-up</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>share_beyond <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">auc_trapezoid</span>(<span class="dv">0</span><span class="sc">:</span>ps<span class="sc">$</span>study_months, curves_bg<span class="sc">$</span>lnorm[<span class="dv">1</span><span class="sc">:</span>(ps<span class="sc">$</span>study_months <span class="sc">+</span> <span class="dv">1</span>)]) <span class="sc">/</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">auc_trapezoid</span>(months, curves_bg<span class="sc">$</span>lnorm)</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>share_beyond</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.886647</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(share_beyond <span class="sc">&gt;</span> <span class="fl">0.5</span>)   <span class="co"># prose claim: most of the life-years lie beyond the follow-up</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Khớp spline 1, 2, 3 nút. Kiểm tra: spline 0 nút trùng Weibull.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Royston-Parmar models: natural cubic spline for log cumulative hazard in log time</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="co"># k = number of internal knots (placed at quantiles of the log event times)</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>splines <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) {</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>  splines[[<span class="fu">paste0</span>(<span class="st">"k"</span>, k)]] <span class="ot">&lt;-</span> <span class="fu">flexsurvspline</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d_soc,</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>                                              <span class="at">k =</span> k, <span class="at">scale =</span> <span class="st">"hazard"</span>)</span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>sp_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">model =</span> <span class="fu">names</span>(splines), <span class="at">n_par =</span> <span class="cn">NA</span>, <span class="at">AIC =</span> <span class="cn">NA</span>, <span class="at">rmst_no_bg =</span> <span class="cn">NA</span>, <span class="at">rmst_with_bg =</span> <span class="cn">NA</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(splines)) {</span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>  S <span class="ot">&lt;-</span> <span class="fu">fit_curve</span>(splines[[i]], months)</span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  sp_tab<span class="sc">$</span>n_par[i] <span class="ot">&lt;-</span> splines[[i]]<span class="sc">$</span>npars</span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  sp_tab<span class="sc">$</span>AIC[i] <span class="ot">&lt;-</span> splines[[i]]<span class="sc">$</span>AIC</span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  sp_tab<span class="sc">$</span>rmst_no_bg[i] <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, S) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  sp_tab<span class="sc">$</span>rmst_with_bg[i] <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, <span class="fu">add_bg_max</span>(S, h_bg)) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>sp_tab</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  model n_par      AIC rmst_no_bg rmst_with_bg
+1    k1     3 882.3506   26.89721     19.78101
+2    k2     4 884.1682   28.00896     20.26152
+3    k3     5 886.1361   27.29622     19.95827</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Knot positions (in months) of the 1-knot model</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">exp</span>(splines<span class="sc">$</span>k1<span class="sc">$</span>knots)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                      50%              
+ 0.002645109  3.937968059 34.956052050 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">min</span>(sp_tab<span class="sc">$</span>AIC) <span class="sc">&gt;</span> fits<span class="sc">$</span>lnorm<span class="sc">$</span>AIC)   <span class="co"># prose claim: no spline beats the log-normal on AIC</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Sanity check: with k = 0 the spline model is exactly a Weibull (same log-likelihood)</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>sp0 <span class="ot">&lt;-</span> <span class="fu">flexsurvspline</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d_soc, <span class="at">k =</span> <span class="dv">0</span>, <span class="at">scale =</span> <span class="st">"hazard"</span>)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(sp0<span class="sc">$</span>loglik <span class="sc">-</span> fits<span class="sc">$</span>weibull<span class="sc">$</span>loglik) <span class="sc">&lt;</span> <span class="fl">1e-4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Khớp mô hình khỏi bệnh có và không có nền. Kiểm tra: tích phân nguy cơ nền khớp tổng theo tháng; bỏ nền thì mô hình chứa Weibull nên log-likelihood không thấp hơn. In AIC cạnh các mô hình khác.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Mixture cure model with background mortality (SMR applied), fitted by our own likelihood.</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Each person's background hazard is taken at their own age at exit (h_event), and the</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co"># cumulative background hazard over their follow-up (H_event) puts the likelihood on the</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co"># same all-cause scale as flexsurv, so the AIC can be compared with the AIC of the fits.</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>h_event <span class="ot">&lt;-</span> pm<span class="sc">$</span>smr_bg <span class="sc">*</span> <span class="fu">mx_at</span>(d_soc<span class="sc">$</span>age <span class="sc">+</span> d_soc<span class="sc">$</span>time <span class="sc">/</span> <span class="dv">12</span>, lt) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>H_event <span class="ot">&lt;-</span> <span class="fu">cum_bg_hazard</span>(d_soc<span class="sc">$</span>age, d_soc<span class="sc">$</span>time, lt, pm<span class="sc">$</span>smr_bg)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: the exact integral agrees with summing the monthly hazards of the model grid</span></span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(<span class="fu">cum_bg_hazard</span>(pm<span class="sc">$</span>age_cohort, <span class="dv">120</span>, lt, pm<span class="sc">$</span>smr_bg) <span class="sc">-</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>                <span class="fu">sum</span>(<span class="fu">bg_hazard_monthly</span>(pm<span class="sc">$</span>age_cohort, <span class="dv">120</span>, lt, pm<span class="sc">$</span>smr_bg))) <span class="sc">&lt;</span> <span class="fl">1e-10</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>cure_fit <span class="ot">&lt;-</span> <span class="fu">fit_cure_weibull</span>(d_soc<span class="sc">$</span>time, d_soc<span class="sc">$</span>status, h_event, H_event)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>cure_fit[<span class="fu">c</span>(<span class="st">"cure"</span>, <span class="st">"shape"</span>, <span class="st">"scale"</span>, <span class="st">"loglik"</span>, <span class="st">"AIC"</span>)]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$cure
+[1] 0.6332211
+
+$shape
+[1] 0.5857057
+
+$scale
+[1] 12.01789
+
+$loglik
+[1] -438.9071
+
+$AIC
+[1] 883.8142</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 95% CI for the cure fraction (on the logit scale, then back-transformed)</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>cure_ci <span class="ot">&lt;-</span> <span class="fu">plogis</span>(cure_fit<span class="sc">$</span>par[<span class="dv">1</span>] <span class="sc">+</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>) <span class="sc">*</span> <span class="fl">1.96</span> <span class="sc">*</span> cure_fit<span class="sc">$</span>se[<span class="dv">1</span>])</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>cure_ci</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.5066146 0.7437708</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Same model ignoring background mortality (h = 0): the plateau is then flat for ever</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>zeros <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="dv">0</span>, <span class="fu">nrow</span>(d_soc))</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>cure_nobg <span class="ot">&lt;-</span> <span class="fu">fit_cure_weibull</span>(d_soc<span class="sc">$</span>time, d_soc<span class="sc">$</span>status, zeros, zeros)</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>S_cure <span class="ot">&lt;-</span> <span class="fu">cure_surv</span>(cure_fit, months, S_bg)</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>S_cure_nobg <span class="ot">&lt;-</span> <span class="fu">cure_surv</span>(cure_nobg, months, <span class="fu">rep</span>(<span class="dv">1</span>, <span class="fu">length</span>(months)))</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">cure_with_bg =</span> cure_fit<span class="sc">$</span>cure, <span class="at">cure_no_bg =</span> cure_nobg<span class="sc">$</span>cure)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>cure_with_bg   cure_no_bg 
+   0.6332211    0.6170096 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check 1: without background the cure model contains the Weibull (cure fraction -&gt; 0),</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># so its maximised log-likelihood cannot be lower than flexsurv's Weibull</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(cure_nobg<span class="sc">$</span>loglik <span class="sc">&gt;=</span> fits<span class="sc">$</span>weibull<span class="sc">$</span>loglik <span class="sc">-</span> <span class="fl">1e-3</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Check 2: AIC on one scale. The cure model has 3 parameters; compare with the fits</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>aic_cmp <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">cure =</span> cure_fit<span class="sc">$</span>AIC, <span class="at">lnorm =</span> fits<span class="sc">$</span>lnorm<span class="sc">$</span>AIC, <span class="at">gengamma =</span> fits<span class="sc">$</span>gengamma<span class="sc">$</span>AIC, <span class="at">weibull =</span> fits<span class="sc">$</span>weibull<span class="sc">$</span>AIC)</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(aic_cmp, <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    cure    lnorm gengamma  weibull 
+   883.8    880.5    882.3    885.1 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(cure_fit<span class="sc">$</span>cure <span class="sc">&gt;</span> <span class="dv">0</span>, cure_fit<span class="sc">$</span>cure <span class="sc">&lt;</span> <span class="dv">1</span>, <span class="fu">all</span>(<span class="fu">diff</span>(S_cure) <span class="sc">&lt;=</span> <span class="fl">1e-12</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>So mọi ngoại suy với đường cong thật (tỷ lệ sống 5, 10, 20 năm, RMST, sai số), kèm đường cong thật cho đoàn hệ đúng 35 tuổi.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># All candidate extrapolations against the simulated truth (standard-care arm)</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>cands <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Weibull + nền"</span> <span class="ot">=</span> curves_bg<span class="sc">$</span>weibull,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Log-chuẩn + nền"</span> <span class="ot">=</span> curves_bg<span class="sc">$</span>lnorm,</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Gamma tổng quát + nền"</span> <span class="ot">=</span> curves_bg<span class="sc">$</span>gengamma,</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Spline 1 nút + nền"</span> <span class="ot">=</span> <span class="fu">add_bg_max</span>(<span class="fu">fit_curve</span>(splines<span class="sc">$</span>k1, months), h_bg),</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Khỏi bệnh + nền"</span> <span class="ot">=</span> S_cure,</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Khỏi bệnh, bỏ qua nền"</span> <span class="ot">=</span> S_cure_nobg,</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Log-chuẩn, bỏ qua nền"</span> <span class="ot">=</span> <span class="fu">fit_curve</span>(fits<span class="sc">$</span>lnorm, months)</span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>cmp <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">model =</span> <span class="fu">names</span>(cands), <span class="at">S_5y =</span> <span class="cn">NA</span>, <span class="at">S_10y =</span> <span class="cn">NA</span>, <span class="at">S_20y =</span> <span class="cn">NA</span>, <span class="at">rmst_horizon =</span> <span class="cn">NA</span>)</span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(cands)) {</span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  S <span class="ot">&lt;-</span> cands[[i]]</span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>  cmp<span class="sc">$</span>S_5y[i] <span class="ot">&lt;-</span> S[<span class="dv">61</span>]</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>  cmp<span class="sc">$</span>S_10y[i] <span class="ot">&lt;-</span> S[<span class="dv">121</span>]</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>  cmp<span class="sc">$</span>S_20y[i] <span class="ot">&lt;-</span> S[<span class="dv">241</span>]</span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>  cmp<span class="sc">$</span>rmst_horizon[i] <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, S) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb31-19"><a href="#cb31-19" aria-hidden="true" tabindex="-1"></a>true_mean <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, S_true) <span class="sc">/</span> <span class="dv">12</span>     <span class="co"># restricted to the horizon, like the models</span></span>
+<span id="cb31-20"><a href="#cb31-20" aria-hidden="true" tabindex="-1"></a>cmp <span class="ot">&lt;-</span> <span class="fu">rbind</span>(cmp, <span class="fu">data.frame</span>(<span class="at">model =</span> <span class="st">"Đường cong thật (mô phỏng)"</span>, <span class="at">S_5y =</span> S_true[<span class="dv">61</span>],</span>
+<span id="cb31-21"><a href="#cb31-21" aria-hidden="true" tabindex="-1"></a>                             <span class="at">S_10y =</span> S_true[<span class="dv">121</span>], <span class="at">S_20y =</span> S_true[<span class="dv">241</span>], <span class="at">rmst_horizon =</span> true_mean))</span>
+<span id="cb31-22"><a href="#cb31-22" aria-hidden="true" tabindex="-1"></a>cmp<span class="sc">$</span>error_years <span class="ot">&lt;-</span> cmp<span class="sc">$</span>rmst_horizon <span class="sc">-</span> true_mean</span>
+<span id="cb31-23"><a href="#cb31-23" aria-hidden="true" tabindex="-1"></a>cmp_raw <span class="ot">&lt;-</span> cmp                                       <span class="co"># unrounded, for the checks below</span></span>
+<span id="cb31-24"><a href="#cb31-24" aria-hidden="true" tabindex="-1"></a>cmp[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(cmp[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">3</span>)</span>
+<span id="cb31-25"><a href="#cb31-25" aria-hidden="true" tabindex="-1"></a>cmp</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       model  S_5y S_10y S_20y rmst_horizon error_years
+1              Weibull + nền 0.601 0.498 0.385       17.390      -3.530
+2            Log-chuẩn + nền 0.623 0.552 0.477       20.007      -0.912
+3      Gamma tổng quát + nền 0.629 0.563 0.491       20.450      -0.470
+4         Spline 1 nút + nền 0.626 0.550 0.467       19.781      -1.139
+5            Khỏi bệnh + nền 0.648 0.610 0.544       22.095       1.175
+6      Khỏi bệnh, bỏ qua nền 0.651 0.627 0.619       37.676      16.756
+7      Log-chuẩn, bỏ qua nền 0.623 0.552 0.478       27.992       7.073
+8 Đường cong thật (mô phỏng) 0.658 0.597 0.495       20.920       0.000</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>best_model <span class="ot">&lt;-</span> cmp<span class="sc">$</span>model[<span class="fu">which.min</span>(<span class="fu">abs</span>(cmp<span class="sc">$</span>error_years[<span class="sc">-</span><span class="fu">nrow</span>(cmp)]))]</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Prose claim: the two models that ignore background mortality are the two worst</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>err_abs <span class="ot">&lt;-</span> <span class="fu">abs</span>(cmp_raw<span class="sc">$</span>error_years[<span class="sc">-</span><span class="fu">nrow</span>(cmp_raw)])</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>worst_two <span class="ot">&lt;-</span> cmp_raw<span class="sc">$</span>model[<span class="sc">-</span><span class="fu">nrow</span>(cmp_raw)][<span class="fu">order</span>(<span class="sc">-</span>err_abs)][<span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>]</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(worst_two <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"Khỏi bệnh, bỏ qua nền"</span>, <span class="st">"Log-chuẩn, bỏ qua nền"</span>)))</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co"># The truth for a cohort that is exactly age_mean years old (the age the models use), to see</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a><span class="co"># how much the age mix of the trial matters</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>ps_fixed <span class="ot">&lt;-</span> ps</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>ps_fixed<span class="sc">$</span>age_sd <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>truth_fixed <span class="ot">&lt;-</span> <span class="fu">true_curves</span>(ps_fixed, lt, n_months, <span class="at">seed =</span> SEED_TRUTH)</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>true_mean_fixed <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, truth_fixed<span class="sc">$</span>os[truth_fixed<span class="sc">$</span>arm <span class="sc">==</span> <span class="st">"soc"</span>]) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">age_mix =</span> true_mean, <span class="at">fixed_age =</span> true_mean_fixed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  age_mix fixed_age 
+ 20.91991  20.96039 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>plot_df <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (nm <span class="cf">in</span> <span class="fu">names</span>(cands)[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>]) plot_df[[nm]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">year =</span> months <span class="sc">/</span> <span class="dv">12</span>, <span class="at">S =</span> cands[[nm]], <span class="at">model =</span> nm)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>plot_df[[<span class="st">"truth"</span>]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">year =</span> months <span class="sc">/</span> <span class="dv">12</span>, <span class="at">S =</span> S_true, <span class="at">model =</span> <span class="st">"Đường cong thật (mô phỏng)"</span>)</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>plot_df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, plot_df)</span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>plot_df<span class="sc">$</span>model <span class="ot">&lt;-</span> <span class="fu">factor</span>(plot_df<span class="sc">$</span>model, <span class="at">levels =</span> <span class="fu">c</span>(<span class="fu">names</span>(cands)[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], <span class="st">"Đường cong thật (mô phỏng)"</span>))</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>fig_cmp <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(plot_df, <span class="fu">aes</span>(year, S, <span class="at">colour =</span> model, <span class="at">linetype =</span> model)) <span class="sc">+</span></span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> ps<span class="sc">$</span>study_months <span class="sc">/</span> <span class="dv">12</span>, <span class="at">linetype =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(pal_course[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], <span class="st">"black"</span>), <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_linetype_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">5</span>), <span class="dv">2</span>), <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Năm"</span>, <span class="at">y =</span> <span class="st">"Tỷ lệ còn sống"</span>,</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Năm cách ngoại suy so với đường cong thật</span><span class="sc">\n</span><span class="st">(chỉ có được nhờ mô phỏng)"</span>) <span class="sc">+</span></span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>() <span class="sc">+</span></span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">colour =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>))</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_cmp, <span class="st">"l03-compare.png"</span>, <span class="at">height =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l03-compare.png" class="img-fluid figure-img"></p>
+<figcaption>Các cách ngoại suy so với đường cong thật</figcaption>
+</figure>
+</div>
+<p>Lặp lại việc khớp trên các thử nghiệm mới: trung bình là phần cấu trúc, khoảng min–max là ảnh hưởng của mẫu.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># One trial gives one draw of the sampling error. Repeat the whole analysis on n_rep NEW</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># trials from the same true world (seeds SEED_REP + 1, 2, ...): the mean error is the</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="co"># systematic (structural) part, the range shows how far one trial can be from it.</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>seeds <span class="ot">&lt;-</span> SEED_REP <span class="sc">+</span> <span class="fu">seq_len</span>(cfg<span class="sc">$</span>n_rep)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>mod_names <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Weibull + nền"</span>, <span class="st">"Log-chuẩn + nền"</span>, <span class="st">"Gamma tổng quát + nền"</span>, <span class="st">"Spline 1 nút + nền"</span>, <span class="st">"Khỏi bệnh + nền"</span>)</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>err_rep <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA_real_</span>, <span class="fu">length</span>(seeds), <span class="fu">length</span>(mod_names), <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="cn">NULL</span>, mod_names))</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>cure_rep <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">length</span>(seeds))</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>km_gap_rep <span class="ot">&lt;-</span> <span class="fu">rep</span>(<span class="cn">NA_real_</span>, <span class="fu">length</span>(seeds))</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (r <span class="cf">in</span> <span class="fu">seq_along</span>(seeds)) {</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  d <span class="ot">&lt;-</span> <span class="fu">endpoint_data</span>(<span class="fu">simulate_trial</span>(ps, lt, seeds[r]), <span class="st">"os"</span>, <span class="st">"soc"</span>)</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  f_w <span class="ot">&lt;-</span> <span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d, <span class="at">dist =</span> <span class="st">"weibull"</span>)</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  f_l <span class="ot">&lt;-</span> <span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d, <span class="at">dist =</span> <span class="st">"lnorm"</span>)</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>  f_g <span class="ot">&lt;-</span> <span class="fu">try</span>(<span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d, <span class="at">dist =</span> <span class="st">"gengamma"</span>), <span class="at">silent =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>  f_s <span class="ot">&lt;-</span> <span class="fu">flexsurvspline</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d, <span class="at">k =</span> <span class="dv">1</span>, <span class="at">scale =</span> <span class="st">"hazard"</span>)</span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>  cf <span class="ot">&lt;-</span> <span class="fu">fit_cure_weibull</span>(d<span class="sc">$</span>time, d<span class="sc">$</span>status,</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>                         pm<span class="sc">$</span>smr_bg <span class="sc">*</span> <span class="fu">mx_at</span>(d<span class="sc">$</span>age <span class="sc">+</span> d<span class="sc">$</span>time <span class="sc">/</span> <span class="dv">12</span>, lt) <span class="sc">/</span> <span class="dv">12</span>,</span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">cum_bg_hazard</span>(d<span class="sc">$</span>age, d<span class="sc">$</span>time, lt, pm<span class="sc">$</span>smr_bg))</span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>  err_rep[r, <span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">area_years</span>(<span class="fu">add_bg_max</span>(<span class="fu">fit_curve</span>(f_w, months), h_bg)) <span class="sc">-</span> true_mean</span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>  err_rep[r, <span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="fu">area_years</span>(<span class="fu">add_bg_max</span>(<span class="fu">fit_curve</span>(f_l, months), h_bg)) <span class="sc">-</span> true_mean</span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="fu">inherits</span>(f_g, <span class="st">"try-error"</span>)) {</span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>    err_rep[r, <span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">area_years</span>(<span class="fu">add_bg_max</span>(<span class="fu">fit_curve</span>(f_g, months), h_bg)) <span class="sc">-</span> true_mean</span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>  err_rep[r, <span class="dv">4</span>] <span class="ot">&lt;-</span> <span class="fu">area_years</span>(<span class="fu">add_bg_max</span>(<span class="fu">fit_curve</span>(f_s, months), h_bg)) <span class="sc">-</span> true_mean</span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>  err_rep[r, <span class="dv">5</span>] <span class="ot">&lt;-</span> <span class="fu">area_years</span>(<span class="fu">cure_surv</span>(cf, months, S_bg)) <span class="sc">-</span> true_mean</span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>  cure_rep[r] <span class="ot">&lt;-</span> cf<span class="sc">$</span>cure</span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>  km_gap_rep[r] <span class="ot">&lt;-</span> <span class="fu">km_at</span>(<span class="fu">km_by_hand</span>(d<span class="sc">$</span>time, d<span class="sc">$</span>status), check_months[<span class="dv">3</span>]) <span class="sc">-</span> S_true[check_months[<span class="dv">3</span>] <span class="sc">+</span> <span class="dv">1</span>]</span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a>rep_tab <span class="ot">&lt;-</span> <span class="fu">summarise_reps</span>(<span class="fu">cbind</span>(err_rep, <span class="st">"Tỷ lệ khỏi bệnh ước lượng"</span> <span class="ot">=</span> cure_rep, <span class="st">"KM trừ thật, tháng 33"</span> <span class="ot">=</span> km_gap_rep))</span>
+<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(rep_tab, <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                           mean   min  max
+Weibull + nền             -2.49 -7.53 0.42
+Log-chuẩn + nền            0.00 -4.07 2.72
+Gamma tổng quát + nền     -0.10 -6.45 3.86
+Spline 1 nút + nền        -0.63 -7.16 3.44
+Khỏi bệnh + nền            1.31 -8.40 4.80
+Tỷ lệ khỏi bệnh ước lượng  0.61  0.01 0.75
+KM trừ thật, tháng 33      0.00 -0.11 0.05</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">n_rep =</span> <span class="fu">length</span>(seeds), <span class="at">gengamma_failed =</span> <span class="fu">sum</span>(<span class="fu">is.na</span>(err_rep[, <span class="dv">3</span>])))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          n_rep gengamma_failed 
+            100               0 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Check: the replicate loop reproduces the single-trial analysis when run on the main trial</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (same code path for Weibull + background)</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>f_w0 <span class="ot">&lt;-</span> <span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d_soc, <span class="at">dist =</span> <span class="st">"weibull"</span>)</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(<span class="fu">area_years</span>(<span class="fu">add_bg_max</span>(<span class="fu">fit_curve</span>(f_w0, months), h_bg)) <span class="sc">-</span></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>                cmp_raw<span class="sc">$</span>rmst_horizon[cmp_raw<span class="sc">$</span>model <span class="sc">==</span> <span class="st">"Weibull + nền"</span>]) <span class="sc">&lt;</span> <span class="fl">1e-10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Mô hình nào vượt cận trên của ước tính ngoài?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="co"># External check: remaining life expectancy after starting ART at 35 in LMICs</span></span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="co"># (a different population, so a rough ceiling rather than a target)</span></span>
+<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>external <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">estimate =</span> pm<span class="sc">$</span>le35_lmic,</span>
+<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>              <span class="at">low =</span> <span class="fu">attr</span>(pm, <span class="st">"table"</span>)<span class="sc">$</span>low[<span class="fu">attr</span>(pm, <span class="st">"table"</span>)<span class="sc">$</span>name <span class="sc">==</span> <span class="st">"le35_lmic"</span>],</span>
+<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a>              <span class="at">high =</span> <span class="fu">attr</span>(pm, <span class="st">"table"</span>)<span class="sc">$</span>high[<span class="fu">attr</span>(pm, <span class="st">"table"</span>)<span class="sc">$</span>name <span class="sc">==</span> <span class="st">"le35_lmic"</span>])</span>
+<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>external</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>estimate      low     high 
+    25.6     22.1     29.2 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Margin below the upper limit (negative = passes). Our means stop at the horizon, which</span></span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="co"># makes the test easier to pass than an unrestricted life expectancy would.</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>margin <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">model =</span> cmp_raw<span class="sc">$</span>model, <span class="at">margin_years =</span> cmp_raw<span class="sc">$</span>rmst_horizon <span class="sc">-</span> external[[<span class="st">"high"</span>]])</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>margin<span class="sc">$</span>margin_years <span class="ot">&lt;-</span> <span class="fu">round</span>(margin<span class="sc">$</span>margin_years, <span class="dv">2</span>)</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>margin</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       model margin_years
+1              Weibull + nền       -11.81
+2            Log-chuẩn + nền        -9.19
+3      Gamma tổng quát + nền        -8.75
+4         Spline 1 nút + nền        -9.42
+5            Khỏi bệnh + nền        -7.10
+6      Khỏi bệnh, bỏ qua nền         8.48
+7      Log-chuẩn, bỏ qua nền        -1.21
+8 Đường cong thật (mô phỏng)        -8.28</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>implausible <span class="ot">&lt;-</span> cmp_raw<span class="sc">$</span>model[cmp_raw<span class="sc">$</span>rmst_horizon <span class="sc">&gt;</span> external[[<span class="st">"high"</span>]]]</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>implausible</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Khỏi bệnh, bỏ qua nền"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prose claims: the cure model without background clearly fails the check, while the</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="co"># log-normal without background passes it although it is years away from the truth:</span></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a><span class="co"># a ceiling only removes the most implausible extrapolations</span></span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>lnorm_nobg_margin <span class="ot">&lt;-</span> cmp_raw<span class="sc">$</span>rmst_horizon[cmp_raw<span class="sc">$</span>model <span class="sc">==</span> <span class="st">"Log-chuẩn, bỏ qua nền"</span>] <span class="sc">-</span> external[[<span class="st">"high"</span>]]</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>lnorm_nobg_error <span class="ot">&lt;-</span> cmp_raw<span class="sc">$</span>error_years[cmp_raw<span class="sc">$</span>model <span class="sc">==</span> <span class="st">"Log-chuẩn, bỏ qua nền"</span>]</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(lnorm_nobg_margin <span class="sc">&lt;</span> <span class="dv">0</span>, lnorm_nobg_error <span class="sc">&gt;</span> <span class="dv">3</span>, <span class="st">"Khỏi bệnh, bỏ qua nền"</span> <span class="sc">%in%</span> implausible)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="callout callout-style-default callout-tip callout-titled" title="Mẹo thực hành">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mẹo thực hành
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Vẽ nguy cơ của mô hình cạnh tử vong nền trên thang log: điểm cắt cho biết từ khi nào lựa chọn phân phối hết quan trọng.</li>
+<li>SMR ở đây suy từ một đoàn hệ nhiều nước châu Á và bảng sống Việt Nam. Khi có số liệu tử vong của người điều trị ARV tại Việt Nam theo tuổi, tính lại bằng <code>smr_from_rate()</code>; làm phân tích độ nhạy với SMR thấp và cao.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Lỗi thường gặp">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lỗi thường gặp
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Cộng nguy cơ nền vào mô hình khớp trên tử vong mọi nguyên nhân:</strong> tử vong nền bị đếm hai lần. Dùng sàn hoặc sống còn tương đối.</li>
+<li><strong>Bỏ tử vong nền</strong> khỏi Gompertz, log-chuẩn hay mô hình khỏi bệnh: đường cong đi ngang hoặc giảm quá chậm, tạo ra người bất tử.</li>
+<li><strong>Tin tỷ lệ khỏi bệnh ước lượng từ theo dõi ngắn,</strong> hay tin spline nhiều nút vì AIC tốt: khi ước lượng sai, mô hình khỏi bệnh cho dự báo kém <span class="citation" data-cites="latimer2022extrapolation">(<a href="../m00-r-foundations/index.html#ref-latimer2022extrapolation" role="doc-biblioref">Latimer và Adler 2022</a>)</span>.</li>
+<li><strong>Đổ lỗi tuổi trung bình cho sai lệch ở đuôi:</strong> RMST thật là 20.9 năm với tuổi phân tán và 21.0 năm với đoàn hệ đúng 35 tuổi, nên ở đây chênh lệch ở đuôi là sai số mô hình.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="bài-tập" class="level2">
+<h2 class="anchored" data-anchor-id="bài-tập">Bài tập</h2>
+<p><strong>Bài tập 1 (dễ).</strong> Khớp lại mô hình khỏi bệnh với SMR = 1 và SMR = 3. Tỷ lệ khỏi bệnh và RMST thay đổi ra sao?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>SMR ít ảnh hưởng tới tỷ lệ khỏi bệnh (0.62 tới 0.64) nhưng ảnh hưởng mạnh tới RMST, vì người “khỏi” sống phần đời còn lại dưới tử vong nền: 26.7 năm với SMR = 1, 20.3 năm với SMR = 3.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 1: cure model with SMR = 1 and SMR = 3 instead of the base-case SMR</span></span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a>smr_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">smr =</span> <span class="fu">c</span>(<span class="dv">1</span>, pm<span class="sc">$</span>smr_bg, <span class="dv">3</span>), <span class="at">cure =</span> <span class="cn">NA</span>, <span class="at">rmst_horizon =</span> <span class="cn">NA</span>)</span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(<span class="fu">nrow</span>(smr_tab))) {</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>  h_i <span class="ot">&lt;-</span> smr_tab<span class="sc">$</span>smr[i] <span class="sc">*</span> <span class="fu">mx_at</span>(d_soc<span class="sc">$</span>age <span class="sc">+</span> d_soc<span class="sc">$</span>time <span class="sc">/</span> <span class="dv">12</span>, lt) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>  H_i <span class="ot">&lt;-</span> <span class="fu">cum_bg_hazard</span>(d_soc<span class="sc">$</span>age, d_soc<span class="sc">$</span>time, lt, smr_tab<span class="sc">$</span>smr[i])</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a>  cf <span class="ot">&lt;-</span> <span class="fu">fit_cure_weibull</span>(d_soc<span class="sc">$</span>time, d_soc<span class="sc">$</span>status, h_i, H_i)</span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>  smr_tab<span class="sc">$</span>cure[i] <span class="ot">&lt;-</span> cf<span class="sc">$</span>cure</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>  smr_tab<span class="sc">$</span>rmst_horizon[i] <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, <span class="fu">cure_surv</span>(cf, months,</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>                                           <span class="fu">bg_surv</span>(pm<span class="sc">$</span>age_cohort, n_months, lt, smr_tab<span class="sc">$</span>smr[i]))) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb48-10"><a href="#cb48-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb48-11"><a href="#cb48-11" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(smr_tab, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  smr  cure rmst_horizon
+1 1.0 0.624       26.687
+2 2.2 0.633       22.095
+3 3.0 0.639       20.284</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prose claims: SMR hardly moves the cure fraction but moves the restricted mean a lot</span></span>
+<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">diff</span>(<span class="fu">range</span>(smr_tab<span class="sc">$</span>cure)) <span class="sc">&lt;</span> <span class="fl">0.05</span>, smr_tab<span class="sc">$</span>rmst_horizon[<span class="dv">1</span>] <span class="sc">-</span> smr_tab<span class="sc">$</span>rmst_horizon[<span class="dv">3</span>] <span class="sc">&gt;</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Bài tập 2 (trung bình).</strong> Giả sử thử nghiệm dừng sau 12 tháng. Kiểm duyệt mọi người ở mốc đó, khớp lại Weibull, log-chuẩn và mô hình khỏi bệnh (đều có nền), rồi so RMST với đường cong thật.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Các mô hình tách xa nhau hơn: 14.4 tới 23.9 năm (so với khoảng 4.7 năm khi dùng toàn bộ theo dõi), còn đường cong thật là 20.9 năm. Theo dõi ngắn làm bất định cấu trúc tăng mạnh.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 2: what if the trial had stopped early? Censor everyone at early_stop_months</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>d12 <span class="ot">&lt;-</span> d_soc</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>d12<span class="sc">$</span>status[d12<span class="sc">$</span>time <span class="sc">&gt;</span> cfg<span class="sc">$</span>early_stop_months] <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>d12<span class="sc">$</span>time <span class="ot">&lt;-</span> <span class="fu">pmin</span>(d12<span class="sc">$</span>time, cfg<span class="sc">$</span>early_stop_months)</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>short <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">model =</span> <span class="fu">c</span>(<span class="st">"Weibull + nền"</span>, <span class="st">"Log-chuẩn + nền"</span>, <span class="st">"Khỏi bệnh + nền"</span>), <span class="at">rmst_horizon =</span> <span class="cn">NA</span>)</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>short<span class="sc">$</span>rmst_horizon[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, <span class="fu">add_bg_max</span>(<span class="fu">fit_curve</span>(</span>
+<span id="cb51-7"><a href="#cb51-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d12, <span class="at">dist =</span> <span class="st">"weibull"</span>), months), h_bg)) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb51-8"><a href="#cb51-8" aria-hidden="true" tabindex="-1"></a>short<span class="sc">$</span>rmst_horizon[<span class="dv">2</span>] <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, <span class="fu">add_bg_max</span>(<span class="fu">fit_curve</span>(</span>
+<span id="cb51-9"><a href="#cb51-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">flexsurvreg</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d12, <span class="at">dist =</span> <span class="st">"lnorm"</span>), months), h_bg)) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb51-10"><a href="#cb51-10" aria-hidden="true" tabindex="-1"></a>cf12 <span class="ot">&lt;-</span> <span class="fu">fit_cure_weibull</span>(d12<span class="sc">$</span>time, d12<span class="sc">$</span>status,</span>
+<span id="cb51-11"><a href="#cb51-11" aria-hidden="true" tabindex="-1"></a>                         pm<span class="sc">$</span>smr_bg <span class="sc">*</span> <span class="fu">mx_at</span>(d12<span class="sc">$</span>age <span class="sc">+</span> d12<span class="sc">$</span>time <span class="sc">/</span> <span class="dv">12</span>, lt) <span class="sc">/</span> <span class="dv">12</span>,</span>
+<span id="cb51-12"><a href="#cb51-12" aria-hidden="true" tabindex="-1"></a>                         <span class="fu">cum_bg_hazard</span>(d12<span class="sc">$</span>age, d12<span class="sc">$</span>time, lt, pm<span class="sc">$</span>smr_bg))</span>
+<span id="cb51-13"><a href="#cb51-13" aria-hidden="true" tabindex="-1"></a>short<span class="sc">$</span>rmst_horizon[<span class="dv">3</span>] <span class="ot">&lt;-</span> <span class="fu">auc_trapezoid</span>(months, <span class="fu">cure_surv</span>(cf12, months, S_bg)) <span class="sc">/</span> <span class="dv">12</span></span>
+<span id="cb51-14"><a href="#cb51-14" aria-hidden="true" tabindex="-1"></a>short<span class="sc">$</span>true_mean <span class="ot">&lt;-</span> true_mean</span>
+<span id="cb51-15"><a href="#cb51-15" aria-hidden="true" tabindex="-1"></a>short</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            model rmst_horizon true_mean
+1   Weibull + nền     14.41172  20.91991
+2 Log-chuẩn + nền     19.44130  20.91991
+3 Khỏi bệnh + nền     23.93550  20.91991</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prose claim: with 12 months of data the three models disagree more than with the full follow-up</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a>spread_short <span class="ot">&lt;-</span> <span class="fu">diff</span>(<span class="fu">range</span>(short<span class="sc">$</span>rmst_horizon))</span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a>spread_full <span class="ot">&lt;-</span> <span class="fu">diff</span>(<span class="fu">range</span>(cmp_raw<span class="sc">$</span>rmst_horizon[cmp_raw<span class="sc">$</span>model <span class="sc">%in%</span> short<span class="sc">$</span>model]))</span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(spread_short <span class="sc">&gt;</span> spread_full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p><strong>Bài tập 3 (khó).</strong> Khớp spline 1 nút trên thang odds (<code>scale = "odds"</code>), mở rộng của log-logistic. So AIC và RMST (có nền) với spline trên thang nguy cơ.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Spline trên thang odds ngoại suy như log-logistic thay vì Weibull. AIC gần như nhau (882.4 so với 882.4), nên chọn thang phải dựa vào hình dạng nguy cơ dài hạn hợp lý, không dựa vào dữ liệu.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 3: a spline on the odds scale (generalises the log-logistic)</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>sp_odds <span class="ot">&lt;-</span> <span class="fu">flexsurvspline</span>(<span class="fu">Surv</span>(time, status) <span class="sc">~</span> <span class="dv">1</span>, <span class="at">data =</span> d_soc, <span class="at">k =</span> <span class="dv">1</span>, <span class="at">scale =</span> <span class="st">"odds"</span>)</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">AIC =</span> sp_odds<span class="sc">$</span>AIC,</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">rmst_with_bg =</span> <span class="fu">auc_trapezoid</span>(months, <span class="fu">add_bg_max</span>(<span class="fu">fit_curve</span>(sp_odds, months), h_bg)) <span class="sc">/</span> <span class="dv">12</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         AIC rmst_with_bg 
+    882.3586      20.3530 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(sp_odds<span class="sc">$</span>AIC <span class="sc">-</span> sp_tab<span class="sc">$</span>AIC[<span class="dv">1</span>]) <span class="sc">&lt;</span> <span class="dv">2</span>)   <span class="co"># prose claim: AIC almost the same</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="tài-liệu-tham-khảo" class="level2">
+<h2 class="anchored" data-anchor-id="tài-liệu-tham-khảo">Tài liệu tham khảo</h2>
+<p>Đọc thêm: <span class="citation" data-cites="latimer2022extrapolation">Latimer và Adler (<a href="../m00-r-foundations/index.html#ref-latimer2022extrapolation" role="doc-biblioref">2022</a>)</span> (tổng quan ngắn, truy cập mở), <span class="citation" data-cites="rutherford2020flexible">Rutherford và c.s. (<a href="../m00-r-foundations/index.html#ref-rutherford2020flexible" role="doc-biblioref">2020</a>)</span> (spline, mô hình khỏi bệnh), <span class="citation" data-cites="jackson2017extrapolating">Jackson và c.s. (<a href="../m00-r-foundations/index.html#ref-jackson2017extrapolating" role="doc-biblioref">2017</a>)</span> (dữ liệu ngoài).</p>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-bijker2020survival" class="csl-entry" role="listitem">
+Bijker, Rimke, Sasisopin Kiertiburanakul, Nagalingeswaran Kumarasamy, Sanjay Pujari, Ly P. Sun, Oon T. Ng, Man P. Lee, và c.s. 2020. <span>“Survival after long-term <span>ART</span> exposure: findings from an <span>Asian</span> patient population retained in care beyond 5 years on <span>ART</span>”</span>. <em>Antiviral Therapy</em> 25 (3): 131–42. <a href="https://doi.org/10.3851/IMP3358">https://doi.org/10.3851/IMP3358</a>.
+</div>
+<div id="ref-chinhphu2025nd293" class="csl-entry" role="listitem">
+Chính phủ. 2025. <span>“Nghị định 293/2025/<span>NĐ-CP</span> quy định mức lương tối thiểu đối với người lao động làm việc theo hợp đồng lao động (hiệu lực từ 1/1/2026)”</span>. 2025. <a href="https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026">https://hatinh.gov.vn/vi/bai-viet/tang-luong-toi-thieu-vung-tu-112026</a>.
+</div>
+<div id="ref-jackson2017extrapolating" class="csl-entry" role="listitem">
+Jackson, Christopher, John Stevens, Shijie Ren, Nick Latimer, Laura Bojke, Andrea Manca, và Linda Sharples. 2017. <span>“Extrapolating survival from randomized trials using external data: a review of methods”</span>. <em>Medical Decision Making</em> 37 (4): 377–90. <a href="https://doi.org/10.1177/0272989X16639900">https://doi.org/10.1177/0272989X16639900</a>.
+</div>
+<div id="ref-johnson2013life" class="csl-entry" role="listitem">
+Johnson, Leigh F., Joel Mossong, Rob E. Dorrington, Michael Schomaker, Christopher J. Hoffmann, Olivia Keiser, Matthew P. Fox, và c.s. 2013. <span>“Life expectancies of <span>South African</span> adults starting antiretroviral treatment: collaborative analysis of cohort studies”</span>. <em>PLoS Medicine</em> 10 (4): e1001418. <a href="https://doi.org/10.1371/journal.pmed.1001418">https://doi.org/10.1371/journal.pmed.1001418</a>.
+</div>
+<div id="ref-lambert2007estimating" class="csl-entry" role="listitem">
+Lambert, Paul C., John R. Thompson, Claire L. Weston, và Paul W. Dickman. 2007. <span>“Estimating and modeling the cure fraction in population-based cancer survival analysis”</span>. <em>Biostatistics</em> 8 (3): 576–94. <a href="https://doi.org/10.1093/biostatistics/kxl030">https://doi.org/10.1093/biostatistics/kxl030</a>.
+</div>
+<div id="ref-latimer2013survival" class="csl-entry" role="listitem">
+Latimer, Nicholas R. 2013. <span>“Survival analysis for economic evaluations alongside clinical trials–extrapolation with patient-level data: inconsistencies, limitations, and a practical guide”</span>. <em>Medical Decision Making</em> 33 (6): 743–54. <a href="https://doi.org/10.1177/0272989X12472398">https://doi.org/10.1177/0272989X12472398</a>.
+</div>
+<div id="ref-latimer2022extrapolation" class="csl-entry" role="listitem">
+Latimer, Nicholas R., và Amanda I. Adler. 2022. <span>“Extrapolation beyond the end of trials to estimate long term survival and cost effectiveness”</span>. <em>BMJ Medicine</em> 1 (1): e000094. <a href="https://doi.org/10.1136/bmjmed-2021-000094">https://doi.org/10.1136/bmjmed-2021-000094</a>.
+</div>
+<div id="ref-othus2012cure" class="csl-entry" role="listitem">
+Othus, Megan, Bart Barlogie, Michael L. LeBlanc, và John J. Crowley. 2012. <span>“Cure models as a useful statistical tool for analyzing survival”</span>. <em>Clinical Cancer Research</em> 18 (14): 3731–36. <a href="https://doi.org/10.1158/1078-0432.CCR-11-2859">https://doi.org/10.1158/1078-0432.CCR-11-2859</a>.
+</div>
+<div id="ref-royston2002flexible" class="csl-entry" role="listitem">
+Royston, Patrick, và Mahesh K. B. Parmar. 2002. <span>“Flexible parametric proportional-hazards and proportional-odds models for censored survival data, with application to prognostic modelling and estimation of treatment effects”</span>. <em>Statistics in Medicine</em> 21 (15): 2175–97. <a href="https://doi.org/10.1002/sim.1203">https://doi.org/10.1002/sim.1203</a>.
+</div>
+<div id="ref-rutherford2020flexible" class="csl-entry" role="listitem">
+Rutherford, Mark J., Paul C. Lambert, Michael J. Sweeting, Becky Pennington, Michael J. Crowther, Keith R. Abrams, và Nicholas R. Latimer. 2020. <span>“<span>NICE DSU</span> Technical Support Document 21: Flexible methods for survival analysis”</span>. Decision Support Unit, ScHARR, University of Sheffield. <a href="https://doi.org/10.15131/shef.data.33849118">https://doi.org/10.15131/shef.data.33849118</a>.
+</div>
+<div id="ref-teeraananchai2017life" class="csl-entry" role="listitem">
+Teeraananchai, S., S. J. Kerr, J. Amin, K. Ruxrungtham, và M. G. Law. 2017. <span>“Life expectancy of <span>HIV</span>-positive people after starting combination antiretroviral therapy: a meta-analysis”</span>. <em>HIV Medicine</em> 18 (4): 256–66. <a href="https://doi.org/10.1111/hiv.12421">https://doi.org/10.1111/hiv.12421</a>.
+</div>
+<div id="ref-globalfund2026ppmarv" class="csl-entry" role="listitem">
+The Global Fund. 2026. <span>“Pooled Procurement Mechanism Reference Pricing: <span>ARVs</span> (Version <span>Q1</span> 2026)”</span>. Tháng Ba 2026. <a href="https://www.theglobalfund.org/media/3x0lhsks/ppm_arvreferencepricing_table_en.pdf">https://www.theglobalfund.org/media/3x0lhsks/ppm_arvreferencepricing_table_en.pdf</a>.
+</div>
+<div id="ref-who2026lifetables" class="csl-entry" role="listitem">
+World Health Organization. 2026. <span>“Global Health Observatory: life tables by country, <span>Viet Nam</span>, 2023 (indicators <span>LIFE_0000000029</span> nMx, <span>LIFE_0000000030</span> nqx, <span>LIFE_0000000035</span> ex)”</span>. 2026. <a href="https://ghoapi.azureedge.net/api/LIFE_0000000029">https://ghoapi.azureedge.net/api/LIFE_0000000029</a>.
+</div>
+</div>
+<div class="video-script">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Kịch bản video (~15 phút)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Slide</th>
+<th>Lời giảng chính</th>
+<th>Hình/Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Ngoại suy quyết định kết quả</td>
+<td>Phần lớn năm sống nằm sau thời gian theo dõi</td>
+<td>Chunk <code>l03-add-bg</code> (<code>share_beyond</code>)</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Đường cong thật và sai số mẫu</td>
+<td>KM một thử nghiệm lệch khỏi đường thật dù chưa khớp mô hình</td>
+<td>Chunk <code>l03-truth</code></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Tử vong nền</td>
+<td>Bảng sống WHO Việt Nam 2023; SMR ≈ 2.2 suy từ đoàn hệ ARV châu Á</td>
+<td>Chunk <code>l03-background</code></td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Nguy cơ cắt mức nền</td>
+<td>Sau điểm cắt, chỉ tử vong nền quyết định</td>
+<td><code>figs/l03-background.png</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Sàn hay cộng</td>
+<td>max(h, h nền) cho mô hình mọi nguyên nhân; cộng cho sống còn tương đối</td>
+<td>Công thức</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Spline Royston–Parmar</td>
+<td>log H là spline của log t; k = 0 là Weibull; sau nút cuối là Weibull</td>
+<td>Chunk <code>l03-spline</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Mô hình khỏi bệnh</td>
+<td>π + (1 − π)S_u, nhân sống còn nền; hàm hợp lý có số hạng −H*</td>
+<td>Công thức</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Hàm hợp lý tự viết</td>
+<td>Người chết và người bị kiểm duyệt; <code>optim()</code>; AIC cùng thang</td>
+<td>Chunk <code>l03-cure</code></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>So với đường cong thật</td>
+<td>Bảng sai số một thử nghiệm; bỏ nền sai nhiều nhất</td>
+<td><code>figs/l03-compare.png</code></td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Lặp lại nhiều thử nghiệm</td>
+<td>Trung bình = cấu trúc; khoảng = mẫu; tỷ lệ khỏi bệnh dao động</td>
+<td>Chunk <code>l03-replicates</code></td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Dữ liệu ngoài</td>
+<td>Tuổi thọ sau ART ở LMIC làm mức trần; RMST bị cắt</td>
+<td>Chunk <code>l03-plausibility</code></td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>Quy trình bốn bước</td>
+<td>Nhiều mô hình → nền → dữ liệu ngoài/chuyên gia → kịch bản</td>
+<td>Danh sách trong bài</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="pagination-link" aria-label="Bài 2: Mô hình sống còn tham số với flexsurv">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="pagination-link" aria-label="Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR">
+        <span class="nav-page-text"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

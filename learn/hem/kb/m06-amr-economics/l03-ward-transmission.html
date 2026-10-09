@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="vi" xml:lang="vi"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.30">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Bài 3: Mô hình lây truyền CRE trong khoa hồi sức – Mô hình Kinh tế Y tế với R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../kb/m06-amr-economics/l04-two-strain-selection.html" rel="next">
+<link href="../../kb/m06-amr-economics/l02-attributable-los.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-9e7f0c659d5fa2cace8548cb57964278.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-c18d72663580ed8ca19ce2a2f99af51b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<meta name="mermaid-theme" content="neutral">
+<script src="../../site_libs/quarto-diagram/mermaid.min.js"></script>
+<script src="../../site_libs/quarto-diagram/mermaid-init.js"></script>
+<link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m06-amr-economics/index.html">M06 · Kinh tế học kháng kháng sinh (AMR)</a></li><li class="breadcrumb-item"><a href="../../kb/m06-amr-economics/l03-ward-transmission.html"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Mô hình Kinh tế Y tế với R</a> 
+        <div class="sidebar-tools-main">
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Lời mở đầu</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m00-r-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M00 · R cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l01-reproducible-workflow.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Quy trình làm việc tái lập với R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l02-vectors-matrices.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Vectơ, ma trận, mảng và phép nhân ma trận</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l03-functions-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hàm, cấu trúc điều khiển, vòng lặp và vectơ hóa</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l04-data-frames.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Data frame — nhập, làm sạch, tóm tắt và chuyển dạng dữ liệu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l05-ggplot2.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Biểu đồ với ggplot2</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m00-r-foundations/l06-randomness-monte-carlo.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 6: Ngẫu nhiên, mô phỏng Monte Carlo và sai số Monte Carlo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m01-ee-foundations/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M01 · Nền tảng đánh giá kinh tế và cây quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l01-evaluation-types.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại đánh giá kinh tế, quan điểm, khung thời gian và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l02-health-outcomes.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Năm sống, QALY và DALY</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l03-decision-rules.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quy tắc ra quyết định: ICER, lấn át, đường biên hiệu quả, NMB và NHB</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l04-thresholds.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Ngưỡng chi phí-hiệu quả cho Việt Nam</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m01-ee-foundations/l05-decision-tree.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Xây cây quyết định từ đầu trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m02-cohort-markov/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M02 · Mô hình chuyển trạng thái đoàn hệ (Markov)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l01-state-transition.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao cần mô hình chuyển trạng thái</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l02-rates-probabilities.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tỷ suất, xác suất và độ dài chu kỳ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l03-cohort-trace.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vết đoàn hệ, giá trị gắn với trạng thái và chiết khấu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l04-time-dependence.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Phụ thuộc thời gian: lão hóa, trạng thái đường hầm và mảng 3 chiều</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m02-cohort-markov/l05-results-verification.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị gắn với lần chuyển, đường biên hiệu quả và xác minh mô hình</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m03-uncertainty-voi/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M03 · Bất định, phân tích độ nhạy và giá trị thông tin</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l01-deterministic-sa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Các loại bất định và phân tích độ nhạy tất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l02-distributions.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Chọn phân phối cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l03-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích độ nhạy xác suất (PSA) trong R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l04-ceac-reporting.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: CEAC, CEAF, tổn thất kỳ vọng và cách báo cáo bất định</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m03-uncertainty-voi/l05-voi.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Giá trị thông tin: EVPI, EVPPI và EVSI</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m04-microsimulation/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M04 · Mô phỏng vi mô (microsimulation)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-5" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-5" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l01-why-microsimulation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Khi mô hình đoàn hệ không đủ</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l02-microsim-loops.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô phỏng vi mô bằng vòng lặp trong R cơ bản</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l03-vectorisation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Vectơ hóa theo cá thể và đo hiệu năng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l04-parallel-rcpp.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tính toán song song và Rcpp cho vòng lặp nóng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m04-microsimulation/l05-mc-error-psa.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bao nhiêu cá thể là đủ? Sai số Monte Carlo, PSA và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m05-dynamic-transmission/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M05 · Mô hình lây truyền động</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-6" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-6" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l01-static-vs-dynamic.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Mô hình tĩnh và mô hình lây truyền động</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l02-sir-seir-desolve.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình SIR và SEIR trong R với deSolve</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l03-vaccination-herd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Tiêm chủng, hiệu quả trực tiếp và gián tiếp</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l04-dengue-host-vector.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Mô hình vật chủ–véc tơ cho sốt xuất huyết Dengue</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m05-dynamic-transmission/l05-dynamic-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế với mô hình lây truyền động</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m06-amr-economics/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M06 · Kinh tế học kháng kháng sinh (AMR)</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-7" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-7" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l01-amr-burden.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Kinh tế học kháng kháng sinh: ngoại ứng, gánh nặng và kịch bản phản thực</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l03-ward-transmission.html" class="sidebar-item-text sidebar-link active"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m06-amr-economics/l05-amr-intervention-ee.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Đánh giá kinh tế các can thiệp chống kháng kháng sinh</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m07-survival-psm/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M07 · Phân tích sống còn cho mô hình quyết định</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-8" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-8" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l01-survival-basics.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ôn tập phân tích sống còn cho người làm mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l02-parametric-models.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Mô hình sống còn tham số với flexsurv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l03-extrapolation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Ngoại suy sống còn</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l04-reconstruct-ipd.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tái tạo dữ liệu cá thể từ đường KM đã công bố và dùng HR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m07-survival-psm/l05-partitioned-survival.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Mô hình sống còn phân vùng trong R</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m08-calibration/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M08 · Hiệu chuẩn mô hình (calibration)</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-9" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-9" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l01-why-calibrate.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Vì sao phải hiệu chuẩn mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l02-search-methods.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Tìm kiếm tham số: ngẫu nhiên, siêu khối Latin và Nelder–Mead</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l03-bayes-sir.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Hiệu chuẩn Bayes và thuật toán SIR</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m08-calibration/l04-psa-validation.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đưa kết quả hiệu chuẩn vào PSA, thẩm định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m09-inputs-vietnam/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M09 · Dữ liệu đầu vào cho Việt Nam và LMIC</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-10" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-10" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l01-costing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Ước tính chi phí cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l02-cost-adjustment.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Điều chỉnh chi phí về một năm tham chiếu</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l03-outcome-inputs.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Đầu vào về kết cục sức khỏe</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l04-evidence-synthesis.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Tổng hợp bằng chứng cho tham số</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m09-inputs-vietnam/l05-decision-context.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Bối cảnh ra quyết định và báo cáo</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m10-policy-bia-equity/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M10 · Từ mô hình đến chính sách: tác động ngân sách và công bằng</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-11" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-11" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l01-budget-impact.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Phân tích tác động ngân sách</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l02-distributional-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Phân tích chi phí-hiệu quả theo phân phối (DCEA)</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l03-extended-cea.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Phân tích chi phí-hiệu quả mở rộng (ECEA) và bảo vệ rủi ro tài chính</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m10-policy-bia-equity/l04-communicating-hta.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Truyền đạt kết quả cho người ra quyết định và quy trình HTA</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a href="../../kb/m11-software-engineering/index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">M11 · Kỹ thuật phần mềm cho mô hình kinh tế y tế</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-12" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-12" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l01-code-structure.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 1: Cấu trúc mã cho mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l02-testing.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 2: Xác minh và kiểm thử mô hình</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l03-version-control.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 3: Quản lý phiên bản với Git và tái lập môi trường với renv</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l04-r-package.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 4: Đóng gói mô hình thành gói R</span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/m11-software-engineering/l05-shiny-living.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bài 5: Ứng dụng Shiny và mô hình “sống”</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false">
+ <span class="menu-text">Appendices</span></a>
+          <a class="sidebar-item-toggle text-start collapsed" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-13" role="navigation" aria-expanded="false" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-13" class="collapse list-unstyled sidebar-section depth1 ">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../kb/glossary.html" class="sidebar-item-text sidebar-link"><span class="chapter-title">Bảng thuật ngữ Anh–Việt</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Trong bài</h2>
+   
+  <ul class="collapse">
+  <li><a href="#mục-tiêu-học-tập" id="toc-mục-tiêu-học-tập" class="nav-link active" data-scroll-target="#mục-tiêu-học-tập">Mục tiêu học tập</a></li>
+  <li><a href="#ý-chính" id="toc-ý-chính" class="nav-link" data-scroll-target="#ý-chính">Ý chính</a></li>
+  <li><a href="#nội-dung" id="toc-nội-dung" class="nav-link" data-scroll-target="#nội-dung">Nội dung</a></li>
+  <li><a href="#thực-hành" id="toc-thực-hành" class="nav-link" data-scroll-target="#thực-hành">Thực hành</a></li>
+  <li><a href="#bài-tập" id="toc-bài-tập" class="nav-link" data-scroll-target="#bài-tập">Bài tập</a></li>
+  <li><a href="#tài-liệu-tham-khảo" id="toc-tài-liệu-tham-khảo" class="nav-link" data-scroll-target="#tài-liệu-tham-khảo">Tài liệu tham khảo</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../kb/m06-amr-economics/index.html">M06 · Kinh tế học kháng kháng sinh (AMR)</a></li><li class="breadcrumb-item"><a href="../../kb/m06-amr-economics/l03-ward-transmission.html"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-title">Bài 3: Mô hình lây truyền CRE trong khoa hồi sức</span></h1>
+<p class="subtitle lead">Xây mô hình tất định và ngẫu nhiên cho một ICU, rồi định lượng tác động của sàng lọc kèm phòng ngừa tiếp xúc</p>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="callout callout-style-default callout-important callout-titled" title="Vì sao bạn nên quan tâm?">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Vì sao bạn nên quan tâm?
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Ở các khoa hồi sức tích cực của Bệnh viện Trung ương Quân đội 108, 31% người bệnh đã mang CRE ngay khi nhập ICU, và 85% mang CRE khi rời ICU <span class="citation" data-cites="toan2024danhgia">(<a href="../m00-r-foundations/index.html#ref-toan2024danhgia" role="doc-biblioref">Toàn và c.s. 2024</a>)</span>: nghĩa là cứ 100 người nhập ICU thì có thêm khoảng 54 người mắc phải CRE ngay trong khoa, tức hơn một nửa số người nhập ICU. Một lần cấy phết trực tràng sàng lọc CRE có giá dịch vụ BHYT 261,000 VNĐ <span class="citation" data-cites="byt2024qd3220">(<a href="../m00-r-foundations/index.html#ref-byt2024qd3220" role="doc-biblioref">Bộ Y tế 2024</a>)</span>, gần bằng 7 bát phở. Một ICU 20 giường nhận khoảng 1,140 lượt người bệnh mỗi năm, nên chỉ riêng sàng lọc khi nhập viện đã tốn khoảng 298 triệu VNĐ, bằng 56 tháng lương tối thiểu vùng I. Bài này giúp bạn ước lượng sàng lọc kèm phòng ngừa tiếp xúc cắt được bao nhiêu ca lây trong khoa trước khi xin khoản kinh phí đó.</p>
+</div>
+</div>
+<section id="mục-tiêu-học-tập" class="level2">
+<h2 class="anchored" data-anchor-id="mục-tiêu-học-tập">Mục tiêu học tập</h2>
+<p>Sau bài này, bạn có thể:</p>
+<ol type="1">
+<li>Viết hệ phương trình cho định cư (colonisation) Enterobacterales kháng carbapenem (carbapenem-resistant Enterobacterales, CRE) trong một khoa luôn kín giường, có người mang khuẩn nhập vào từ ngoài (importation) và lây truyền tại chỗ.</li>
+<li>Tính hệ số lây nhiễm trong khoa <span class="math inline">\(R_A\)</span> và tỷ lệ định cư lúc cân bằng, rồi dùng chúng để kiểm tra lời giải của <code>deSolve</code>.</li>
+<li>Thêm sàng lọc và phòng ngừa tiếp xúc (contact precautions, PNTX), và định lượng số ca định cư mới tránh được.</li>
+<li>Mô phỏng khoa bằng thuật toán Gillespie và giải thích khi nào cần mô hình ngẫu nhiên (stochastic) thay cho mô hình tất định (deterministic).</li>
+</ol>
+</section>
+<section id="ý-chính" class="level2">
+<h2 class="anchored" data-anchor-id="ý-chính">Ý chính</h2>
+<ul>
+<li>Bệnh viện khác cộng đồng: quần thể nhỏ, người bệnh vào ra liên tục, và nhiều người đã mang vi khuẩn kháng thuốc ngay khi nhập viện.</li>
+<li>Đơn vị lây truyền là <strong>định cư</strong>, không phải nhiễm khuẩn. Phần lớn người mang CRE không có triệu chứng nhưng vẫn là nguồn lây.</li>
+<li><span class="math inline">\(R_A = \beta/\mu\)</span> là số người mang mới do một người mang tạo ra trong khoa chưa ai mang khuẩn. Khi người mang khuẩn liên tục nhập viện, CRE không biến mất dù <span class="math inline">\(R_A &lt; 1\)</span>; kiểm soát nhiễm khuẩn làm <em>giảm</em> chứ không <em>loại trừ</em>.</li>
+<li>Hiệu quả của sàng lọc kèm PNTX phụ thuộc vào độ nhạy, độ trễ trả kết quả, tần suất sàng lọc và mức PNTX làm giảm lây truyền.</li>
+<li>Trong khoa nhỏ, may rủi quyết định nhiều: cùng tham số, khoa này bùng phát còn khoa kia không có ca nào <span class="citation" data-cites="cooper1999preliminary">(<a href="../m00-r-foundations/index.html#ref-cooper1999preliminary" role="doc-biblioref">Cooper, Medley, và Scott 1999</a>)</span>. Mô hình tất định chỉ mô tả trung bình.</li>
+<li>Đối chiếu mô hình với dữ liệu Việt Nam chưa phải kiểm chứng độc lập khi tham số đã được chọn gần đúng theo chính dữ liệu đó, và cũng chưa phải hiệu chuẩn (xem M08).</li>
+</ul>
+</section>
+<section id="nội-dung" class="level2">
+<h2 class="anchored" data-anchor-id="nội-dung">Nội dung</h2>
+<section id="vì-sao-bệnh-viện-cần-mô-hình-riêng" class="level3">
+<h3 class="anchored" data-anchor-id="vì-sao-bệnh-viện-cần-mô-hình-riêng">Vì sao bệnh viện cần mô hình riêng</h3>
+<p>Mô hình SIR ở M05 giả định quần thể lớn và gần như khép kín. Một ICU thì chỉ vài chục giường, người bệnh ở lại vài ngày đến vài tuần, và mỗi lượt nhập viện có thể mang vi khuẩn kháng thuốc vào. Mô hình ngăn có dòng nhập viện và ra viện là điểm xuất phát phổ biến <span class="citation" data-cites="vankleef2013modelling">(<a href="../m00-r-foundations/index.html#ref-vankleef2013modelling" role="doc-biblioref">van Kleef và c.s. 2013</a>)</span>. Trong điều tra năm 2012–2013, các ICU người lớn ở Việt Nam có trung vị 20 giường và thời gian nằm ICU trung bình khoảng 6.4 ngày <span class="citation" data-cites="phu2016burden">(<a href="../m00-r-foundations/index.html#ref-phu2016burden" role="doc-biblioref">Phu và c.s. 2016</a>)</span>. Một điều tra cắt ngang ở 12 bệnh viện, gồm cả khoa sơ sinh, nhi và người lớn, cho thấy 13% người bệnh mang CRE ngay ngày nhập viện và 89% ở ngày nằm viện thứ 15 <span class="citation" data-cites="tran2019high">(<a href="../m00-r-foundations/index.html#ref-tran2019high" role="doc-biblioref">Tran và c.s. 2019</a>)</span>. Ở ICU người lớn của Bệnh viện Trung ương Quân đội 108, một bệnh viện hạng đặc biệt <span class="citation" data-cites="vov2023hangdacbiet">(<a href="../m00-r-foundations/index.html#ref-vov2023hangdacbiet" role="doc-biblioref">VOV 2023</a>)</span>, tỷ lệ mang khi nhập ICU còn cao hơn: 30.8% <span class="citation" data-cites="toan2024danhgia">(<a href="../m00-r-foundations/index.html#ref-toan2024danhgia" role="doc-biblioref">Toàn và c.s. 2024</a>)</span>. CRE vào khoa theo hai đường: người mang khuẩn nhập vào từ ngoài (importation) và lây truyền tại chỗ. Các tổng quan về mô hình hóa lây truyền vi khuẩn kháng thuốc trong bệnh viện là điểm khởi đầu để đọc thêm <span class="citation" data-cites="bonten2001understanding grundmann2006mathematical">(<a href="../m00-r-foundations/index.html#ref-bonten2001understanding" role="doc-biblioref">Bonten, Austin, và Lipsitch 2001</a>; <a href="../m00-r-foundations/index.html#ref-grundmann2006mathematical" role="doc-biblioref">Grundmann và Hellriegel 2006</a>)</span>.</p>
+</section>
+<section id="mô-hình-ngăn-cho-một-icu" class="level3">
+<h3 class="anchored" data-anchor-id="mô-hình-ngăn-cho-một-icu">Mô hình ngăn cho một ICU</h3>
+<p>Khoa có <span class="math inline">\(N\)</span> giường luôn kín: mỗi người ra viện được thay ngay bằng một người nhập viện. Thời gian nằm khoa trung bình là <span class="math inline">\(1/\mu\)</span> ngày; mỗi người nhập viện mang CRE với xác suất <span class="math inline">\(\varphi\)</span>, tức tỷ lệ mang khuẩn khi nhập viện (admission prevalence).</p>
+<div class="cell" data-layout-align="center">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>flowchart LR</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  IN["Nhập viện"] --&gt;|"1 − φ"| U["U: chưa mang CRE"]</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  IN --&gt;|"φ, sàng lọc âm tính giả&lt;br/&gt;hoặc không sàng lọc"| Cu["Cu: mang CRE,&lt;br/&gt;chưa phát hiện"]</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  IN --&gt;|"φ, sàng lọc dương tính"| Cd["Cd: mang CRE,&lt;br/&gt;đã phát hiện + PNTX"]</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  U --&gt;|"lực lây nhiễm λ"| Cu</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  Cu --&gt;|"sàng lọc lặp lại"| Cd</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  U --&gt; OUT["Ra viện"]</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  Cu --&gt; OUT</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  Cd --&gt; OUT</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart LR
+  IN["Nhập viện"] --&gt;|"1 − φ"| U["U: chưa mang CRE"]
+  IN --&gt;|"φ, sàng lọc âm tính giả&lt;br/&gt;hoặc không sàng lọc"| Cu["Cu: mang CRE,&lt;br/&gt;chưa phát hiện"]
+  IN --&gt;|"φ, sàng lọc dương tính"| Cd["Cd: mang CRE,&lt;br/&gt;đã phát hiện + PNTX"]
+  U --&gt;|"lực lây nhiễm λ"| Cu
+  Cu --&gt;|"sàng lọc lặp lại"| Cd
+  U --&gt; OUT["Ra viện"]
+  Cu --&gt; OUT
+  Cd --&gt; OUT
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+<p>Trong bài này chưa có phát hiện lâm sàng, và sàng lọc được coi là đặc hiệu hoàn hảo; Bài 5 bổ sung cả hai. Ký hiệu <span class="math inline">\(\lambda\)</span> là lực lây nhiễm (force of infection), không phải ngưỡng chi phí-hiệu quả. Với hệ số lây truyền (transmission rate) <span class="math inline">\(\beta\)</span>, và PNTX làm giảm lây truyền từ người đã phát hiện một tỷ lệ <span class="math inline">\(\varepsilon\)</span>:</p>
+<p><span class="math display">\[
+\lambda(t) = \beta\,\frac{C_u + (1-\varepsilon)\,C_d}{N}.
+\]</span></p>
+<p>Gọi <span class="math inline">\(s_e\)</span> là độ nhạy của xét nghiệm sàng lọc và <span class="math inline">\(\sigma\)</span> là tần suất sàng lọc lặp lại. Hệ phương trình là</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{dU}{dt} &amp;= \mu N (1-\varphi) - \lambda U - \mu U, \\
+\frac{dC_u}{dt} &amp;= \mu N \varphi (1-s_e) + \lambda U - \sigma s_e C_u - \mu C_u, \\
+\frac{dC_d}{dt} &amp;= \mu N \varphi s_e + \sigma s_e C_u - \mu C_d.
+\end{aligned}
+\]</span></p>
+<p>Không sàng lọc thì <span class="math inline">\(s_e = \sigma = 0\)</span>. Cộng ba phương trình được <span class="math inline">\(d(U + C_u + C_d)/dt = 0\)</span>: số giường được bảo toàn, phép kiểm tra đầu tiên cho mọi lời giải số.</p>
+<p>Khi không sàng lọc, đặt <span class="math inline">\(p = C_u/N\)</span> và cho đạo hàm bằng 0, ta được phương trình bậc hai <span class="math inline">\(\beta p^2 + (\mu - \beta)p - \mu\varphi = 0\)</span>, với nghiệm dương</p>
+<p><span class="math display">\[
+p^* = \frac{(\beta - \mu) + \sqrt{(\beta-\mu)^2 + 4\beta\mu\varphi}}{2\beta}.
+\]</span></p>
+<p>Nếu không ai mang khuẩn khi nhập viện (<span class="math inline">\(\varphi = 0\)</span>), nghiệm trở về kết quả quen thuộc <span class="math inline">\(p^* = 1 - 1/R_A\)</span> khi <span class="math inline">\(R_A = \beta/\mu &gt; 1\)</span>. Khi <span class="math inline">\(\varphi &gt; 0\)</span>, ta luôn có <span class="math inline">\(p^* &gt; 0\)</span>: người mang khuẩn nhập vào từ ngoài giữ CRE tồn tại trong khoa dù lây truyền yếu.</p>
+</section>
+<section id="sàng-lọc-và-phòng-ngừa-tiếp-xúc" class="level3">
+<h3 class="anchored" data-anchor-id="sàng-lọc-và-phòng-ngừa-tiếp-xúc">Sàng lọc và phòng ngừa tiếp xúc</h3>
+<p>Sàng lọc khi nhập viện phát hiện người mang khuẩn từ ngoài vào; sàng lọc lặp lại phát hiện người mắc phải trong khoa. Người đã phát hiện được PNTX nên lây ít hơn. Nếu <em>mọi</em> người mang khuẩn được phát hiện ngay, hệ số lây nhiễm trong khoa giảm còn <span class="math inline">\(\beta(1-\varepsilon)/\mu\)</span>. Chương trình kiểm soát CRE thực tế gần như luôn là gói nhiều biện pháp (PNTX, sàng lọc chủ động, cách ly hoặc chăm sóc theo nhóm, vệ sinh tay, làm sạch môi trường), và các nghiên cứu bán thực nghiệm về chúng được đánh giá là chất lượng từ rất thấp đến thấp <span class="citation" data-cites="tomczyk2019control">(<a href="../m00-r-foundations/index.html#ref-tomczyk2019control" role="doc-biblioref">Tomczyk và c.s. 2019</a>)</span>. Trong một nghiên cứu ở ba ICU nhi của Bệnh viện Nhi Trung ương, sàng lọc khi nhập viện kèm chăm sóc theo nhóm đi kèm với giảm tỷ lệ mắc phải CRE giữa các thời kỳ nhập viện <span class="citation" data-cites="garpvall2021admission">(<a href="../m00-r-foundations/index.html#ref-garpvall2021admission" role="doc-biblioref">Garpvall và c.s. 2021</a>)</span>; đó là so sánh theo thời kỳ, chưa đủ để kết luận nhân quả.</p>
+</section>
+<section id="tất-định-deterministic-hay-ngẫu-nhiên-stochastic" class="level3">
+<h3 class="anchored" data-anchor-id="tất-định-deterministic-hay-ngẫu-nhiên-stochastic">Tất định (deterministic) hay ngẫu nhiên (stochastic)?</h3>
+<p>Hệ phương trình mô tả hành vi <em>trung bình</em> của một khoa rất lớn. Trong ICU 20 giường, việc người mang khuẩn ra viện trước hay lây cho người khác trước là chuyện may rủi; với quần thể nhỏ như vậy, cách tiếp cận ngẫu nhiên là cần thiết <span class="citation" data-cites="cooper1999preliminary">(<a href="../m00-r-foundations/index.html#ref-cooper1999preliminary" role="doc-biblioref">Cooper, Medley, và Scott 1999</a>)</span>.</p>
+<p>Thuật toán Gillespie mô phỏng từng sự kiện: tính tốc độ của mọi sự kiện (ra viện, lây truyền, phát hiện), rút thời gian chờ từ phân phối mũ với tốc độ bằng tổng các tốc độ, rồi chọn sự kiện với xác suất tỷ lệ với tốc độ của nó. Kiểm tra mã bằng một kết quả lý thuyết: khi một người mang khuẩn vào khoa có vô số giường trống, mỗi sự kiện tiếp theo là “lây” với xác suất <span class="math inline">\(\beta/(\beta+\mu)\)</span> hoặc “ra viện” với xác suất <span class="math inline">\(\mu/(\beta+\mu)\)</span>, nên chuỗi lây truyền tắt sớm với xác suất <span class="math inline">\(1/R_A\)</span> khi <span class="math inline">\(R_A &gt; 1\)</span>. Công thức này chỉ đúng khi nguồn người chưa mang khuẩn gần như vô hạn.</p>
+</section>
+</section>
+<section id="thực-hành" class="level2">
+<h2 class="anchored" data-anchor-id="thực-hành">Thực hành</h2>
+<p>Số giường và thời gian nằm ICU lấy từ điều tra các ICU người lớn ở Việt Nam <span class="citation" data-cites="phu2016burden">(<a href="../m00-r-foundations/index.html#ref-phu2016burden" role="doc-biblioref">Phu và c.s. 2016</a>)</span>, tỷ lệ mang CRE khi nhập ICU lấy từ Bệnh viện Trung ương Quân đội 108 <span class="citation" data-cites="toan2024danhgia">(<a href="../m00-r-foundations/index.html#ref-toan2024danhgia" role="doc-biblioref">Toàn và c.s. 2024</a>)</span>. Hệ số lây truyền, hiệu quả của PNTX và độ nhạy của xét nghiệm là giá trị minh họa, nên kết quả về sàng lọc chỉ minh họa phương pháp. Đoạn mã đầu nạp hàm và tham số, đặt số lần chạy ngẫu nhiên và số ngày mô phỏng.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">isTRUE</span>(<span class="fu">l10n_info</span>()[[<span class="st">"UTF-8"</span>]])) <span class="fu">invisible</span>(<span class="fu">Sys.setlocale</span>(<span class="st">"LC_CTYPE"</span>, <span class="st">"en_US.UTF-8"</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/helpers.R"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"../_shared/R/vn_data.R"</span>)   <span class="co"># course-wide values: vn_context(), vn_prices(), vn_mx(), inflate_vnd()</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"code/model.R"</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">read_all_params</span>()</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>N_SIM <span class="ot">&lt;-</span> <span class="dv">1000</span>        <span class="co"># stochastic runs (more gives smoother intervals)</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>DAYS <span class="ot">&lt;-</span> <span class="dv">180</span>          <span class="co"># simulated days</span></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>INTRO_DAYS <span class="ot">&lt;-</span> <span class="dv">60</span>     <span class="co"># follow-up for the single-introduction experiment</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>BIG_FACTOR <span class="ot">&lt;-</span> <span class="dv">10</span>     <span class="co"># the "large ward" check multiplies the number of beds by this</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>N_EXT <span class="ot">&lt;-</span> <span class="dv">500</span>         <span class="co"># runs of the early-extinction check in the large ward</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>EXT_DAYS <span class="ot">&lt;-</span> <span class="dv">40</span>       <span class="co"># follow-up of that check (long enough for early die-out to be settled)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Bắt đầu từ một khoa chưa ai mang CRE và giải hệ phương trình bằng <code>deSolve::ode()</code>. Kiểm tra: tổng các ngăn luôn bằng số giường, và lời giải số sau 180 ngày trùng với nghiệm giải tích <span class="math inline">\(p^*\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The pure transmission model of this lesson: no clinical detection (clinical = FALSE) and,</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># below, perfect specificity. Lesson 5 adds both.</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">ward_parms</span>(p, <span class="st">"usual"</span>, <span class="at">clinical =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">unlist</span>(pp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        N        mu       phi      beta       eps        se        sp     sigma 
+ 20.00000   0.15625   0.30800   0.65000   0.50000   0.00000   1.00000   0.00000 
+    delay      clin phi_trend 
+  0.00000   0.00000   0.00000 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>RA <span class="ot">&lt;-</span> <span class="fu">ward_RA</span>(pp)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>prev_eq <span class="ot">&lt;-</span> <span class="fu">ward_equilibrium</span>(pp)</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Start with no carriers at all: admissions bring CRE in, transmission does the rest</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>y_empty <span class="ot">&lt;-</span> <span class="fu">ward_init</span>(pp, <span class="at">prev =</span> <span class="dv">0</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>det0 <span class="ot">&lt;-</span> <span class="fu">run_ward_det</span>(pp, DAYS, y_empty)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>det0<span class="sc">$</span>prev <span class="ot">&lt;-</span> (det0<span class="sc">$</span>Cu <span class="sc">+</span> det0<span class="sc">$</span>Cp <span class="sc">+</span> det0<span class="sc">$</span>Cd) <span class="sc">/</span> pp<span class="sc">$</span>N</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(det0[<span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">8</span>, <span class="dv">31</span>, <span class="dv">91</span>, <span class="dv">181</span>), <span class="fu">c</span>(<span class="st">"time"</span>, <span class="st">"U"</span>, <span class="st">"Cu"</span>, <span class="st">"prev"</span>, <span class="st">"Acq"</span>)], <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    time     U    Cu prev    Acq
+1      0 20.00  0.00 0.00   0.00
+8      7  5.33 14.67 0.73  15.70
+31    30  3.06 16.94 0.85  56.08
+91    90  3.06 16.94 0.85 157.15
+181  180  3.06 16.94 0.85 308.75</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Checks: beds always full; the ODE settles at the analytic equilibrium</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">all</span>(<span class="fu">abs</span>(<span class="fu">ward_total</span>(det0) <span class="sc">-</span> pp<span class="sc">$</span>N) <span class="sc">&lt;</span> <span class="fl">1e-6</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>          <span class="fu">abs</span>(det0<span class="sc">$</span>prev[<span class="fu">nrow</span>(det0)] <span class="sc">-</span> prev_eq) <span class="sc">&lt;</span> <span class="fl">1e-4</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">c</span>(<span class="at">RA =</span> RA, <span class="at">prev_eq =</span> prev_eq)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       RA   prev_eq 
+4.1600000 0.8470254 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># How long does the ward take to get close to its equilibrium?</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>days_to_95 <span class="ot">&lt;-</span> det0<span class="sc">$</span>time[<span class="fu">which</span>(det0<span class="sc">$</span>prev <span class="sc">&gt;=</span> <span class="fl">0.95</span> <span class="sc">*</span> prev_eq)[<span class="dv">1</span>]]</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>days_to_95</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 9</code></pre>
+</div>
+</div>
+<p>Với các tham số này, <span class="math inline">\(R_A\)</span> = 4.2 và khoa ổn định ở mức 84.7% số giường có người mang CRE. Mô hình đạt 95% mức này sau 9 ngày.</p>
+<p>Hệ số <span class="math inline">\(\beta\)</span> là giá trị minh họa, được chọn gần đúng để tỷ lệ mang CRE khi rời ICU trong mô hình gần với số liệu của Bệnh viện Trung ương Quân đội 108. Vì vậy phần đối chiếu dưới đây không phải kiểm chứng độc lập; hiệu chuẩn thật sự (có mục tiêu, hàm khoảng cách và bất định) nằm ở M08. Khi không sàng lọc, người ra viện là một mẫu ngẫu nhiên của các giường, nên tỷ lệ mang CRE lúc ra viện bằng tỷ lệ lưu hành <span class="math inline">\(p^*\)</span>. Ở trạng thái cân bằng, một người chưa mang khuẩn bị lây với nguy cơ tức thời (hazard) không đổi <span class="math inline">\(\lambda = \beta p^*\)</span>, nên tỷ lệ mang CRE theo ngày nằm ICU là <span class="math inline">\(1 - (1-\varphi)e^{-\lambda d}\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Comparison with the adult ICUs of the 108 Military Central Hospital (Toan et al. 2024): 30.8% carry</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="co"># CRE on admission, 84.9% when they leave the ICU. Without screening, discharges are a random sample</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># of the beds, so the share carrying CRE at discharge is the equilibrium prevalence p*. A patient who</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># arrives without CRE acquires it at the constant hazard lambda = beta * p*, so the share carrying CRE</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a><span class="co"># by day of stay is 1 - (1 - phi) exp(-lambda d).</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>lambda <span class="ot">&lt;-</span> pp<span class="sc">$</span>beta <span class="sc">*</span> prev_eq</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>day <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">20</span>, <span class="at">by =</span> <span class="fl">0.25</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>carriage <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> pp<span class="sc">$</span>phi) <span class="sc">*</span> <span class="fu">exp</span>(<span class="sc">-</span>lambda <span class="sc">*</span> day)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Mean carriage at discharge with exponential stays: 1 - (1 - phi) mu / (mu + lambda); must equal p*</span></span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>carriage_discharge <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> pp<span class="sc">$</span>phi) <span class="sc">*</span> pp<span class="sc">$</span>mu <span class="sc">/</span> (pp<span class="sc">$</span>mu <span class="sc">+</span> lambda)</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(carriage_discharge <span class="sc">-</span> prev_eq) <span class="sc">&lt;</span> <span class="fl">1e-8</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Day of ICU stay at which the model reaches the day-15 carriage of the mixed wards in Tran et al.</span></span>
+<span id="cb11-13"><a href="#cb11-13" aria-hidden="true" tabindex="-1"></a>day_tran_level <span class="ot">&lt;-</span> <span class="sc">-</span><span class="fu">log</span>((<span class="dv">1</span> <span class="sc">-</span> p<span class="sc">$</span>tran_prev_d15) <span class="sc">/</span> (<span class="dv">1</span> <span class="sc">-</span> pp<span class="sc">$</span>phi)) <span class="sc">/</span> lambda</span>
+<span id="cb11-14"><a href="#cb11-14" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">lambda =</span> lambda, <span class="at">model_discharge =</span> carriage_discharge, <span class="at">toan_discharge =</span> p<span class="sc">$</span>toan_prev_discharge,</span>
+<span id="cb11-15"><a href="#cb11-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">day_model_reaches_tran_d15 =</span> day_tran_level), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                    lambda            model_discharge 
+                     0.551                      0.847 
+            toan_discharge day_model_reaches_tran_d15 
+                     0.849                      3.340 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The same study reports how long patients took to acquire CRE in the ICU (before the intervention).</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="co"># With a constant hazard lambda the mean time to acquisition is 1 / lambda: compare the two.</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>tab_fv <span class="ot">&lt;-</span> <span class="fu">attr</span>(p, <span class="st">"table"</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>time_acq_ci <span class="ot">&lt;-</span> <span class="fu">unlist</span>(tab_fv[tab_fv<span class="sc">$</span>name <span class="sc">==</span> <span class="st">"toan_time_acq"</span>, <span class="fu">c</span>(<span class="st">"low"</span>, <span class="st">"high"</span>)])</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>time_acq_model <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">/</span> lambda</span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>acq_conflict <span class="ot">&lt;-</span> time_acq_model <span class="sc">&lt;</span> time_acq_ci[[<span class="st">"low"</span>]]     <span class="co"># model acquires faster than the whole 95% CI</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">model_days_to_acquire =</span> time_acq_model, <span class="at">toan_days_to_acquire =</span> p<span class="sc">$</span>toan_time_acq,</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>        <span class="at">ci_low =</span> time_acq_ci[[<span class="st">"low"</span>]], <span class="at">ci_high =</span> time_acq_ci[[<span class="st">"high"</span>]]), <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>model_days_to_acquire  toan_days_to_acquire                ci_low 
+                  1.8                  10.0                   9.0 
+              ci_high 
+                 12.0 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>obs <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">day =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>, p<span class="sc">$</span>tran_day),</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">carriage =</span> <span class="fu">c</span>(p<span class="sc">$</span>phi_adm, p<span class="sc">$</span>tran_prev_adm, p<span class="sc">$</span>tran_prev_d15),</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">source =</span> <span class="fu">c</span>(<span class="st">"ICU người lớn, BV TWQĐ 108 (khi nhập ICU)"</span>, <span class="fu">rep</span>(<span class="st">"12 bệnh viện, nhiều loại khoa (Tran 2019)"</span>, <span class="dv">2</span>))</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>fig_fv <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(<span class="fu">data.frame</span>(day, carriage), <span class="fu">aes</span>(day, carriage)) <span class="sc">+</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> p<span class="sc">$</span>toan_prev_discharge, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">colour =</span> pal_course[<span class="dv">2</span>]) <span class="sc">+</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="dv">20</span>, <span class="at">y =</span> p<span class="sc">$</span>toan_prev_discharge <span class="sc">-</span> <span class="fl">0.04</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="fl">3.2</span>, <span class="at">colour =</span> pal_course[<span class="dv">2</span>],</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="fu">sprintf</span>(<span class="st">"BV TWQĐ 108, khi rời ICU: %s"</span>, <span class="fu">fmt_pct</span>(p<span class="sc">$</span>toan_prev_discharge, <span class="dv">1</span>))) <span class="sc">+</span></span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">colour =</span> pal_course[<span class="dv">1</span>], <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> obs, <span class="fu">aes</span>(<span class="at">colour =</span> source, <span class="at">shape =</span> source), <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>  <span class="co"># levels sort alphabetically: "12 bệnh viện..." (Tran, grey) first, then the 108 ICU (orange, like the dashed line)</span></span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"grey35"</span>, pal_course[<span class="dv">2</span>]), <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_shape_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="dv">17</span>, <span class="dv">16</span>), <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(<span class="dv">100</span> <span class="sc">*</span> x, <span class="st">"%"</span>), <span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Ngày nằm ICU"</span>, <span class="at">y =</span> <span class="st">"Tỷ lệ người bệnh mang CRE"</span>,</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Đối chiếu: mô hình ICU (đường) và số liệu Việt Nam (điểm, nét đứt)"</span>,</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"β chọn gần đúng theo tỷ lệ mang khi rời ICU: đối chiếu, không phải kiểm chứng"</span>) <span class="sc">+</span></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">colour =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>), <span class="at">shape =</span> <span class="fu">guide_legend</span>(<span class="at">nrow =</span> <span class="dv">2</span>)) <span class="sc">+</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_fv, <span class="st">"l03-face-validity.png"</span>, <span class="at">width =</span> <span class="dv">7</span>, <span class="at">height =</span> <span class="fl">4.4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l03-face-validity.png" class="img-fluid figure-img" style="width:85.0%"></p>
+<figcaption>Đối chiếu tỷ lệ người bệnh mang CRE theo ngày nằm ICU: mô hình (đường) và số liệu Việt Nam (điểm và nét đứt).</figcaption>
+</figure>
+</div>
+<p>Mô hình cho 84.7% người bệnh mang CRE khi rời ICU, so với 84.9% trong số liệu; đây chính là điểm mà <span class="math inline">\(\beta\)</span> được chọn theo. Một người không mang khuẩn khi nhập ICU bị lây với nguy cơ 0.55 mỗi ngày, nên mô hình đạt mức 89% (mức của ngày thứ 15 ở khoa hỗn hợp trong điều tra của Tran và cộng sự) chỉ sau 3.3 ngày. ICU lây nhanh hơn khoa hỗn hợp là hợp lý (người bệnh nặng, nhiều thủ thuật, nhiều tiếp xúc của nhân viên), nhưng đây chỉ là so sánh hai quần thể khác nhau, không phải kiểm chứng.</p>
+<p>Đây là chỗ mô hình và số liệu mâu thuẫn. Cũng nghiên cứu đó ghi nhận thời gian đến khi mắc phải CRE trong ICU khoảng 10 ngày (KTC 95% 9–12) ở giai đoạn trước can thiệp <span class="citation" data-cites="toan2024danhgia">(<a href="../m00-r-foundations/index.html#ref-toan2024danhgia" role="doc-biblioref">Toàn và c.s. 2024</a>)</span>, còn mô hình cho <span class="math inline">\(1/\lambda\)</span> = 1.8 ngày. Mô hình phải cho lây rất nhanh mới đạt 85% khi rời ICU sau chỉ 6.4 ngày nằm (số của điều tra các ICU khác); nếu ICU của Bệnh viện 108 nằm lâu hơn thì cần lây chậm hơn. Hiệu chuẩn thật sự (M08) phải khớp đồng thời tỷ lệ mang khi rời ICU, thời gian đến khi mắc phải và thời gian nằm ICU; vì chưa làm vậy, hãy đọc các kết quả định lượng của Bài 3 và Bài 5 như minh họa phương pháp.</p>
+<p>Thêm sàng lọc khi nhập viện và hằng tuần, kèm PNTX, với giả định kết quả có ngay (Bài 5 thêm thời gian chờ). Cả hai kịch bản bắt đầu từ trạng thái lưu hành. Kiểm tra: số ca mắc mới giảm và số giường vẫn được bảo toàn.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Screening on admission and weekly + contact precautions, with results available at</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="co"># once (Lesson 5 adds the delay). Start from the endemic state.</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>pp_scr <span class="ot">&lt;-</span> <span class="fu">ward_parms</span>(p, <span class="st">"culture"</span>, <span class="at">clinical =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>pp_scr<span class="sc">$</span>delay <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>pp_scr<span class="sc">$</span>sp <span class="ot">&lt;-</span> <span class="dv">1</span>                      <span class="co"># perfect specificity here; Lesson 5 adds false positives</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>y_end <span class="ot">&lt;-</span> <span class="fu">ward_init</span>(pp)</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>det_usual <span class="ot">&lt;-</span> <span class="fu">run_ward_det</span>(pp, DAYS, y_end)</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>det_scr <span class="ot">&lt;-</span> <span class="fu">run_ward_det</span>(pp_scr, DAYS, y_end)</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>scr_tab <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">scenario =</span> <span class="fu">c</span>(<span class="st">"Không sàng lọc"</span>, <span class="st">"Sàng lọc + PNTX"</span>),</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">prev_day180 =</span> <span class="fu">c</span>(<span class="fu">sum</span>(<span class="fu">unlist</span>(det_usual[DAYS <span class="sc">+</span> <span class="dv">1</span>, <span class="fu">c</span>(<span class="st">"Cu"</span>, <span class="st">"Cp"</span>, <span class="st">"Cd"</span>)])),</span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>                  <span class="fu">sum</span>(<span class="fu">unlist</span>(det_scr[DAYS <span class="sc">+</span> <span class="dv">1</span>, <span class="fu">c</span>(<span class="st">"Cu"</span>, <span class="st">"Cp"</span>, <span class="st">"Cd"</span>)]))) <span class="sc">/</span> pp<span class="sc">$</span>N,</span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">acquisitions =</span> <span class="fu">c</span>(det_usual<span class="sc">$</span>Acq[DAYS <span class="sc">+</span> <span class="dv">1</span>], det_scr<span class="sc">$</span>Acq[DAYS <span class="sc">+</span> <span class="dv">1</span>]),</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">cp_days =</span> <span class="fu">c</span>(det_usual<span class="sc">$</span>CPdays[DAYS <span class="sc">+</span> <span class="dv">1</span>], det_scr<span class="sc">$</span>CPdays[DAYS <span class="sc">+</span> <span class="dv">1</span>])</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>scr_show <span class="ot">&lt;-</span> scr_tab                 <span class="co"># round a copy for printing; scr_tab stays exact for the text</span></span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>scr_show[, <span class="sc">-</span><span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="fu">round</span>(scr_show[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">2</span>)</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>scr_show</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         scenario prev_day180 acquisitions cp_days
+1  Không sàng lọc        0.85       303.20    0.00
+2 Sàng lọc + PNTX        0.79       271.16 1681.71</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>acq_averted_share <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> scr_tab<span class="sc">$</span>acquisitions[<span class="dv">2</span>] <span class="sc">/</span> scr_tab<span class="sc">$</span>acquisitions[<span class="dv">1</span>]</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="co"># For comparison only: after a bundle (hand hygiene, active screening, isolation) the 108 ICUs saw</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># 52.5% carriage at ICU exit; the model has screening + precautions alone</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>prev_scr_180 <span class="ot">&lt;-</span> scr_tab<span class="sc">$</span>prev_day180[<span class="dv">2</span>]</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">model_screening_day180 =</span> prev_scr_180, <span class="at">toan_after_bundle =</span> p<span class="sc">$</span>toan_prev_discharge_post), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>model_screening_day180      toan_after_bundle 
+                 0.790                  0.525 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(scr_tab<span class="sc">$</span>acquisitions[<span class="dv">2</span>] <span class="sc">&lt;</span> scr_tab<span class="sc">$</span>acquisitions[<span class="dv">1</span>],</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>          <span class="fu">all</span>(<span class="fu">abs</span>(<span class="fu">ward_total</span>(det_scr) <span class="sc">-</span> pp<span class="sc">$</span>N) <span class="sc">&lt;</span> <span class="fl">1e-6</span>))</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Reproduction number if every carrier were detected and under precautions</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>RA_all_detected <span class="ot">&lt;-</span> pp<span class="sc">$</span>beta <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> pp<span class="sc">$</span>eps) <span class="sc">/</span> pp<span class="sc">$</span>mu</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>RA_all_detected</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 2.08</code></pre>
+</div>
+</div>
+<p>Sau 180 ngày, sàng lọc kèm PNTX tránh được 11% số ca định cư mắc phải trong khoa (hiệu quả của PNTX là minh họa). Ngay cả khi phát hiện được mọi người mang khuẩn, <span class="math inline">\(R_A\)</span> chỉ giảm còn 2.08, vẫn trên 1. Tỷ lệ mang CRE trong khoa giảm từ 85% xuống 79%. Sau một gói can thiệp gồm cả tăng cường vệ sinh tay, sàng lọc chủ động và cách ly, Bệnh viện 108 ghi nhận tỷ lệ mang CRE khi rời ICU giảm còn 52.5% <span class="citation" data-cites="toan2024danhgia">(<a href="../m00-r-foundations/index.html#ref-toan2024danhgia" role="doc-biblioref">Toàn và c.s. 2024</a>)</span>. Mô hình chỉ có sàng lọc và PNTX nên giảm ít hơn. Một cách giải thích là vệ sinh tay (giảm β cho mọi người) đóng góp đáng kể; cách khác là mô hình và số liệu lệch nhau ở những điểm đã nêu ở trên. So sánh trước-sau này không đủ để kết luận nhân quả.</p>
+<p>Chuyển sang mô hình ngẫu nhiên, bắt đầu bằng phép kiểm tra lý thuyết: một người mang khuẩn vào khoa không ai mang, không có người mang khuẩn nhập thêm. Ta chạy 1,000 lần và đếm tỷ lệ lần chạy không còn người mang khuẩn sau 60 ngày.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Stochastic: one carrier enters an otherwise CRE-free ward and nobody else brings CRE in.</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Branching-process theory: probability that the chain dies out early is about 1 / RA.</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>pp_intro <span class="ot">&lt;-</span> pp</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>pp_intro<span class="sc">$</span>phi <span class="ot">&lt;-</span> <span class="dv">0</span></span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>y_one <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">U =</span> pp<span class="sc">$</span>N <span class="sc">-</span> <span class="dv">1</span>, <span class="at">Cu =</span> <span class="dv">1</span>, <span class="at">Cp =</span> <span class="dv">0</span>, <span class="at">Cd =</span> <span class="dv">0</span>)</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">303</span>)</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>extinct <span class="ot">&lt;-</span> <span class="fu">logical</span>(N_SIM)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(N_SIM)) {</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">&lt;-</span> <span class="fu">ward_gillespie</span>(pp_intro, INTRO_DAYS, y_one)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  last_row <span class="ot">&lt;-</span> INTRO_DAYS <span class="sc">+</span> <span class="dv">1</span></span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>  extinct[i] <span class="ot">&lt;-</span> (g<span class="sc">$</span>Cu[last_row] <span class="sc">+</span> g<span class="sc">$</span>Cp[last_row] <span class="sc">+</span> g<span class="sc">$</span>Cd[last_row]) <span class="sc">==</span> <span class="dv">0</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>p_extinct <span class="ot">&lt;-</span> <span class="fu">mean</span>(extinct)</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>se_small <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(p_extinct <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_extinct) <span class="sc">/</span> N_SIM)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">simulated =</span> p_extinct, <span class="at">theory =</span> <span class="dv">1</span> <span class="sc">/</span> RA, <span class="at">se =</span> se_small), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>simulated    theory        se 
+    0.280     0.240     0.014 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># In a 20-bed ward the pool of non-carriers runs short, so die-out should be MORE likely than 1 / RA</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(p_extinct <span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">/</span> RA <span class="sc">-</span> <span class="dv">3</span> <span class="sc">*</span> se_small)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Tỷ lệ tắt sớm là 28.0% (sai số chuẩn 1.4%), cao hơn giá trị lý thuyết 24%. Ở khoa 20 giường nguồn người chưa mang khuẩn cạn dần nên ta chỉ kỳ vọng đúng chiều đó. Để kiểm tra chính công thức, ta lặp lại ở khoa 200 giường, nơi nguồn này gần như không cạn, và đòi hỏi khớp trong 3 sai số chuẩn.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The result 1 / R_A holds for a practically unlimited pool of non-carriers. Test it where that is</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="co"># true: a 200-bed ward. A 3-standard-error band is a tight test, so a real bug would show.</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>pp_ext <span class="ot">&lt;-</span> pp_intro</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>pp_ext<span class="sc">$</span>N <span class="ot">&lt;-</span> BIG_FACTOR <span class="sc">*</span> pp<span class="sc">$</span>N</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>y_one_big <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">U =</span> pp_ext<span class="sc">$</span>N <span class="sc">-</span> <span class="dv">1</span>, <span class="at">Cu =</span> <span class="dv">1</span>, <span class="at">Cp =</span> <span class="dv">0</span>, <span class="at">Cd =</span> <span class="dv">0</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">306</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>ext_big <span class="ot">&lt;-</span> <span class="fu">logical</span>(N_EXT)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(N_EXT)) {</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  g <span class="ot">&lt;-</span> <span class="fu">ward_gillespie</span>(pp_ext, EXT_DAYS, y_one_big)</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  ext_big[i] <span class="ot">&lt;-</span> (g<span class="sc">$</span>Cu[EXT_DAYS <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">+</span> g<span class="sc">$</span>Cp[EXT_DAYS <span class="sc">+</span> <span class="dv">1</span>] <span class="sc">+</span> g<span class="sc">$</span>Cd[EXT_DAYS <span class="sc">+</span> <span class="dv">1</span>]) <span class="sc">==</span> <span class="dv">0</span></span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>p_ext_big <span class="ot">&lt;-</span> <span class="fu">mean</span>(ext_big)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>se_ext <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(p_ext_big <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> p_ext_big) <span class="sc">/</span> N_EXT)</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>RA_eff <span class="ot">&lt;-</span> pp_ext<span class="sc">$</span>beta <span class="sc">*</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="dv">1</span> <span class="sc">/</span> pp_ext<span class="sc">$</span>N) <span class="sc">/</span> pp_ext<span class="sc">$</span>mu    <span class="co"># one carrier already uses one bed</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">simulated =</span> p_ext_big, <span class="at">theory =</span> <span class="dv">1</span> <span class="sc">/</span> RA_eff, <span class="at">se =</span> se_ext), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>simulated    theory        se 
+    0.236     0.242     0.019 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(p_ext_big <span class="sc">-</span> <span class="dv">1</span> <span class="sc">/</span> RA_eff) <span class="sc">&lt;</span> <span class="dv">3</span> <span class="sc">*</span> se_ext)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Ở khoa lớn, tỷ lệ tắt sớm là 23.6% (sai số chuẩn 1.9%), khớp giá trị lý thuyết 24.2%.</p>
+<p>Tiếp theo, ta chạy 1,000 lần cho khoa ở kịch bản cơ sở và ở kịch bản “khoa ít CRE”, giống một bệnh viện tuyến huyện: chỉ 2.7% người bệnh mang vi khuẩn sinh carbapenemase khi nhập viện, như ở bốn bệnh viện tuyến huyện năm 2022 <span class="citation" data-cites="doshi2026multidrug">(<a href="../m00-r-foundations/index.html#ref-doshi2026multidrug" role="doc-biblioref">Doshi và c.s. 2026</a>)</span>, và lây truyền yếu (<span class="math inline">\(R_A\)</span> = 0.64, giá trị minh họa). Bảng cuối cho tỷ lệ định cư theo mô hình tất định, trung bình và khoảng 90% của các lần chạy, và xác suất khoa không có người mang khuẩn nào ở ngày 180.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 1,000 stochastic runs of the 20-bed ICU (endemic start) vs the deterministic model,</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># for the base case and for a district-hospital-like ward (low importation, Doshi et al. 2026;</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a><span class="co"># illustrative low transmission)</span></span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Whole patients at a given carriage prevalence (beds stay full)</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>y0_int <span class="ot">&lt;-</span> <span class="cf">function</span>(pp_x, prev) {</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">U =</span> pp_x<span class="sc">$</span>N <span class="sc">-</span> <span class="fu">round</span>(pp_x<span class="sc">$</span>N <span class="sc">*</span> prev), <span class="at">Cu =</span> <span class="fu">round</span>(pp_x<span class="sc">$</span>N <span class="sc">*</span> prev), <span class="at">Cp =</span> <span class="dv">0</span>, <span class="at">Cd =</span> <span class="dv">0</span>)</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>run_many <span class="ot">&lt;-</span> <span class="cf">function</span>(pp_x, y0, n_sim, days) {</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>  prev <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="cn">NA_real_</span>, days <span class="sc">+</span> <span class="dv">1</span>, n_sim)</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(n_sim)) {</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>    g <span class="ot">&lt;-</span> <span class="fu">ward_gillespie</span>(pp_x, days, y0)</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>    prev[, i] <span class="ot">&lt;-</span> (g<span class="sc">$</span>Cu <span class="sc">+</span> g<span class="sc">$</span>Cp <span class="sc">+</span> g<span class="sc">$</span>Cd) <span class="sc">/</span> pp_x<span class="sc">$</span>N</span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a>  prev</span>
+<span id="cb28-15"><a href="#cb28-15" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-16"><a href="#cb28-16" aria-hidden="true" tabindex="-1"></a>pp_low <span class="ot">&lt;-</span> pp</span>
+<span id="cb28-17"><a href="#cb28-17" aria-hidden="true" tabindex="-1"></a>pp_low<span class="sc">$</span>phi <span class="ot">&lt;-</span> p<span class="sc">$</span>phi_low</span>
+<span id="cb28-18"><a href="#cb28-18" aria-hidden="true" tabindex="-1"></a>pp_low<span class="sc">$</span>beta <span class="ot">&lt;-</span> p<span class="sc">$</span>beta_low</span>
+<span id="cb28-19"><a href="#cb28-19" aria-hidden="true" tabindex="-1"></a>scen <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">base =</span> pp, <span class="at">low =</span> pp_low)</span>
+<span id="cb28-20"><a href="#cb28-20" aria-hidden="true" tabindex="-1"></a>stoch_df <span class="ot">&lt;-</span> <span class="cn">NULL</span></span>
+<span id="cb28-21"><a href="#cb28-21" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (s <span class="cf">in</span> <span class="fu">names</span>(scen)) {</span>
+<span id="cb28-22"><a href="#cb28-22" aria-hidden="true" tabindex="-1"></a>  pp_s <span class="ot">&lt;-</span> scen[[s]]</span>
+<span id="cb28-23"><a href="#cb28-23" aria-hidden="true" tabindex="-1"></a>  y0_s <span class="ot">&lt;-</span> <span class="fu">y0_int</span>(pp_s, <span class="fu">ward_equilibrium</span>(pp_s))</span>
+<span id="cb28-24"><a href="#cb28-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(<span class="dv">304</span>)</span>
+<span id="cb28-25"><a href="#cb28-25" aria-hidden="true" tabindex="-1"></a>  prev <span class="ot">&lt;-</span> <span class="fu">run_many</span>(pp_s, y0_s, N_SIM, DAYS)</span>
+<span id="cb28-26"><a href="#cb28-26" aria-hidden="true" tabindex="-1"></a>  det_s <span class="ot">&lt;-</span> <span class="fu">run_ward_det</span>(pp_s, DAYS, <span class="fu">ward_init</span>(pp_s))</span>
+<span id="cb28-27"><a href="#cb28-27" aria-hidden="true" tabindex="-1"></a>  stoch_df <span class="ot">&lt;-</span> <span class="fu">rbind</span>(stoch_df, <span class="fu">data.frame</span>(</span>
+<span id="cb28-28"><a href="#cb28-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">scenario =</span> s, <span class="at">day =</span> <span class="dv">0</span><span class="sc">:</span>DAYS,</span>
+<span id="cb28-29"><a href="#cb28-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">det =</span> (det_s<span class="sc">$</span>Cu <span class="sc">+</span> det_s<span class="sc">$</span>Cp <span class="sc">+</span> det_s<span class="sc">$</span>Cd) <span class="sc">/</span> pp_s<span class="sc">$</span>N,</span>
+<span id="cb28-30"><a href="#cb28-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">mean =</span> <span class="fu">rowMeans</span>(prev),</span>
+<span id="cb28-31"><a href="#cb28-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">lo =</span> <span class="fu">apply</span>(prev, <span class="dv">1</span>, quantile, <span class="fl">0.05</span>), <span class="at">hi =</span> <span class="fu">apply</span>(prev, <span class="dv">1</span>, quantile, <span class="fl">0.95</span>),</span>
+<span id="cb28-32"><a href="#cb28-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">p_zero =</span> <span class="fu">rowMeans</span>(prev <span class="sc">==</span> <span class="dv">0</span>)</span>
+<span id="cb28-33"><a href="#cb28-33" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb28-34"><a href="#cb28-34" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb28-35"><a href="#cb28-35" aria-hidden="true" tabindex="-1"></a>last <span class="ot">&lt;-</span> stoch_df[stoch_df<span class="sc">$</span>day <span class="sc">==</span> DAYS, ]</span>
+<span id="cb28-36"><a href="#cb28-36" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(last[, <span class="sc">-</span><span class="dv">1</span>], <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    day   det  mean  lo   hi p_zero
+181 180 0.847 0.840 0.7 0.95   0.00
+362 180 0.067 0.057 0.0 0.20   0.47</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>RA_low <span class="ot">&lt;-</span> pp_low<span class="sc">$</span>beta <span class="sc">/</span> pp_low<span class="sc">$</span>mu</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>p_zero_low <span class="ot">&lt;-</span> last<span class="sc">$</span>p_zero[last<span class="sc">$</span>scenario <span class="sc">==</span> <span class="st">"low"</span>]</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Stochastic mean vs deterministic value in the base ward (positive = stochastic mean is lower)</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>gap_base <span class="ot">&lt;-</span> last<span class="sc">$</span>det[last<span class="sc">$</span>scenario <span class="sc">==</span> <span class="st">"base"</span>] <span class="sc">-</span> last<span class="sc">$</span>mean[last<span class="sc">$</span>scenario <span class="sc">==</span> <span class="st">"base"</span>]</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Stochastic mean must stay close to the deterministic path; a large gap would signal a bug</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">abs</span>(gap_base) <span class="sc">&lt;</span> <span class="fl">0.08</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Hình vẽ cùng kết quả: đường tất định, trung bình các lần chạy ngẫu nhiên và dải 90%. Kiểm tra: so đường trung bình với đường tất định, và so độ rộng của dải ở hai khoa.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>scen_vi <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">base =</span> <span class="fu">sprintf</span>(<span class="st">"Cơ sở: R_A = %s, mang CRE khi nhập viện %s"</span>,</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>                            <span class="fu">fmt_num</span>(RA, <span class="dv">1</span>), <span class="fu">fmt_pct</span>(pp<span class="sc">$</span>phi, <span class="dv">0</span>)),</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>             <span class="at">low =</span> <span class="fu">sprintf</span>(<span class="st">"Thấp: R_A = %s, mang CRE khi nhập viện %s"</span>,</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>                           <span class="fu">fmt_num</span>(RA_low, <span class="dv">1</span>), <span class="fu">fmt_pct</span>(pp_low<span class="sc">$</span>phi, <span class="dv">0</span>)))</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>stoch_df<span class="sc">$</span>scenario_vi <span class="ot">&lt;-</span> <span class="fu">factor</span>(scen_vi[stoch_df<span class="sc">$</span>scenario], <span class="at">levels =</span> scen_vi)</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>fig_stoch <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(stoch_df, <span class="fu">aes</span>(day)) <span class="sc">+</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lo, <span class="at">ymax =</span> hi), <span class="at">fill =</span> pal_course[<span class="dv">5</span>], <span class="at">alpha =</span> <span class="fl">0.4</span>) <span class="sc">+</span></span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> mean, <span class="at">colour =</span> <span class="fu">sprintf</span>(<span class="st">"Trung bình %s lần chạy ngẫu nhiên"</span>, <span class="fu">fmt_num</span>(N_SIM))),</span>
+<span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="fu">aes</span>(<span class="at">y =</span> det, <span class="at">colour =</span> <span class="st">"Mô hình tất định"</span>), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb31-11"><a href="#cb31-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>scenario_vi, <span class="at">scales =</span> <span class="st">"free_y"</span>) <span class="sc">+</span></span>
+<span id="cb31-12"><a href="#cb31-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(pal_course[<span class="dv">8</span>], pal_course[<span class="dv">1</span>]), <span class="at">name =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb31-13"><a href="#cb31-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">labels =</span> <span class="cf">function</span>(x) <span class="fu">paste0</span>(<span class="dv">100</span> <span class="sc">*</span> x, <span class="st">"%"</span>)) <span class="sc">+</span></span>
+<span id="cb31-14"><a href="#cb31-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Ngày"</span>, <span class="at">y =</span> <span class="st">"Tỷ lệ giường có người mang CRE"</span>,</span>
+<span id="cb31-15"><a href="#cb31-15" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="fu">sprintf</span>(<span class="st">"ICU %s giường: tất định so với ngẫu nhiên"</span>, <span class="fu">fmt_num</span>(pp<span class="sc">$</span>N)),</span>
+<span id="cb31-16"><a href="#cb31-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">subtitle =</span> <span class="st">"Dải màu: khoảng 90% của các lần chạy ngẫu nhiên"</span>) <span class="sc">+</span></span>
+<span id="cb31-17"><a href="#cb31-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_course</span>()</span>
+<span id="cb31-18"><a href="#cb31-18" aria-hidden="true" tabindex="-1"></a><span class="fu">save_fig</span>(fig_stoch, <span class="st">"l03-det-vs-stoch.png"</span>, <span class="at">width =</span> <span class="fl">8.5</span>, <span class="at">height =</span> <span class="fl">4.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figs/l03-det-vs-stoch.png" class="img-fluid figure-img" style="width:100.0%"></p>
+<figcaption>Tỷ lệ giường có người mang CRE: mô hình tất định và 1,000 lần chạy ngẫu nhiên trong ICU 20 giường.</figcaption>
+</figure>
+</div>
+<p>Ở kịch bản cơ sở, trung bình các lần chạy ngẫu nhiên (84%) thấp hơn mô hình tất định (85%) 0.7 điểm phần trăm. Khi trung bình ngẫu nhiên thấp hơn, lý do là khoa luôn kín giường nên <span class="math inline">\(U = N - C\)</span>; khi <span class="math inline">\(C\)</span> dao động, trung bình của tích <span class="math inline">\(U \cdot C\)</span> nhỏ hơn tích các trung bình, và lây truyền trung bình yếu đi. Quan trọng hơn, một khoa cụ thể có thể dao động trong khoảng rất rộng. Ở khoa ít CRE, mô hình tất định nói luôn có khoảng 1.3 người mang khuẩn. Mô hình ngẫu nhiên nói khoa không có ai mang CRE ở ngày 180 trong 47% số lần chạy.</p>
+<p>Cuối cùng, kiểm tra rằng mô hình tất định là giới hạn của mô hình ngẫu nhiên khi số giường lớn. Ta tăng số giường lên gấp 10 lần và so trung bình các lần chạy ngẫu nhiên với lời giải ODE.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Law of large numbers: in a 200-bed ward the stochastic mean tracks the ODE closely</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>pp_big <span class="ot">&lt;-</span> pp</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>pp_big<span class="sc">$</span>N <span class="ot">&lt;-</span> BIG_FACTOR <span class="sc">*</span> pp<span class="sc">$</span>N</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">305</span>)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>prev_big <span class="ot">&lt;-</span> <span class="fu">run_many</span>(pp_big, <span class="fu">y0_int</span>(pp_big, <span class="fl">0.2</span>), <span class="dv">50</span>, <span class="dv">60</span>)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>det_big <span class="ot">&lt;-</span> <span class="fu">run_ward_det</span>(pp_big, <span class="dv">60</span>, <span class="fu">ward_init</span>(pp_big, <span class="at">prev =</span> <span class="fl">0.2</span>))</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>gap_big <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(<span class="fu">rowMeans</span>(prev_big) <span class="sc">-</span> (det_big<span class="sc">$</span>Cu <span class="sc">+</span> det_big<span class="sc">$</span>Cp <span class="sc">+</span> det_big<span class="sc">$</span>Cd) <span class="sc">/</span> pp_big<span class="sc">$</span>N))</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>gap_big</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.01088598</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(gap_big <span class="sc">&lt;</span> <span class="fl">0.03</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Với khoa 200 giường, chênh lệch lớn nhất giữa hai đường chỉ là 1.1 điểm phần trăm.</p>
+<div class="callout callout-style-default callout-tip callout-titled" title="Mẹo thực hành">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mẹo thực hành
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li>Luôn viết phép kiểm tra bảo toàn số giường cho cả mô hình tất định lẫn ngẫu nhiên. Một dấu sai trong một dòng phương trình sẽ bị phát hiện ngay.</li>
+<li>Kiểm tra mã ngẫu nhiên bằng một kết quả lý thuyết đã biết, như xác suất tắt sớm <span class="math inline">\(1/R_A\)</span>, trước khi dùng nó cho câu hỏi mới.</li>
+<li>Báo cáo kết quả ngẫu nhiên bằng phân phối (khoảng, xác suất không có ca), không chỉ trung bình.</li>
+</ul>
+</div>
+</div>
+<div class="callout callout-style-default callout-warning callout-titled" title="Lỗi thường gặp">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lỗi thường gặp
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>Mô hình hóa nhiễm khuẩn thay vì định cư.</strong> Bỏ qua người mang khuẩn không triệu chứng sẽ đánh giá thấp lây truyền và đánh giá thấp lợi ích của sàng lọc.</li>
+<li><strong>Quên người mang khuẩn nhập vào từ ngoài.</strong> Mô hình khép kín sẽ dự báo loại trừ được CRE khi <span class="math inline">\(R_A &lt; 1\)</span>, điều không xảy ra khi người mang khuẩn vẫn liên tục nhập viện.</li>
+<li><strong>Dùng mô hình tất định để trả lời câu hỏi về bùng phát</strong> trong một khoa nhỏ. Xác suất “không có ca nào” hay “nhiều ca cùng lúc” chỉ trả lời được bằng mô hình ngẫu nhiên.</li>
+<li><strong>Gọi việc chỉnh <span class="math inline">\(\beta\)</span> cho khớp một con số là “hiệu chuẩn” hay “kiểm chứng”.</strong> Hiệu chuẩn cần mục tiêu, hàm khoảng cách và đánh giá độ bất định (M08); và một giá trị đã chọn theo số liệu thì không thể dùng chính số liệu đó để kiểm chứng. Bài này chỉ gọi là đối chiếu.</li>
+</ul>
+</div>
+</div>
+</section>
+<section id="bài-tập" class="level2">
+<h2 class="anchored" data-anchor-id="bài-tập">Bài tập</h2>
+<p><strong>Bài 1 (dễ).</strong> Giả sử mọi người mang CRE được phát hiện ngay khi nhập viện. PNTX phải giảm lây truyền ít nhất bao nhiêu để <span class="math inline">\(R_A\)</span> dưới 1?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Cần <span class="math inline">\(\beta(1-\varepsilon)/\mu &lt; 1\)</span>, tức <span class="math inline">\(\varepsilon &gt; 1 - \mu/\beta\)</span>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 1: smallest precaution effect that would push RA below 1 if every carrier</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="co"># were detected at once</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>eps_crit <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> pp<span class="sc">$</span>mu <span class="sc">/</span> pp<span class="sc">$</span>beta</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>eps_crit</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.7596154</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Where does the illustrative precaution effect sit relative to the threshold? (words for the text)</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>eps_rel <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">abs</span>(p<span class="sc">$</span>eps_cp <span class="sc">-</span> eps_crit) <span class="sc">&lt;</span> <span class="fl">0.005</span>) <span class="st">"vừa đúng bằng"</span> <span class="cf">else</span> <span class="cf">if</span> (p<span class="sc">$</span>eps_cp <span class="sc">&gt;</span> eps_crit) <span class="st">"cao hơn"</span> <span class="cf">else</span> <span class="st">"thấp hơn"</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>eps_consequence <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="fu">abs</span>(p<span class="sc">$</span>eps_cp <span class="sc">-</span> eps_crit) <span class="sc">&lt;</span> <span class="fl">0.005</span>) <span class="st">", nên khoa nằm ở ranh giới"</span> <span class="cf">else</span> <span class="cf">if</span> (p<span class="sc">$</span>eps_cp <span class="sc">&gt;</span> eps_crit) <span class="st">", nên $R_A$ xuống dưới 1 khi mọi người mang khuẩn được phát hiện"</span> <span class="cf">else</span> <span class="st">", nên $R_A$ vẫn trên 1 dù mọi người mang khuẩn được phát hiện"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>PNTX phải giảm lây truyền hơn 76%. Giá trị minh họa của <span class="math inline">\(\varepsilon\)</span> là 50%, thấp hơn ngưỡng này, nên <span class="math inline">\(R_A\)</span> vẫn trên 1 dù mọi người mang khuẩn được phát hiện.</p>
+</div>
+</div>
+</div>
+<p><strong>Bài 2 (vừa).</strong> Một ICU có tỷ lệ mang CRE khi nhập viện như các ICU nhi trong nghiên cứu của Garpvall và cộng sự, với cùng hệ số lây truyền và thời gian nằm ICU của bài. Tính tỷ lệ mang CRE lúc cân bằng và tỷ lệ ca mắc mới tránh được nhờ sàng lọc kèm PNTX.</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 2: an ICU whose admission prevalence matches the paediatric ICUs of</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Garpvall et al. (2021), with this lesson's transmission and length of stay</span></span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>phi_g <span class="ot">&lt;-</span> p<span class="sc">$</span>garpvall_adm_pos <span class="sc">/</span> p<span class="sc">$</span>garpvall_adm_n</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>pp_g <span class="ot">&lt;-</span> pp</span>
+<span id="cb38-5"><a href="#cb38-5" aria-hidden="true" tabindex="-1"></a>pp_g<span class="sc">$</span>phi <span class="ot">&lt;-</span> phi_g</span>
+<span id="cb38-6"><a href="#cb38-6" aria-hidden="true" tabindex="-1"></a>pp_g_scr <span class="ot">&lt;-</span> pp_scr</span>
+<span id="cb38-7"><a href="#cb38-7" aria-hidden="true" tabindex="-1"></a>pp_g_scr<span class="sc">$</span>phi <span class="ot">&lt;-</span> phi_g</span>
+<span id="cb38-8"><a href="#cb38-8" aria-hidden="true" tabindex="-1"></a>y_g <span class="ot">&lt;-</span> <span class="fu">ward_init</span>(pp_g)</span>
+<span id="cb38-9"><a href="#cb38-9" aria-hidden="true" tabindex="-1"></a>acq_g <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="at">usual =</span> <span class="fu">run_ward_det</span>(pp_g, DAYS, y_g)<span class="sc">$</span>Acq[DAYS <span class="sc">+</span> <span class="dv">1</span>],</span>
+<span id="cb38-10"><a href="#cb38-10" aria-hidden="true" tabindex="-1"></a>           <span class="at">screening =</span> <span class="fu">run_ward_det</span>(pp_g_scr, DAYS, y_g)<span class="sc">$</span>Acq[DAYS <span class="sc">+</span> <span class="dv">1</span>])</span>
+<span id="cb38-11"><a href="#cb38-11" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">phi =</span> phi_g, <span class="at">prev_eq =</span> <span class="fu">ward_equilibrium</span>(pp_g), acq_g,</span>
+<span id="cb38-12"><a href="#cb38-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">averted_share =</span> <span class="dv">1</span> <span class="sc">-</span> acq_g[[<span class="st">"screening"</span>]] <span class="sc">/</span> acq_g[[<span class="st">"usual"</span>]]), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          phi       prev_eq         usual     screening averted_share 
+        0.358         0.860       282.160       251.583         0.108 </code></pre>
+</div>
+</div>
+<p>Với <span class="math inline">\(\varphi\)</span> = 35.8%, khoa ổn định ở 86%. Sàng lọc kèm PNTX tránh được 11% số ca mắc mới, so với 11% ở ICU của bài (tỷ lệ mang khi nhập 30.8%). Hai con số gần như bằng nhau: khi nhiều người mang khuẩn từ ngoài vào hơn, sàng lọc khi nhập viện phát hiện được nhiều người hơn, nhưng cũng còn ít người chưa mang khuẩn để bảo vệ hơn, và hai tác động này gần như bù trừ nhau.</p>
+</div>
+</div>
+</div>
+<p><strong>Bài 3 (khó).</strong> Ở khoa ít CRE, so sánh số người mang khuẩn theo mô hình tất định với xác suất khoa không có ai mang khuẩn ở ngày cuối. Trưởng khoa kiểm soát nhiễm khuẩn nên dùng con số nào để lập kế hoạch?</p>
+<div class="callout callout-style-default callout-note callout-titled" title="Lời giải">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Lời giải
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Exercise 3: chance that the low-importation ward has no carrier on day 180,</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co"># vs what the deterministic model says</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a><span class="fu">round</span>(<span class="fu">c</span>(<span class="at">stochastic_p_zero =</span> p_zero_low,</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">deterministic_carriers =</span> last<span class="sc">$</span>det[last<span class="sc">$</span>scenario <span class="sc">==</span> <span class="st">"low"</span>] <span class="sc">*</span> pp<span class="sc">$</span>N), <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     stochastic_p_zero deterministic_carriers 
+                  0.47                   1.34 </code></pre>
+</div>
+</div>
+<p>Mô hình tất định cho 1.3 người mang khuẩn, một con số không bao giờ quan sát được; khoa trống CRE ở 47% số lần chạy. Cần cả hai: trung bình để dự trù vật tư PNTX, phân phối để chuẩn bị cho bùng phát.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="tài-liệu-tham-khảo" class="level2">
+<h2 class="anchored" data-anchor-id="tài-liệu-tham-khảo">Tài liệu tham khảo</h2>
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list" style="display: none">
+<div id="ref-bonten2001understanding" class="csl-entry" role="listitem">
+Bonten, M. J., D. J. Austin, và M. Lipsitch. 2001. <span>“Understanding the spread of antibiotic resistant pathogens in hospitals: mathematical models as tools for control”</span>. <em>Clinical Infectious Diseases</em> 33 (10): 1739–46. <a href="https://doi.org/10.1086/323761">https://doi.org/10.1086/323761</a>.
+</div>
+<div id="ref-byt2024qd3220" class="csl-entry" role="listitem">
+Bộ Y tế. 2024. <span>“Quyết định số 3220/<span>QĐ-BYT</span> ngày 01/11/2024 về giá dịch vụ khám bệnh, chữa bệnh áp dụng tại Bệnh viện Bạch Mai”</span>. 1 Tháng Mười-Một 2024. <a href="https://apicms.bachmai.gov.vn/documents/37204/1543632/8_Nov_2024_022948_GMTupload_00004592.pdf/b3ab6717-2151-db08-9913-3cfbfd7e0738">https://apicms.bachmai.gov.vn/documents/37204/1543632/8_Nov_2024_022948_GMTupload_00004592.pdf/b3ab6717-2151-db08-9913-3cfbfd7e0738</a>.
+</div>
+<div id="ref-cooper1999preliminary" class="csl-entry" role="listitem">
+Cooper, B. S., G. F. Medley, và G. M. Scott. 1999. <span>“Preliminary analysis of the transmission dynamics of nosocomial infections: stochastic and management effects”</span>. <em>Journal of Hospital Infection</em> 43 (2): 131–47. <a href="https://doi.org/10.1053/jhin.1998.0647">https://doi.org/10.1053/jhin.1998.0647</a>.
+</div>
+<div id="ref-doshi2026multidrug" class="csl-entry" role="listitem">
+Doshi, Jaslyn, Thai Duy Pham, Yen Ngoc Pham, Thuy Thu Ma, Linh Thuy Duong, Qingbin Li, Thanh Ha Nguyen, và c.s. 2026. <span>“Multidrug-resistant organism carriage in <span>Vietnamese</span> district hospitals before and after an antimicrobial stewardship intervention”</span>. <em>Antimicrobial Resistance and Infection Control</em> 15 (1). <a href="https://doi.org/10.1186/s13756-026-01752-5">https://doi.org/10.1186/s13756-026-01752-5</a>.
+</div>
+<div id="ref-garpvall2021admission" class="csl-entry" role="listitem">
+Garpvall, K., V. Duong, S. Linnros, T. N. Quốc, D. Mucchiano, S. Modeen, và c.s. 2021. <span>“Admission screening and cohort care decrease carbapenem resistant enterobacteriaceae in <span>Vietnamese</span> pediatric <span>ICU’s</span>”</span>. <em>Antimicrobial Resistance and Infection Control</em> 10 (1): 128. <a href="https://doi.org/10.1186/s13756-021-00994-9">https://doi.org/10.1186/s13756-021-00994-9</a>.
+</div>
+<div id="ref-grundmann2006mathematical" class="csl-entry" role="listitem">
+Grundmann, H., và B. Hellriegel. 2006. <span>“Mathematical modelling: a tool for hospital infection control”</span>. <em>The Lancet Infectious Diseases</em> 6 (1): 39–45. <a href="https://doi.org/10.1016/S1473-3099(05)70325-X">https://doi.org/10.1016/S1473-3099(05)70325-X</a>.
+</div>
+<div id="ref-phu2016burden" class="csl-entry" role="listitem">
+Phu, Vu Dinh, Heiman F L Wertheim, Mattias Larsson, Behzad Nadjm, Quynh-Dao Dinh, Lennart E Nilsson, Ulf Rydell, và c.s. 2016. <span>“Burden of Hospital Acquired Infections and Antimicrobial Use in <span>Vietnamese</span> Adult Intensive Care Units”</span>. <em>PLoS One</em> 11 (1): e0147544. <a href="https://doi.org/10.1371/journal.pone.0147544">https://doi.org/10.1371/journal.pone.0147544</a>.
+</div>
+<div id="ref-toan2024danhgia" class="csl-entry" role="listitem">
+Toàn, Nguyễn Quang, Nguyễn Thị Kim Phương, Bùi Tiến Sỹ, Nguyễn Thị Nghiên, Lê Thị Hằng, Nguyễn Thị Hằng, Lê Thị Hải Yến, và Đặng Thị Hạnh. 2024. <span>“Đánh giá hiệu quả một số biện pháp can thiệp nhằm làm giảm nhiễm khuẩn bệnh viện tại các đơn vị Hồi sức tích cực, Bệnh viện Trung ương Quân đội 108”</span>. <em>Tạp chí Y Dược lâm sàng 108</em> 19. <a href="https://doi.org/10.52389/ydls.v0i0.2296">https://doi.org/10.52389/ydls.v0i0.2296</a>.
+</div>
+<div id="ref-tomczyk2019control" class="csl-entry" role="listitem">
+Tomczyk, Sara, Veronica Zanichelli, M. Lindsay Grayson, Anthony Twyman, Mohamed Abbas, Daniela Pires, và c.s. 2019. <span>“Control of carbapenem-resistant <span>Enterobacteriaceae</span>, <span>Acinetobacter baumannii</span>, and <span>Pseudomonas aeruginosa</span> in healthcare facilities: a systematic review and reanalysis of quasi-experimental studies”</span>. <em>Clinical Infectious Diseases</em> 68 (5): 873–84. <a href="https://doi.org/10.1093/cid/ciy752">https://doi.org/10.1093/cid/ciy752</a>.
+</div>
+<div id="ref-tran2019high" class="csl-entry" role="listitem">
+Tran, Dien M., Mattias Larsson, Linus Olson, Ngoc T. B. Hoang, Ngai K. Le, Dung T. K. Khu, và c.s. 2019. <span>“High prevalence of colonisation with carbapenem-resistant <span>Enterobacteriaceae</span> among patients admitted to <span>Vietnamese</span> hospitals: risk factors and burden of disease”</span>. <em>Journal of Infection</em> 79 (2): 115–22. <a href="https://doi.org/10.1016/j.jinf.2019.05.013">https://doi.org/10.1016/j.jinf.2019.05.013</a>.
+</div>
+<div id="ref-vankleef2013modelling" class="csl-entry" role="listitem">
+van Kleef, Esther, Julie V. Robotham, Mark Jit, Sarah R. Deeny, và William J. Edmunds. 2013. <span>“Modelling the transmission of healthcare associated infections: a systematic review”</span>. <em>BMC Infectious Diseases</em> 13: 294. <a href="https://doi.org/10.1186/1471-2334-13-294">https://doi.org/10.1186/1471-2334-13-294</a>.
+</div>
+<div id="ref-vov2023hangdacbiet" class="csl-entry" role="listitem">
+VOV. 2023. <span>“Đề xuất nâng cấp bệnh viện hạng đặc biệt”</span>. 2 Tháng Tám 2023. <a href="https://vov.vn/suc-khoe/de-xuat-nang-cap-benh-vien-hang-dac-biet-post1036625.vov">https://vov.vn/suc-khoe/de-xuat-nang-cap-benh-vien-hang-dac-biet-post1036625.vov</a>.
+</div>
+</div>
+<div class="video-script">
+<div class="callout callout-style-simple callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Kịch bản video (~15 phút)
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>#</th>
+<th>Slide</th>
+<th>Lời giảng chính</th>
+<th>Hình/Code</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Bệnh viện không phải cộng đồng</td>
+<td>Nhỏ, luân chuyển nhanh, có người mang khuẩn nhập từ ngoài; ICU 108: nhập 31%, rời ICU 85%</td>
+<td>Tham số <code>phi_adm</code>, <code>toan_prev_discharge</code></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Định cư là đơn vị lây truyền</td>
+<td>Người mang không triệu chứng; nhiễm khuẩn là “phần nổi”</td>
+<td>Sơ đồ Mermaid</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Các ngăn và phương trình</td>
+<td>U, Cu, Cd; luôn kín giường; lực lây nhiễm λ</td>
+<td>Hệ phương trình</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Cân bằng và R_A</td>
+<td>Nghiệm bậc hai; φ &gt; 0 thì không loại trừ được</td>
+<td><code>l03-equilibrium</code></td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Đối chiếu với số liệu</td>
+<td>β chọn gần đúng theo tỷ lệ mang khi rời ICU nên chưa phải kiểm chứng độc lập; chưa phải hiệu chuẩn</td>
+<td><code>figs/l03-face-validity.png</code></td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>Sàng lọc + PNTX</td>
+<td>Độ nhạy, tần suất, mức giảm lây truyền</td>
+<td><code>l03-screening</code></td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>Gillespie trong 4 bước</td>
+<td>Tốc độ, thời gian chờ, chọn sự kiện, cập nhật</td>
+<td><code>ward_gillespie()</code> trong <code>model.R</code></td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>Kiểm tra 1/R_A</td>
+<td>Một người mang khuẩn vào khoa trống; khoa nhỏ so với khoa 200 giường</td>
+<td><code>l03-introduction</code>, <code>l03-extinction-large</code></td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>Tất định so với ngẫu nhiên</td>
+<td>Cùng trung bình, khác phân phối; khoa ít CRE kiểu tuyến huyện</td>
+<td><code>figs/l03-det-vs-stoch.png</code></td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>Khoa lớn</td>
+<td>Luật số lớn: ODE là giới hạn</td>
+<td><code>l03-large-ward</code></td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>Tóm tắt</td>
+<td>Sang Bài 4: chủng nhạy và chủng kháng cạnh tranh</td>
+<td>Hộp “Lỗi thường gặp”</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../kb/m06-amr-economics/l02-attributable-los.html" class="pagination-link" aria-label="Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-title">Bài 2: Thời gian nằm viện và chi phí quy thuộc: sai lệch phụ thuộc thời gian</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../kb/m06-amr-economics/l04-two-strain-selection.html" class="pagination-link" aria-label="Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng">
+        <span class="nav-page-text"><span class="chapter-title">Bài 4: Cạnh tranh giữa chủng nhạy và chủng kháng</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
